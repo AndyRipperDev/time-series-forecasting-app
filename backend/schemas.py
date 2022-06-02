@@ -41,3 +41,15 @@ class RoleSchema(Role):
 
 class UserSchema(User):
     roles: list[Role] = []
+
+
+class UserUpdateSchema(BaseModel):
+    email: str | None = None
+    first_name: str | None = None
+    last_name: str | None = None
+    is_active: bool | None = None
+
+
+class RoleUpdateSchema(BaseModel):
+    title: str | None = None
+    description: str | None = None
