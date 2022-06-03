@@ -45,6 +45,7 @@ def delete_user(db: Session, user: models.User):
         result = False
     return result
 
+
 def get_roles(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Role).offset(skip).limit(limit).all()
 
