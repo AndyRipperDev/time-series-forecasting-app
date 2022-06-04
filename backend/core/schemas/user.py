@@ -1,9 +1,5 @@
 from pydantic import BaseModel
-
-
-class RoleBase(BaseModel):
-    title: str
-    description: str | None = None
+import core.schemas.role as role
 
 
 class UserBase(BaseModel):
@@ -12,19 +8,8 @@ class UserBase(BaseModel):
     last_name: str
 
 
-class RoleCreate(RoleBase):
-    pass
-
-
 class UserCreate(UserBase):
     password: str
-
-
-class Role(RoleBase):
-    id: int
-
-    class Config:
-        orm_mode = True
 
 
 class User(UserBase):
@@ -35,12 +20,8 @@ class User(UserBase):
         orm_mode = True
 
 
-class RoleSchema(Role):
-    users: list[User] = []
-
-
 class UserSchema(User):
-    roles: list[Role] = []
+    roles: list[role.Role] = []
 
 
 class UserUpdateSchema(BaseModel):
@@ -48,8 +29,3 @@ class UserUpdateSchema(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
     is_active: bool | None = None
-
-
-class RoleUpdateSchema(BaseModel):
-    title: str | None = None
-    description: str | None = None

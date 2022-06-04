@@ -1,7 +1,7 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, func, Table
 from sqlalchemy.orm import relationship
 
-from database import Base
+from core.models.database import Base
 
 user_role_association_table = Table(
     "user_role",
@@ -9,17 +9,6 @@ user_role_association_table = Table(
     Column("user_id", ForeignKey("user.id"), primary_key=True),
     Column("role_id", ForeignKey("role.id"), primary_key=True),
 )
-
-
-class Role(Base):
-    __tablename__ = "role"
-
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String(50), nullable=False, index=True)
-    description = Column(String(250))
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-
 
 class User(Base):
     __tablename__ = "user"
