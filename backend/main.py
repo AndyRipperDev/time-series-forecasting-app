@@ -1,5 +1,6 @@
 from fastapi import FastAPI, status
 
+from core.config import settings
 from core.models import role as role_model
 from core.models import user as user_model
 
@@ -10,7 +11,7 @@ from api.v1.api import api_router
 role_model.Base.metadata.create_all(bind=engine)
 user_model.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(title=settings.APP_NAME)
 
 
 app.include_router(api_router)
