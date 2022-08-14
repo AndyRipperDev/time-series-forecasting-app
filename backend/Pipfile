@@ -9,6 +9,9 @@ uvicorn = {extras = ["standard"], version = "*"}
 sqlalchemy = "*"
 mariadb = "*"
 bcrypt = "*"
+passlib = "*"
+python-jose = {extras = ["cryptography"], version = "*"}
+python-multipart = "*"
 
 [dev-packages]
 
