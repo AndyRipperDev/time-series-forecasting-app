@@ -8,6 +8,9 @@ node_modules
 #ide
 .idea
 
+#cache
+**/__pycache__
+
 # testing
 /coverage
 
