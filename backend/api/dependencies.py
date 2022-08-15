@@ -1,5 +1,5 @@
-from core.crud.user import get_user_by_email
-from core.models.database import SessionLocal
+from core.crud.user import get_by_email
+from core.db.session import SessionLocal
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
@@ -34,7 +34,7 @@ async def get_current_user(db: Session = Depends(get_db), token: str = Depends(o
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    user = get_user_by_email(db, email=token_data.username)
+    user = get_by_email(db, email=token_data.username)
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user
