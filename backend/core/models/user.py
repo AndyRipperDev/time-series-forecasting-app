@@ -1,7 +1,7 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, func, Table
 from sqlalchemy.orm import relationship
 
-from core.models.database import Base
+from core.db.base_class import Base
 
 user_role_association_table = Table(
     "user_role",
@@ -10,9 +10,8 @@ user_role_association_table = Table(
     Column("role_id", ForeignKey("role.id"), primary_key=True),
 )
 
-class User(Base):
-    __tablename__ = "user"
 
+class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(50), unique=True, index=True)
     first_name = Column(String(50))

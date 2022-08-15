@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from core import security
-from core.crud.user import authenticate_user
+from core.crud.user import authenticate
 from core.schemas.token import Token
 from core.config import settings
 from core.schemas import user as user_schema
@@ -24,7 +24,7 @@ def login_access_token(db: Session = Depends(dependencies.get_db), form_data: OA
     """
     OAuth2 compatible token login, get an access token for future requests
     """
-    db_user = authenticate_user(db, email=form_data.username, password=form_data.password)
+    db_user = authenticate(db, email=form_data.username, password=form_data.password)
     if not db_user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
