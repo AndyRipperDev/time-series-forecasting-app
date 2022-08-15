@@ -4,7 +4,10 @@ from core.db.session import SessionLocal
 
 def init() -> None:
     db = SessionLocal()
-    init_db(db)
+    try:
+        init_db(db)
+    finally:
+        db.close()
 
 
 def main() -> None:
