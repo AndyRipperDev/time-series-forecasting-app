@@ -1,37 +1,61 @@
-import TextInput from './TextInput'
 import { Link } from 'react-router-dom'
+import FormInput from './FormInput'
+import { useUserActions } from '../actions'
+import { useState } from 'react'
+import BasicForm from './BasicForm'
 
+
+// function SignUpForm({ history, submit, label }) {
 function SignUpForm() {
+  const userActions = useUserActions();
+
+  const [form, setForm] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (event) => {
+    setForm({ ...form, [event.target.name]: event.target.value });
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    return userActions.signup(form)
+  };
+
   return (
-    <div className="w-96">
-      <div className="card w-96 bg-base-200 shadow-xl">
-        <div className="card-body">
-          <h2 className="text-center text-2xl font-bold mb-8">Sign Up</h2>
-          <TextInput label={'First Name'} type={'text'} forId={'firstNameId'} />
-          <TextInput label={'Last Name'} type={'text'} forId={'lastNameId'} />
-          <TextInput label={'E-Mail'} type={'email'} forId={'emailId'} />
-          <TextInput
-            label={'Password'}
-            type={'password'}
-            forId={'passwordId'}
-          />
-          <TextInput
-            label={'Password Again'}
-            type={'password'}
-            forId={'passwordCheckId'}
-          />
-          <div className="card-actions mt-16">
-            <button className="btn btn-primary btn-block">Sign Up</button>
-            <p className="text-center mt-16">
-              Already have an account?{' '}
-              <Link to="/login" className="link link-primary">
-                Login Here
-              </Link>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <BasicForm
+      onSubmit={handleSubmit}
+      heading={'Sign Up'}
+      action={'Sign Up'}
+      details={<p>Already have an account? <Link to="/login" className="link link-primary">Log In Here</Link></p>}
+    >
+      <FormInput
+        label={'Full Name'}
+        type={'text'}
+        name={'fullName'}
+        forId={'fullNameId'}
+        value={form.fullName}
+        onChange={handleChange}
+      />
+      <FormInput
+        label={'E-Mail'}
+        type={'email'}
+        name={'email'}
+        forId={'emailId'}
+        value={form.email}
+        onChange={handleChange}
+      />
+      <FormInput
+        label={'Password'}
+        type={'password'}
+        name={'password'}
+        forId={'passwordId'}
+        value={form.password}
+        onChange={handleChange}
+      />
+    </BasicForm>
   )
 }
 

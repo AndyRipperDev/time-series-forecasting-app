@@ -19,8 +19,7 @@ def get_by_email(db: Session, email: str):
 
 
 def create(db: Session, user: user_schema.UserCreate):
-    db_user = user_model.User(email=user.email, first_name=user.first_name, last_name=user.last_name,
-                              hashed_password=security.get_password_hash(user.password))
+    db_user = user_model.User(email=user.email, full_name=user.full_name, hashed_password=security.get_password_hash(user.password))
     db.add(db_user)
     db.commit()
     db.refresh(db_user)

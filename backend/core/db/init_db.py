@@ -25,8 +25,7 @@ def init_db(db: Session) -> None:
         user_in = user_schema.UserCreate(
             email=settings.FIRST_SUPERUSER_EMAIL,
             password=settings.FIRST_SUPERUSER_PASSWORD,
-            first_name=settings.FIRST_SUPERUSER_FIRST_NAME,
-            last_name=settings.FIRST_SUPERUSER_LAST_NAME,
+            full_name=settings.FIRST_SUPERUSER_FULL_NAME,
         )
         user_db = user_crud.create(db=db, user=user_in)
         user_crud.add_role(db, db_user=user_db, db_role=role_db)
