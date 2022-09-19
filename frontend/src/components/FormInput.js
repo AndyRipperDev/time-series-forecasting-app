@@ -7,14 +7,18 @@ const FormInput = (props) => {
         </span>
       </label>
       <input
-        name = {props.name}
+        name={props.name}
         type={props.type}
         id={props.forId}
         placeholder={'Type your ' + props.label.toLowerCase() + ' here...'}
         className="input input-bordered w-full max-w-xs"
         value={props.value}
         onChange={props.onChange}
+        {...props.registerHookForm}
       />
+      {props.errorMessage && (
+        <div className="text-red-500 mt-1">{props.errorMessage}</div>
+      )}
     </div>
   )
 }
