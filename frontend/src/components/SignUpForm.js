@@ -3,57 +3,70 @@ import FormInput from './FormInput'
 import { useUserActions } from '../actions'
 import { useState } from 'react'
 import BasicForm from './BasicForm'
-
+import * as Yup from 'yup'
+import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
+import { useForm } from 'react-hook-form'
 
 // function SignUpForm({ history, submit, label }) {
 function SignUpForm() {
-  const userActions = useUserActions();
+  const userActions = useUserActions()
 
-  const [form, setForm] = useState({
-    fullName: "",
-    email: "",
-    password: "",
-  });
+  const validationSchema = Yup.object().shape({
+    fullName: Yup.string().required('Full Name is required'),
+    email: Yup.string()
+      .required('Email is required')
+      .email('Enter a valid email'),
+    password: Yup.string()
+      .required('Password is required')
+      .min(6, 'Password must be at least 6 characters'),
+  })
+  const formOptions = { resolver: yupResolver(validationSchema) }
 
-  const handleChange = (event) => {
-    setForm({ ...form, [event.target.name]: event.target.value });
-  };
+  const { register, handleSubmit, setError, formState } = useForm(formOptions)
+  const { errors, isSubmitting } = formState
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    return userActions.signup(form)
-  };
+  function onSubmit(data) {
+    return userActions.signup(data)
+  }
 
   return (
     <BasicForm
-      onSubmit={handleSubmit}
+      onSubmit={handleSubmit(onSubmit)}
+      isSubmitting={isSubmitting}
       heading={'Sign Up'}
       action={'Sign Up'}
-      details={<p>Already have an account? <Link to="/login" className="link link-primary">Log In Here</Link></p>}
+      details={
+        <p>
+          Already have an account?{' '}
+          <Link to="/login" className="link link-primary">
+            Log In Here
+          </Link>
+        </p>
+      }
     >
       <FormInput
         label={'Full Name'}
         type={'text'}
         name={'fullName'}
         forId={'fullNameId'}
-        value={form.fullName}
-        onChange={handleChange}
+        registerHookForm={register('fullName')}
+        errorMessage={errors.fullName?.message}
       />
       <FormInput
         label={'E-Mail'}
         type={'email'}
         name={'email'}
         forId={'emailId'}
-        value={form.email}
-        onChange={handleChange}
+        registerHookForm={register('email')}
+        errorMessage={errors.email?.message}
       />
       <FormInput
         label={'Password'}
         type={'password'}
         name={'password'}
         forId={'passwordId'}
-        value={form.password}
-        onChange={handleChange}
+        registerHookForm={register('password')}
+        errorMessage={errors.password?.message}
       />
     </BasicForm>
   )
