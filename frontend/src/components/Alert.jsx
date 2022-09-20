@@ -6,7 +6,7 @@ import useOnLocationChange from '../helpers/locationChange'
 
 export { Alert }
 
-function Alert() {
+const Alert = () => {
   const alert = useRecoilValue(alertAtom)
   const alertActions = useAlertActions()
   useOnLocationChange(alertActions.clear)

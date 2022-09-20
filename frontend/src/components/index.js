@@ -1,2 +1,2 @@
-export * from './Nav';
-export * from './PrivateRoute';
+export * from './Nav/Nav'
+export * from './Nav/PrivateRoute'

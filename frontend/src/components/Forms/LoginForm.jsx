@@ -1,16 +1,15 @@
 import { Link } from 'react-router-dom'
-import { useUserActions } from 'actions'
-import FormInput from './FormInput'
+import { useUserService } from 'services'
+import FormInput from '../FormInput'
 import BasicForm from './BasicForm'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as Yup from 'yup'
 
 // function LoginForm({ history, submit, label }) {
-function LoginForm() {
-  const userActions = useUserActions()
+const LoginForm = () => {
+  const userService = useUserService()
 
-  // form validation rules
   const validationSchema = Yup.object().shape({
     email: Yup.string()
       .required('Email is required')
@@ -23,7 +22,7 @@ function LoginForm() {
   const { errors, isSubmitting } = formState
 
   function onSubmit({ email, password }) {
-    return userActions.login(email, password)
+    return userService.login(email, password)
   }
 
   return (

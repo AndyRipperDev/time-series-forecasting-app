@@ -1,10 +1,13 @@
-import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 
-const useOnLocationChange = (handleLocationChange: any) => {
-  const location = useLocation();
+const useOnLocationChange = (handleLocationChange) => {
+  const location = useLocation()
 
-  useEffect(() => handleLocationChange(location), [location, handleLocationChange]);
-};
+  useEffect(
+    () => handleLocationChange(location),
+    [location, handleLocationChange]
+  )
+}
 
-export default useOnLocationChange;
+export default useOnLocationChange

@@ -2,15 +2,15 @@ import { useEffect } from 'react'
 import { useRecoilValue } from 'recoil'
 
 import { authAtom, usersAtom } from 'state'
-import { useUserActions } from 'actions'
+import { useUserService } from '../services'
 
-function Page() {
+const HomePage = () => {
   const auth = useRecoilValue(authAtom)
   const users = useRecoilValue(usersAtom)
-  const userActions = useUserActions()
+  const userService = useUserService()
 
   useEffect(() => {
-    userActions.getAll()
+    userService.getAll()
   }, [])
 
   return (
@@ -29,4 +29,4 @@ function Page() {
   )
 }
 
-export default Page
+export default HomePage
