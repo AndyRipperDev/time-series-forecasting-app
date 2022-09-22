@@ -3,10 +3,14 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      transitionProperty: {
+        'width': 'width'
+      },
+    },
   },
   plugins: [require("@tailwindcss/typography"), require("daisyui")],
   daisyui: {
-    themes: ["light", "dark", "synthwave", "retro", "cyberpunk", "dracula", "night", "coffee", "winter"],
+    themes: ["light", "dark", "emerald", "dracula", "night", "winter"],
   },
 }
