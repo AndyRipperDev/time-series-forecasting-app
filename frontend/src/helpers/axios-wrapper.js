@@ -38,7 +38,6 @@ function useAxiosWrapper() {
       localStorage.removeItem('user')
       setAuth(null)
       history.navigate('/login')
-      alertActions.error('Unauthorized. Please Log In')
     }
 
     const errorMessage =

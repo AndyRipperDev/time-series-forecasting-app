@@ -3,7 +3,6 @@ import { useRecoilValue } from 'recoil'
 import { alertAtom } from 'state'
 import { useAlertActions } from 'actions'
 import useOnLocationChange from '../helpers/locationChange'
-
 export { Alert }
 
 const Alert = () => {
@@ -15,7 +14,7 @@ const Alert = () => {
 
   return (
     <div
-      className={`alert ${alert.type} shadow-lg md:w-3/5 w-4/5 mx-auto my-8 inset-x-0 z-10 absolute`}
+      className={`alert ${alert.type} shadow-lg xl:w-2/5 md:w-3/5 w-4/5 mx-auto my-8 inset-x-0 z-10 absolute`}
     >
       <div>
         {alert.type === alertActions.AlertTypes.Success && (
@@ -95,7 +94,7 @@ const Alert = () => {
         )}
         <span>{alert.message}</span>
       </div>
-      <div className="flex-none">
+      <div className="flex-none ">
         <button className="btn btn-square" onClick={alertActions.clear}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
