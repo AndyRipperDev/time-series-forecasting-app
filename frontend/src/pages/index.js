@@ -1,0 +1,6 @@
+export * from './DashboardPage'
+export * from './SettingsPage'
+export * from './ProjectsPage'
+export * from './HomePage'
+export * from './LoginPage'
+export * from './SignUpPage'

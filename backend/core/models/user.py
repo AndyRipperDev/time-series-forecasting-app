@@ -14,8 +14,7 @@ user_role_association_table = Table(
 class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(50), unique=True, index=True)
-    first_name = Column(String(50))
-    last_name = Column(String(50))
+    full_name = Column(String(70))
     hashed_password = Column(String(128))
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
