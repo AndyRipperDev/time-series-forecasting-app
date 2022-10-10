@@ -17,6 +17,10 @@ import { Alert } from './components/Alert'
 import SettingsPage from './pages/SettingsPage'
 import ProjectsPage from './pages/ProjectsPage'
 import DashboardPage from './pages/DashboardPage'
+import GeneralSettingsPage from './pages/GeneralSettingsPage'
+import UsersManagePage from './pages/UsersManagePage'
+import RolesManagePage from './pages/RolesManagePage'
+import { AdminRoute } from './components/Nav/AdminRoute'
 
 function App() {
   history.navigate = useNavigate()
@@ -46,6 +50,30 @@ function App() {
               <PrivateRoute>
                 <SettingsPage />
               </PrivateRoute>
+            }
+          />
+          <Route
+            path="/settings/general"
+            element={
+              <PrivateRoute>
+                <GeneralSettingsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/settings/users"
+            element={
+              <AdminRoute>
+                <UsersManagePage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/settings/roles"
+            element={
+              <AdminRoute>
+                <RolesManagePage />
+              </AdminRoute>
             }
           />
           <Route

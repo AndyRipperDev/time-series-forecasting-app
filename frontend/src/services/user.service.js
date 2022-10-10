@@ -18,6 +18,10 @@ function useUserService() {
     login,
     logout,
     signup,
+    hasLoggedInUserRole,
+    isLoggedInUserAdmin,
+    isLoggedInUserCreator,
+    isLoggedInUserViewer,
     getAll,
     getById,
     update,
@@ -66,6 +70,29 @@ function useUserService() {
     if (auth) {
       handleLoginResponse(auth)
     }
+  }
+
+  function hasLoggedInUserRole(role) {
+    if (!auth) return false
+
+    for (let i = 0; i < auth?.user?.roles?.length; i++) {
+      if (auth?.user?.roles[i]?.title.toLowerCase() === role.toLowerCase()) {
+        return true
+      }
+    }
+    return false
+  }
+
+  function isLoggedInUserAdmin() {
+    return hasLoggedInUserRole('Admin')
+  }
+
+  function isLoggedInUserCreator() {
+    return hasLoggedInUserRole('Creator')
+  }
+
+  function isLoggedInUserViewer() {
+    return hasLoggedInUserRole('Viewer')
   }
 
   function getAll() {
