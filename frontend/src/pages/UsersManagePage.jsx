@@ -22,7 +22,28 @@ const UsersManagePage = () => {
         <LoadingPage />
       ) : (
         <div className="my-2 md:my-4 mx-4 md:mx-10">
-          <TextHeading>Users</TextHeading>
+          <div className={'flex space-x-6'}>
+            <TextHeading>Users</TextHeading>
+            <Link
+              to={`/settings/role/add`}
+              className="btn btn-square btn-sm btn-outline text-blue-500 hover:bg-blue-500 hover:text-primary-content hover:border-blue-500"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+            </Link>
+          </div>
           {users && (
             <div className="overflow-x-auto relative shadow-xl rounded-xl">
               <table className="w-full text-sm text-left">
