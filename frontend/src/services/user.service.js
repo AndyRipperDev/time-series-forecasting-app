@@ -103,7 +103,10 @@ function useUserService() {
   }
 
   function getById(id) {
-    return forecastApi.get(`${urlPartUsers}/${id}`).then(setUser)
+    return forecastApi
+      .get(`${urlPartUsers}/${id}`)
+      .then((response) => response.data)
+      .then(setUser)
   }
 
   function create(user) {

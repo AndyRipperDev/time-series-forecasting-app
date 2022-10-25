@@ -11,13 +11,17 @@ const FormInput = (props) => {
         type={props.type}
         id={props.forId}
         placeholder={'Type your ' + props.label.toLowerCase() + ' here...'}
-        className="input input-bordered w-full max-w-xs"
+        className={`${
+          props.type === 'checkbox'
+            ? 'checkbox checkbox-primary'
+            : 'input input-bordered w-full max-w-xs'
+        }`}
         value={props.value}
         onChange={props.onChange}
         {...props.registerHookForm}
       />
       {props.errorMessage && (
-        <div className="text-red-500 mt-1">{props.errorMessage}</div>
+        <div className="text-red-500 mt-1 text-left">{props.errorMessage}</div>
       )}
     </div>
   )

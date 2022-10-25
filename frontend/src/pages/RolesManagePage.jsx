@@ -24,7 +24,7 @@ const RolesManagePage = () => {
           <div className={'flex space-x-6'}>
             <TextHeading>Roles</TextHeading>
             <Link
-              to={`/settings/role/add`}
+              to={`/settings/roles/add`}
               className="btn btn-square btn-sm btn-outline text-blue-500 hover:bg-blue-500 hover:text-primary-content hover:border-blue-500"
             >
               <svg
@@ -72,7 +72,7 @@ const RolesManagePage = () => {
                       <td className="py-5 px-6 md:px-8">{role.description}</td>
                       <td className="flex items-center py-5 px-6 md:px-8 md:space-x-6 space-x-3">
                         <Link
-                          to={`/settings/role/${role.id}/edit`}
+                          to={`/settings/roles/edit/${role.id}`}
                           className="btn btn-square btn-sm btn-outline text-blue-500 hover:bg-blue-500 hover:text-primary-content hover:border-blue-500"
                         >
                           <svg

@@ -25,7 +25,7 @@ const UsersManagePage = () => {
           <div className={'flex space-x-6'}>
             <TextHeading>Users</TextHeading>
             <Link
-              to={`/settings/role/add`}
+              to={`/settings/users/add`}
               className="btn btn-square btn-sm btn-outline text-blue-500 hover:bg-blue-500 hover:text-primary-content hover:border-blue-500"
             >
               <svg
@@ -94,7 +94,7 @@ const UsersManagePage = () => {
                       </td>
                       <td className="flex items-center py-5 px-6 md:px-8 md:space-x-6 space-x-3">
                         <Link
-                          to={`/settings/user/${user.id}/edit`}
+                          to={`/settings/users/edit/${user.id}`}
                           className="btn btn-square btn-sm btn-outline text-blue-500 hover:bg-blue-500 hover:text-primary-content hover:border-blue-500"
                         >
                           <svg

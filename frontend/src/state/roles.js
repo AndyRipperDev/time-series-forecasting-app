@@ -5,4 +5,9 @@ const rolesAtom = atom({
   default: null,
 })
 
-export { rolesAtom }
+const roleAtom = atom({
+  key: 'role',
+  default: null,
+})
+
+export { rolesAtom, roleAtom }

@@ -1,21 +1,24 @@
 import { useSetRecoilState, useRecoilState, useResetRecoilState } from 'recoil'
 
 import { history, useAxiosWrapper } from '../helpers'
-import { authAtom, rolesAtom } from '../state'
+import { authAtom, roleAtom, rolesAtom, userAtom } from '../state'
 
 export { useRoleService }
 
 function useRoleService() {
   const urlPartRoles = '/roles'
   const setRoles = useSetRecoilState(rolesAtom)
+  const setRole = useSetRecoilState(roleAtom)
   const forecastApi = useAxiosWrapper().forecastApi
 
   return {
     getAll,
+    getById,
     update,
     create,
     delete: _delete,
     resetRoles: useResetRecoilState(rolesAtom),
+    resetRole: useResetRecoilState(roleAtom),
   }
 
   function getAll() {
@@ -23,6 +26,13 @@ function useRoleService() {
       .get(urlPartRoles)
       .then((response) => response.data)
       .then(setRoles)
+  }
+
+  function getById(id) {
+    return forecastApi
+      .get(`${urlPartRoles}/${id}`)
+      .then((response) => response.data)
+      .then(setRole)
   }
 
   function create(role) {

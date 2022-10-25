@@ -21,6 +21,8 @@ import GeneralSettingsPage from './pages/GeneralSettingsPage'
 import UsersManagePage from './pages/UsersManagePage'
 import RolesManagePage from './pages/RolesManagePage'
 import { AdminRoute } from './components/Nav/AdminRoute'
+import { UserAddEditPage } from './pages/UserAddEditPage'
+import { RoleAddEditPage } from './pages/RoleAddEditPage'
 
 function App() {
   history.navigate = useNavigate()
@@ -69,10 +71,42 @@ function App() {
             }
           />
           <Route
+            path="/settings/users/add"
+            element={
+              <AdminRoute>
+                <UserAddEditPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/settings/users/edit/:id"
+            element={
+              <AdminRoute>
+                <UserAddEditPage />
+              </AdminRoute>
+            }
+          />
+          <Route
             path="/settings/roles"
             element={
               <AdminRoute>
                 <RolesManagePage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/settings/roles/add"
+            element={
+              <AdminRoute>
+                <RoleAddEditPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/settings/roles/edit/:id"
+            element={
+              <AdminRoute>
+                <RoleAddEditPage />
               </AdminRoute>
             }
           />
