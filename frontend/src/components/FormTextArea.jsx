@@ -1,4 +1,4 @@
-const FormInput = (props) => {
+const FormTextArea = (props) => {
   return (
     <div className="form-control w-full max-w-xs">
       <label className="label" htmlFor={props.forId}>
@@ -6,20 +6,15 @@ const FormInput = (props) => {
           {props.label}
         </span>
       </label>
-      <input
+      <textarea
         name={props.name}
-        type={props.type}
         id={props.forId}
         placeholder={'Type your ' + props.label.toLowerCase() + ' here...'}
-        className={`${
-          props.type === 'checkbox'
-            ? 'checkbox checkbox-primary'
-            : 'input input-bordered w-full max-w-xs'
-        }`}
         value={props.value}
         onChange={props.onChange}
         {...props.registerHookForm}
-      />
+        className="textarea textarea-bordered h-24"
+      ></textarea>
       {props.errorMessage && (
         <div className="text-red-500 mt-1 text-left">{props.errorMessage}</div>
       )}
@@ -27,4 +22,4 @@ const FormInput = (props) => {
   )
 }
 
-export default FormInput
+export default FormTextArea

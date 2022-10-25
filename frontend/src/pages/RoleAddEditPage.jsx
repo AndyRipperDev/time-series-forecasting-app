@@ -12,6 +12,7 @@ import BasicForm from '../components/Forms/BasicForm'
 import LoadingPage from '../components/Loadings/LoadingPage'
 import { history } from '../helpers'
 import { useRoleService } from '../services/role.service'
+import FormTextArea from '../components/FormTextArea'
 
 export { RoleAddEditPage }
 
@@ -90,9 +91,8 @@ function RoleAddEditPage() {
               registerHookForm={register('title')}
               errorMessage={errors.title?.message}
             />
-            <FormInput
+            <FormTextArea
               label={'Description'}
-              type={'text'}
               name={'description'}
               forId={'descriptionId'}
               registerHookForm={register('description')}
