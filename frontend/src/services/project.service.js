@@ -17,6 +17,7 @@ function useProjectService() {
     getById,
     update,
     create,
+    uploadFile,
     delete: _delete,
     resetProjects: useResetRecoilState(projectsAtom),
     resetProject: useResetRecoilState(projectAtom),
@@ -48,6 +49,17 @@ function useProjectService() {
       title: project.title,
       description: project.description,
     })
+  }
+
+  function uploadFile(file) {
+    const formData = new FormData()
+    formData.append('file',file)
+    const config = {
+      headers: {
+        'content-type': 'multipart/form-data'
+      }
+    }
+    return forecastApi.post(urlPartProjects + '/upload', formData, config)
   }
 
   function update(id, params) {

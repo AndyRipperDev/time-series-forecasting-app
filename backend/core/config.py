@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     SQLALCHEMY_DATABASE_URI: str = DB_CONNECTOR + "://" + DB_USER + (
         (":" + DB_PASSWORD) if DB_PASSWORD != "" else DB_PASSWORD) + "@" + DB_SERVER + ":" + str(DB_PORT) + "/" + DB_NAME
 
+    FILE_STORAGE_DIR = "data/user_data"
+
     FIRST_SUPERUSER_EMAIL: str = "test@test.com"
     FIRST_SUPERUSER_PASSWORD: str = "Test"
     FIRST_SUPERUSER_FULL_NAME: str = "Admin"

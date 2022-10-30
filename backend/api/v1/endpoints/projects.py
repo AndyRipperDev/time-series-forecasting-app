@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile
 
+from pathlib import Path
 from sqlalchemy.orm import Session
 
+from core.config import settings
 from core.crud import project as project_crud
 from core.schemas import project as project_schema
 from core.models import user as user_model
@@ -12,6 +14,16 @@ router = APIRouter(
     prefix="/projects",
     tags=["projects"]
 )
+
+
+@router.post('/upload')
+async def upload_file(file: UploadFile, current_user: user_model.User = Depends(dependencies.get_current_active_user)):
+    file_path = Path(settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/')
+    file_path.mkdir(parents=True, exist_ok=True)
+
+    path = file_path / file.filename
+    size = path.write_bytes(await file.read())
+    return {'file': path, 'bytes': size}
 
 
 @router.post("/", response_model=project_schema.ProjectSchema, status_code=status.HTTP_201_CREATED)

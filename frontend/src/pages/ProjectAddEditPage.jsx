@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -23,6 +23,15 @@ function ProjectAddEditPage() {
   const alertActions = useAlertActions()
   const project = useRecoilValue(projectAtom)
 
+  const [file, setFile] = useState({
+    file: null,
+  });
+
+  const handleFileChange = (event) => {
+    setFile({file:event.target.files[0]})
+  };
+
+
   // form validation rules
   const validationSchema = Yup.object().shape({
     title: Yup.string().required('Title is required'),
@@ -34,6 +43,7 @@ function ProjectAddEditPage() {
   // get functions to build form with useForm() hook
   const { register, handleSubmit, reset, formState } = useForm(formOptions)
   const { errors, isSubmitting } = formState
+
 
   useEffect(() => {
     // fetch user details into recoil state in edit mode
@@ -55,11 +65,26 @@ function ProjectAddEditPage() {
   }, [project])
 
   function onSubmit(data) {
+    if (document.getElementById("fileInput").value === ''){
+      console.log('nope')
+      return
+    }
+
     return mode.add ? createProject(data) : updateProject(project.id, data)
+  }
+
+  function handleSubmitFile(event) {
+    event.preventDefault()
+
+    return projectService.uploadFile(file.file).then(() => {
+      console.log('uploaded')
+      alertActions.success('File added')
+    })
   }
 
   function createProject(data) {
     return projectService.create(data).then(() => {
+      document.getElementById('fileForm').click()
       history.navigate('/projects')
       alertActions.success('Project added')
     })
@@ -99,6 +124,11 @@ function ProjectAddEditPage() {
               errorMessage={errors.description?.message}
             />
           </BasicForm>
+
+          <form onSubmit={handleSubmitFile} encType="multipart/form-data">
+            <input id={'fileInput'} name="file" type="file" onChange={handleFileChange} required/>
+            <button id={'fileForm'} type="submit"/>
+          </form>
         </div>
       )}
       {loading && <LoadingPage />}
