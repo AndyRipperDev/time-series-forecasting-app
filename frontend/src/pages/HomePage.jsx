@@ -3,6 +3,7 @@ import { useRecoilValue } from 'recoil'
 
 import { authAtom } from 'state'
 import { useUserService } from '../services'
+import { Link } from 'react-router-dom'
 
 const HomePage = () => {
   const auth = useRecoilValue(authAtom)
@@ -12,7 +13,7 @@ const HomePage = () => {
       <h1 className="font-bold text-2xl mb-12">
         Welcome back {auth?.user?.full_name}
       </h1>
-      <button className="btn btn-active btn-primary gap-4">
+      <Link to="/projects/add" className="btn btn-active btn-primary gap-4">
         <svg
           className="w-6 h-6"
           fill="none"
@@ -28,7 +29,7 @@ const HomePage = () => {
           />
         </svg>
         Create New Project
-      </button>
+      </Link>
     </div>
   )
 }

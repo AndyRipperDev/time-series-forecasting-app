@@ -23,6 +23,7 @@ import RolesManagePage from './pages/RolesManagePage'
 import { AdminRoute } from './components/Nav/AdminRoute'
 import { UserAddEditPage } from './pages/UserAddEditPage'
 import { RoleAddEditPage } from './pages/RoleAddEditPage'
+import { ProjectAddEditPage } from './pages/ProjectAddEditPage'
 
 function App() {
   history.navigate = useNavigate()
@@ -115,6 +116,22 @@ function App() {
             element={
               <PrivateRoute>
                 <ProjectsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/projects/add"
+            element={
+              <PrivateRoute>
+                <ProjectAddEditPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/projects/edit/:id"
+            element={
+              <PrivateRoute>
+                <ProjectAddEditPage />
               </PrivateRoute>
             }
           />

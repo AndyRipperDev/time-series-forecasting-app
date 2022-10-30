@@ -25,6 +25,12 @@ def read_projects(skip: int = 0, limit: int = 100, db: Session = Depends(depende
     return projects
 
 
+@router.get("/user", response_model=list[project_schema.ProjectSchema], status_code=status.HTTP_200_OK)
+def read_user_projects(skip: int = 0, limit: int = 100, db: Session = Depends(dependencies.get_db), current_user: user_model.User = Depends(dependencies.get_current_active_user)):
+    projects = project_crud.get_by_user_id(db, user_id=current_user.id, skip=skip, limit=limit)
+    return projects
+
+
 @router.get("/{project_id}", response_model=project_schema.ProjectSchema, status_code=status.HTTP_200_OK)
 def read_project(project_id: int, db: Session = Depends(dependencies.get_db), current_user: user_model.User = Depends(dependencies.get_current_active_user)):
     db_role = project_crud.get(db, project_id=project_id)

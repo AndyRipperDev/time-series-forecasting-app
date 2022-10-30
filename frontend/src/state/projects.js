@@ -5,4 +5,10 @@ const projectsAtom = atom({
   default: null
 });
 
-export { projectsAtom };
+const projectAtom = atom({
+  key: 'project',
+  default: null,
+})
+
+
+export { projectsAtom, projectAtom };

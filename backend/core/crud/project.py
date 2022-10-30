@@ -8,6 +8,10 @@ def get_all(db: Session, skip: int = 0, limit: int = 100):
     return db.query(project_model.Project).offset(skip).limit(limit).all()
 
 
+def get_by_user_id(db: Session, user_id: int, skip: int = 0, limit: int = 100):
+    return db.query(project_model.Project).filter(project_model.Project.user_id == user_id).offset(skip).limit(limit).all()
+
+
 def get(db: Session, project_id: int):
     return db.query(project_model.Project).filter(project_model.Project.id == project_id).first()
 
