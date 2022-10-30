@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 import core.schemas.role as role
+import core.schemas.project as project
 
 
 class UserBase(BaseModel):
@@ -21,6 +22,7 @@ class User(UserBase):
 
 class UserSchema(User):
     roles: list[role.Role] = []
+    projects: list[project.Project] = []
 
 
 class UserUpdateSchema(BaseModel):

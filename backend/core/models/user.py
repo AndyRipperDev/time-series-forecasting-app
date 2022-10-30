@@ -21,3 +21,4 @@ class User(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     roles = relationship("Role", secondary=user_role_association_table, backref="users")
+    projects = relationship("Project", backref="users")
