@@ -7,7 +7,7 @@ const ContentPage = (props) => {
   return (
     <div
       className={`flex-auto bg-base-100 overflow-auto shadow-2xl shadow-base-100 ${
-        auth ? 'rounded-l-2xl p-4' : ''
+        auth ? 'rounded-l-2xl' : ''
       }`}
     >
       {props.children}
