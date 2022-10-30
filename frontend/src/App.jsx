@@ -17,6 +17,12 @@ import { Alert } from './components/Alert'
 import SettingsPage from './pages/SettingsPage'
 import ProjectsPage from './pages/ProjectsPage'
 import DashboardPage from './pages/DashboardPage'
+import GeneralSettingsPage from './pages/GeneralSettingsPage'
+import UsersManagePage from './pages/UsersManagePage'
+import RolesManagePage from './pages/RolesManagePage'
+import { AdminRoute } from './components/Nav/AdminRoute'
+import { UserAddEditPage } from './pages/UserAddEditPage'
+import { RoleAddEditPage } from './pages/RoleAddEditPage'
 
 function App() {
   history.navigate = useNavigate()
@@ -46,6 +52,62 @@ function App() {
               <PrivateRoute>
                 <SettingsPage />
               </PrivateRoute>
+            }
+          />
+          <Route
+            path="/settings/general"
+            element={
+              <PrivateRoute>
+                <GeneralSettingsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/settings/users"
+            element={
+              <AdminRoute>
+                <UsersManagePage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/settings/users/add"
+            element={
+              <AdminRoute>
+                <UserAddEditPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/settings/users/edit/:id"
+            element={
+              <AdminRoute>
+                <UserAddEditPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/settings/roles"
+            element={
+              <AdminRoute>
+                <RolesManagePage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/settings/roles/add"
+            element={
+              <AdminRoute>
+                <RoleAddEditPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/settings/roles/edit/:id"
+            element={
+              <AdminRoute>
+                <RoleAddEditPage />
+              </AdminRoute>
             }
           />
           <Route

@@ -14,7 +14,7 @@ const Alert = () => {
 
   return (
     <div
-      className={`alert ${alert.type} shadow-lg xl:w-2/5 md:w-3/5 w-4/5 mx-auto my-8 inset-x-0 z-10 absolute`}
+      className={`alert ${alert.type} shadow-xl xl:w-2/5 md:w-3/5 w-4/5 mx-auto my-8 inset-x-0 z-10 absolute`}
     >
       <div>
         {alert.type === alertActions.AlertTypes.Success && (
