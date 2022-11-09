@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useRecoilValue } from 'recoil'
+import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { authAtom, projectAtom } from 'state'
 import { Link, useParams } from 'react-router-dom'
@@ -9,12 +9,37 @@ import LoadingPage from '../../Loadings/LoadingPage'
 const CreateProjectCheckColumns = () => {
   const { id } = useParams()
   const projectService = useProjectService()
-  const project = useRecoilValue(projectAtom)
+  const [project, setProject] = useRecoilState(projectAtom)
   const auth = useRecoilValue(authAtom)
 
   useEffect(() => {
     projectService.getById2(id)
   }, [])
+
+  const handleDataTypeChange = (event, id) => {
+    let newCols = [...project.dataset.columns].map((column) => {
+      if (column.id === id) return { ...column, data_type: event.target.value };
+      else return column;
+    });
+
+    let newProject = {
+      description: project.description,
+      title: project.title,
+      id: project.id,
+      user_id: project.user_id,
+      dataset: {
+        delimiter: project.dataset.delimiter,
+        filename: project.dataset.filename,
+        filename_processed: project.dataset.filename_processed,
+        project_id: project.dataset.project_id,
+        id: project.dataset.id,
+        columns: newCols
+      }
+    }
+
+    console.log(newProject)
+    setProject(newProject);
+  };
 
   const loading = !project
   console.log(project)
@@ -29,7 +54,9 @@ const CreateProjectCheckColumns = () => {
             <li className="step step-primary">Check Columns</li>
           </ul>
           {project && (
+
             <div className="overflow-x-auto relative shadow-xl rounded-xl">
+
               <table className="w-full text-sm text-left">
                 <thead className="text-xs uppercase bg-base-300">
                   <tr>
@@ -38,6 +65,9 @@ const CreateProjectCheckColumns = () => {
                     </th>
                     <th scope="col" className="py-5 px-6 md:px-8">
                       Data Type
+                    </th>
+                    <th scope="col" className="py-5 px-6 md:px-8">
+                      Data Type Change
                     </th>
                   </tr>
                 </thead>
@@ -54,6 +84,17 @@ const CreateProjectCheckColumns = () => {
                         {column.name}
                       </th>
                       <td className="py-5 px-6 md:px-8">{column.data_type}</td>
+                      <td className="py-5 px-6 md:px-8">
+                        <select className="select select-bordered w-full max-w-xs" value={column.data_type} onChange={(e) => handleDataTypeChange(e, column.id)}>
+                          <option value="object">object</option>
+                          <option value="int64">int64</option>
+                          <option value="float64">float64</option>
+                          <option value="bool">bool</option>
+                          <option value="datetime64">datetime64</option>
+                          <option value="timedelta[ns]">timedelta[ns]</option>
+                          <option value="category">category</option>
+                        </select>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
