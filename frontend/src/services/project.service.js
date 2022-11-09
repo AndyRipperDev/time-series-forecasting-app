@@ -15,8 +15,10 @@ function useProjectService() {
     getAll,
     getByAuthUser,
     getById,
+    getById2,
     update,
     create,
+    create2,
     uploadFile,
     delete: _delete,
     resetProjects: useResetRecoilState(projectsAtom),
@@ -44,6 +46,13 @@ function useProjectService() {
       .then(setProject)
   }
 
+  function getById2(id) {
+    return forecastApi
+      .get(`${urlPartProjects}/get/${id}`)
+      .then((response) => response.data)
+      .then(setProject)
+  }
+
   function create(project) {
     return forecastApi.post(urlPartProjects, {
       title: project.title,
@@ -51,13 +60,28 @@ function useProjectService() {
     })
   }
 
-  function uploadFile(file) {
+  function create2(project) {
     const formData = new FormData()
-    formData.append('file',file)
+    formData.append('title', project.title)
+    formData.append('description', project.description)
+    formData.append('delimiter', project.delimiter)
+    formData.append('file', project.file[0])
     const config = {
       headers: {
-        'content-type': 'multipart/form-data'
-      }
+        'content-type': 'multipart/form-data',
+      },
+    }
+
+    return forecastApi.post(urlPartProjects + '/create', formData, config)
+  }
+
+  function uploadFile(file) {
+    const formData = new FormData()
+    formData.append('file', file)
+    const config = {
+      headers: {
+        'content-type': 'multipart/form-data',
+      },
     }
     return forecastApi.post(urlPartProjects + '/upload', formData, config)
   }

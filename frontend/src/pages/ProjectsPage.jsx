@@ -48,75 +48,105 @@ const ProjectsPage = () => {
             <div className="overflow-x-auto relative shadow-xl rounded-xl">
               <table className="w-full text-sm text-left">
                 <thead className="text-xs uppercase bg-base-300">
-                <tr>
-                  <th scope="col" className="py-5 px-6 md:px-8">
-                    Title
-                  </th>
-                  <th scope="col" className="py-5 px-6 md:px-8">
-                    Description
-                  </th>
-                  <th scope="col" className="py-5 px-6 md:px-8">
-                    Action
-                  </th>
-                </tr>
+                  <tr>
+                    <th scope="col" className="py-5 px-6 md:px-8">
+                      Title
+                    </th>
+                    <th scope="col" className="py-5 px-6 md:px-8">
+                      Description
+                    </th>
+                    <th scope="col" className="py-5 px-6 md:px-8">
+                      Action
+                    </th>
+                  </tr>
                 </thead>
                 <tbody>
-                {projects.map((project) => (
-                  <tr className="bg-base-200 hover:bg-base-100" key={project.id}>
-                    <th
-                      scope="row"
-                      className="py-5 px-6 md:px-8 font-medium whitespace-nowrap"
+                  {projects.map((project) => (
+                    <tr
+                      className="bg-base-200 hover:bg-base-100"
+                      key={project.id}
                     >
-                      {project.title}
-                    </th>
-                    <td className="py-5 px-6 md:px-8">{project.description}</td>
-                    <td className="flex items-center py-5 px-6 md:px-8 md:space-x-6 space-x-3">
-                      <Link
-                        to={`/projects/edit/${project.id}`}
-                        className="btn btn-square btn-sm btn-outline text-blue-500 hover:bg-blue-500 hover:text-primary-content hover:border-blue-500"
+                      <th
+                        scope="row"
+                        className="py-5 px-6 md:px-8 font-medium whitespace-nowrap"
                       >
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
+                        {project.title}
+                      </th>
+                      <td className="py-5 px-6 md:px-8">
+                        {project.description}
+                      </td>
+                      <td className="flex items-center py-5 px-6 md:px-8 md:space-x-6 space-x-3">
+                        <Link
+                          to={`/projects/${project.id}`}
+                          className="btn btn-square btn-sm btn-outline text-blue-500 hover:bg-blue-500 hover:text-primary-content hover:border-blue-500"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                          />
-                        </svg>
-                      </Link>
-
-                      <button
-                        onClick={() => projectService.delete(project.id)}
-                        className={`btn ${
-                          project.isDeleting ? 'loading' : ''
-                        } btn-square btn-sm btn-outline btn-error`}
-                      >
-                        {!project.isDeleting && (
                           <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-6 w-6"
+                            className="w-5 h-5"
                             fill="none"
-                            viewBox="0 0 24 24"
                             stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
                           >
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M6 18L18 6M6 6l12 12"
+                              strokeWidth={2}
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                             />
                           </svg>
-                        )}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                        </Link>
+                        <Link
+                          to={`/projects/edit/${project.id}`}
+                          className="btn btn-square btn-sm btn-outline text-blue-500 hover:bg-blue-500 hover:text-primary-content hover:border-blue-500"
+                        >
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                            />
+                          </svg>
+                        </Link>
+
+                        <button
+                          onClick={() => projectService.delete(project.id)}
+                          className={`btn ${
+                            project.isDeleting ? 'loading' : ''
+                          } btn-square btn-sm btn-outline btn-error`}
+                        >
+                          {!project.isDeleting && (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-6 w-6"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          )}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
