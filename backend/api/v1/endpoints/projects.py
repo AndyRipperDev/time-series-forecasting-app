@@ -124,15 +124,7 @@ def read_projects(skip: int = 0, limit: int = 100, db: Session = Depends(depende
                   current_user: user_model.User = Depends(dependencies.get_current_active_user)):
     projects = project_crud.get_all(db, skip=skip, limit=limit)
 
-    db_projects = []
-
-    for project in projects:
-        db_dataset = dataset_crud.get_by_project_id(db=db, project_id=project.id)
-        db_project_scheme = project_schema.ProjectSchema(title=project.title, description=project.description, id=project.id,
-                                       user_id=project.user_id, dataset=db_dataset)
-        db_projects.append(db_project_scheme)
-    # return projects
-    return db_projects
+    return projects
 
 
 @router.get("/get2/{project_id}", response_model=project_schema.ProjectSchema, status_code=status.HTTP_200_OK)
@@ -165,21 +157,21 @@ def read_project(project_id: int, db: Session = Depends(dependencies.get_db),
     if db_project is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
 
-    db_dataset = dataset_crud.get_by_project_id(db=db, project_id=db_project.id)
+    # db_dataset = dataset_crud.get_by_project_id(db=db, project_id=db_project.id)
+    #
+    # file_path = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(db_project.id) + '/' + db_dataset.filename
+    # print(file_path)
+    # columns = file_processing.check_columns_json(file_path, db_dataset.delimiter)
+    # print(columns)
+    # print(list(columns))
+    #
+    # # db_project = project_crud.get(db=db, project_id=db_project.id)
+    # db_project_scheme = project_schema.ProjectSchema(title=db_project.title, description=db_project.description, id=db_project.id,
+    #                                    user_id=db_project.user_id, dataset=db_dataset)
+    # # return {'project': db_project, 'file': {'filename': file.filename, 'columns': columns}}
+    # return db_project_scheme
 
-    file_path = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(db_project.id) + '/' + db_dataset.filename
-    print(file_path)
-    columns = file_processing.check_columns_json(file_path, db_dataset.delimiter)
-    print(columns)
-    print(list(columns))
-
-    # db_project = project_crud.get(db=db, project_id=db_project.id)
-    db_project_scheme = project_schema.ProjectSchema(title=db_project.title, description=db_project.description, id=db_project.id,
-                                       user_id=db_project.user_id, dataset=db_dataset)
-    # return {'project': db_project, 'file': {'filename': file.filename, 'columns': columns}}
-    return db_project_scheme
-
-    # return db_project
+    return db_project
 
 
 @router.get("/user", response_model=list[project_schema.ProjectSchema], status_code=status.HTTP_200_OK)
@@ -187,15 +179,7 @@ def read_user_projects(skip: int = 0, limit: int = 100, db: Session = Depends(de
                        current_user: user_model.User = Depends(dependencies.get_current_active_user)):
     projects = project_crud.get_by_user_id(db, user_id=current_user.id, skip=skip, limit=limit)
 
-    db_projects = []
-
-    for project in projects:
-        db_dataset = dataset_crud.get_by_project_id(db=db, project_id=project.id)
-        db_project_scheme = project_schema.ProjectSchema(title=project.title, description=project.description, id=project.id,
-                                           user_id=project.user_id, dataset=db_dataset)
-        db_projects.append(db_project_scheme)
-    # return projects
-    return db_projects
+    return projects
 
 
 
@@ -206,10 +190,7 @@ def read_project(project_id: int, db: Session = Depends(dependencies.get_db),
     if db_project is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
 
-    db_dataset = dataset_crud.get_by_project_id(db=db, project_id=db_project.id)
-    db_project_scheme = project_schema.ProjectSchema(title=db_project.title, description=db_project.description, id=db_project.id,
-                                       user_id=db_project.user_id, dataset=db_dataset)
-    return db_project_scheme
+    return db_project
 
 
 @router.patch("/{project_id}", response_model=project_schema.ProjectSchema, status_code=status.HTTP_200_OK)

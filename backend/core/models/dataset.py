@@ -13,5 +13,5 @@ class Dataset(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     project_id = Column(Integer, ForeignKey("project.id"))
-    project = relationship("Project", backref=backref("project", uselist=False))
+    project = relationship("Project", backref=backref("dataset", uselist=False))
     columns = relationship("DatasetColumn", backref="datasets")
