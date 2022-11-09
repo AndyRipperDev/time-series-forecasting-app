@@ -22,5 +22,6 @@ class DatasetColumnSchema(DatasetColumn):
 
 
 class DatasetColumnUpdateSchema(BaseModel):
+    id: int
     name: str | None = None
     data_type: str | None = None

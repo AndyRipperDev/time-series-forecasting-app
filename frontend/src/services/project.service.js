@@ -17,6 +17,7 @@ function useProjectService() {
     getById,
     getById2,
     update,
+    update_cols,
     create,
     create2,
     uploadFile,
@@ -88,6 +89,12 @@ function useProjectService() {
 
   function update(id, params) {
     return forecastApi.patch(`${urlPartProjects}/${id}`, params).then((x) => {
+      return x
+    })
+  }
+
+  function update_cols(id, params) {
+    return forecastApi.patch(`/dataset-columns/${id}`, params).then((x) => {
       return x
     })
   }
