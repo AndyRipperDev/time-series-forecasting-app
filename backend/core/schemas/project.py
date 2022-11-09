@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+import core.schemas.dataset as dataset
 
 
 class ProjectBase(BaseModel):
@@ -19,6 +20,7 @@ class Project(ProjectBase):
 
 class ProjectSchema(Project):
     user_id: int
+    dataset: dataset.DatasetSchema # | None = None  # list[dataset.DatasetSchema] = []
 
 
 class ProjectUpdateSchema(BaseModel):

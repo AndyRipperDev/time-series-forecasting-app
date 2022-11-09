@@ -17,6 +17,9 @@ node_modules
 # production
 /build
 
+# user_data files
+**/data/user_data/**
+
 # misc
 .DS_Store
 .env.local
