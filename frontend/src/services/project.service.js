@@ -17,6 +17,7 @@ function useProjectService() {
     getById,
     getById2,
     update,
+    update2,
     update_cols,
     create,
     create2,
@@ -65,7 +66,7 @@ function useProjectService() {
     const formData = new FormData()
     formData.append('title', project.title)
     formData.append('description', project.description)
-    formData.append('delimiter', project.delimiter)
+    formData.append('delimiter', project.dataset.delimiter)
     formData.append('file', project.file[0])
     const config = {
       headers: {
@@ -88,9 +89,23 @@ function useProjectService() {
   }
 
   function update(id, params) {
-    return forecastApi.patch(`${urlPartProjects}/${id}`, params).then((x) => {
-      return x
-    })
+    return forecastApi
+      .patch(`${urlPartProjects}/update/${id}`, params)
+      .then((x) => {
+        return x
+      })
+  }
+
+  function update2(id, params) {
+    return forecastApi
+      .patch(`${urlPartProjects}/update/${id}`, {
+        title: params.title,
+        description: params.description,
+        delimiter: params.dataset.delimiter,
+      })
+      .then((x) => {
+        return x
+      })
   }
 
   function update_cols(id, params) {

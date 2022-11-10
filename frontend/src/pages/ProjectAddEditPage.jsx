@@ -35,9 +35,11 @@ function ProjectAddEditPage() {
   const validationSchema = Yup.object().shape({
     title: Yup.string().required('Title is required'),
     description: Yup.string().required('Description is required'),
-    delimiter: Yup.string().required('Delimiter is required'),
-    file: Yup.mixed().test('fileSize', 'The file is required', (value) => {
-      return value.length
+    dataset: Yup.object().shape({
+      delimiter: Yup.string().required('Delimiter is required'),
+    }),
+    file: Yup.mixed().test('fileSize', 'Dataset file is required', (value) => {
+      return mode.add ? value.length : 1
     }),
   })
 
@@ -93,8 +95,9 @@ function ProjectAddEditPage() {
   }
 
   function updateProject(id, data) {
-    return projectService.update(id, data).then(() => {
-      history.navigate('/projects')
+    return projectService.update2(id, data).then((response) => {
+      history.navigate(`/projects/add/${response.data.id}/columns-check`)
+      // history.navigate('/projects')
       alertActions.success('Project updated')
     })
   }
@@ -105,7 +108,9 @@ function ProjectAddEditPage() {
       {!loading && (
         <div className="grid place-items-center text-center">
           <ul className="steps w-full md:w-2/3 lg:w-1/2 my-10">
-            <li className="step step-primary">Create Project</li>
+            <li className="step step-primary">
+              {mode.add ? 'Create Project' : 'Edit Project'}
+            </li>
             <li className="step">Check Columns</li>
           </ul>
 
@@ -131,24 +136,56 @@ function ProjectAddEditPage() {
               registerHookForm={register('description')}
               errorMessage={errors.description?.message}
             />
-            <input
-              id={'fileId'}
-              name="file"
-              type="file"
-              className="file:btn file:btn-primary"
-              {...register('file')}
-            />
-            <div className="text-red-500 mt-1 text-left">
-              {errors.file?.message}
-            </div>
-            <FormInput
-              label={'Delimiter'}
-              type={'text'}
+            {mode.add && (
+              <>
+                <label className="label pb-0 mt-10" htmlFor={'fileId'}>
+                  <span className="label-text text-base font-semibold">
+                    Dataset
+                  </span>
+                </label>
+                <input
+                  id={'fileId'}
+                  name="file"
+                  type="file"
+                  className="file:btn file:btn-primary"
+                  {...register('file')}
+                />
+                {errors.file?.message && (
+                  <div className="text-red-500 mt-1 text-left">
+                    {errors.file?.message}
+                  </div>
+                )}
+              </>
+            )}
+            {/*<FormInput*/}
+            {/*  label={'Delimiter'}*/}
+            {/*  type={'text'}*/}
+            {/*  name={'delimiter'}*/}
+            {/*  forId={'delimiterId'}*/}
+            {/*  registerHookForm={register('dataset.delimiter')}*/}
+            {/*  errorMessage={errors.dataset?.delimiter?.message}*/}
+            {/*/>*/}
+            <label className="label pb-0" htmlFor={'delimiter'}>
+              <span className="label-text text-base font-semibold">
+                Delimiter
+              </span>
+            </label>
+            <select
               name={'delimiter'}
-              forId={'delimiterId'}
-              registerHookForm={register('delimiter')}
-              errorMessage={errors.delimiter?.message}
-            />
+              className="select select-bordered w-full max-w-xs"
+              {...register('dataset.delimiter')}
+            >
+              <option value=";">;</option>
+              <option value=",">,</option>
+              <option value="|">|</option>
+              <option value="\t">Tab</option>
+              <option value=" ">Space</option>
+            </select>
+            {errors.dataset?.delimiter?.message && (
+              <div className="text-red-500 mt-1 text-left">
+                {errors.dataset?.delimiter?.message}
+              </div>
+            )}
           </BasicForm>
 
           {/*<form onSubmit={handleSubmitFile} encType="multipart/form-data">*/}

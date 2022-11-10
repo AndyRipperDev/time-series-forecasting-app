@@ -26,3 +26,9 @@ class ProjectSchema(Project):
 class ProjectUpdateSchema(BaseModel):
     title: str | None = None
     description: str | None = None
+
+
+class ProjectDatasetUpdateSchema(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    delimiter: str | None = None

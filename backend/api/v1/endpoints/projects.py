@@ -205,6 +205,34 @@ def update_project(project_id: int, project: project_schema.ProjectUpdateSchema,
 
     return db_project
 
+@router.patch("/update/{project_id}", response_model=project_schema.ProjectSchema, status_code=status.HTTP_200_OK)
+def update_project_with_dataset(project_id: int, project: project_schema.ProjectDatasetUpdateSchema,
+                   db: Session = Depends(dependencies.get_db),
+                   current_user: user_model.User = Depends(dependencies.get_current_active_user)):
+    db_project = project_crud.get(db, project_id=project_id)
+    if db_project is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+
+    db_project = project_crud.update_dataset(db, project=db_project, updates=project)
+
+    db_dataset = dataset_crud.get_by_project_id(db=db, project_id=db_project.id)
+
+    if db_dataset.delimiter != project.delimiter:
+        db_columns = dataset_column_crud.get_by_dataset_id(db, dataset_id=db_dataset.id)
+        for col in db_columns:
+            dataset_column_crud.delete(db, col)
+
+        file_path = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(db_project.id) + '/' + db_dataset.filename
+        columns = file_processing.check_columns_json(file_path, project.delimiter)
+        for k, v in columns.items():
+            col_sch = dataset_column_schema.DatasetColumnCreate(name=k, data_type=v)
+            dataset_column_crud.create(db=db, dataset_column=col_sch, dataset_id=db_dataset.id)
+
+    updates_dataset = dataset_schema.DatasetUpdateSchema(delimiter=project.delimiter)
+    db_dataset = dataset_crud.update(db=db, dataset=db_dataset, updates=updates_dataset)
+    db_project = project_crud.get(db, project_id=project_id)
+    return db_project
+
 
 @router.delete("/{project_id}", status_code=status.HTTP_200_OK)
 def delete_project(project_id: int, db: Session = Depends(dependencies.get_db),
@@ -212,6 +240,12 @@ def delete_project(project_id: int, db: Session = Depends(dependencies.get_db),
     db_project = project_crud.get(db, project_id=project_id)
     if db_project is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+
+    db_dataset = dataset_crud.get_by_project_id(db=db, project_id=db_project.id)
+    db_columns = dataset_column_crud.get_by_dataset_id(db, dataset_id=db_dataset.id)
+    for col in db_columns:
+        dataset_column_crud.delete(db, col)
+    dataset_crud.delete(db=db, dataset=db_dataset)
 
     if not project_crud.delete(db, project=db_project):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Project not deleted")

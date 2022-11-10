@@ -36,6 +36,13 @@ def update(db: Session, project: project_model.Project, updates: project_schema.
     db.commit()
     return project
 
+def update_dataset(db: Session, project: project_model.Project, updates: project_schema.ProjectDatasetUpdateSchema):
+    update_data = updates.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(project, key, value)
+    db.commit()
+    return project
+
 
 def delete(db: Session, project: project_model.Project):
     result = True
