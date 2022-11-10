@@ -54,9 +54,9 @@ const CreateProjectCheckColumns = () => {
       {loading ? (
         <LoadingPage />
       ) : (
-        <div className="grid h-screen place-items-center text-center">
-          <ul className="steps w-full md:w-2/3 lg:w-1/2">
-            <li className="step step-primary">Create Project</li>
+        <div className="grid place-items-center text-center">
+          <ul className="steps w-full md:w-2/3 lg:w-1/2 mb-20 mt-12">
+            <li className="step step-primary">Fill Project Data</li>
             <li className="step step-primary">Check Columns</li>
           </ul>
           {project && (

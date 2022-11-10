@@ -107,10 +107,8 @@ function ProjectAddEditPage() {
     <>
       {!loading && (
         <div className="grid place-items-center text-center">
-          <ul className="steps w-full md:w-2/3 lg:w-1/2 my-10">
-            <li className="step step-primary">
-              {mode.add ? 'Create Project' : 'Edit Project'}
-            </li>
+          <ul className="steps w-full md:w-2/3 lg:w-1/2 mb-20 mt-12">
+            <li className="step step-primary">Fill Project Data</li>
             <li className="step">Check Columns</li>
           </ul>
 
