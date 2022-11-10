@@ -8,7 +8,7 @@ class Dataset(Base):
     id = Column(Integer, primary_key=True, index=True)
     filename = Column(String(250))
     filename_processed = Column(String(250))
-    delimiter = Column(String(1))
+    delimiter = Column(String(2))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
