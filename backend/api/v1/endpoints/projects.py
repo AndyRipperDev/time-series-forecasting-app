@@ -110,6 +110,9 @@ def read_project(project_id: int, db: Session = Depends(dependencies.get_db),
     if db_project is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
 
+    if db_project.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
+
     return db_project
 
 
@@ -119,6 +122,9 @@ def read_project_with_dataset_values(project_id: int, skip: int = 0, limit: int 
     db_project = project_crud.get(db, project_id=project_id)
     if db_project is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+
+    if db_project.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
 
     file_path_processed = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(
         db_project.id) + '/' + db_project.dataset.filename_processed
@@ -144,6 +150,9 @@ def read_project(project_id: int, db: Session = Depends(dependencies.get_db),
     if db_project is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
 
+    if db_project.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
+
     file_path = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(
         db_project.id) + '/' + db_project.dataset.filename
 
@@ -158,6 +167,9 @@ def update_project(project_id: int, project: project_schema.ProjectUpdateSchema,
     if db_project is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
 
+    if db_project.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
+
     db_project = project_crud.update(db, project=db_project, updates=project)
 
     return db_project
@@ -171,6 +183,9 @@ def update_project_with_dataset(project_id: int, project: project_schema.Project
     db_project = project_crud.get(db, project_id=project_id)
     if db_project is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+
+    if db_project.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
 
     db_project = project_crud.update_dataset(db, project=db_project, updates=project)
 
@@ -210,6 +225,9 @@ def delete_project(project_id: int, db: Session = Depends(dependencies.get_db),
     db_project = project_crud.get(db, project_id=project_id)
     if db_project is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+
+    if db_project.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
 
     file_dir = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(db_project.id) + '/'
     file_path = file_dir + db_project.dataset.filename
