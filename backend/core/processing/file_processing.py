@@ -67,3 +67,7 @@ def process_dataset(file_name, file_name_processed, delimiter, db_columns):
 
 def load_processed_dataset(file_name_processed, delimiter):
     df2 = df_from_csv(file_name_processed, delimiter)
+
+
+def get_processed_dataset(file_name_processed, delimiter):
+    return df_from_csv(file_name_processed, delimiter)

@@ -10,10 +10,9 @@ const projectAtom = atom({
   default: null,
 })
 
-const projectCreateFormAtom = atom({
-  key: 'projectCreateForm',
+const projectDatasetViewAtom = atom({
+  key: 'projectDatasetView',
   default: null,
-  dangerouslyAllowMutability: true,
 })
 
-export { projectsAtom, projectAtom, projectCreateFormAtom }
+export { projectsAtom, projectAtom, projectDatasetViewAtom }
