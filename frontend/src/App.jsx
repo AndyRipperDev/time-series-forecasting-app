@@ -24,9 +24,8 @@ import { AdminRoute } from './components/Nav/AdminRoute'
 import { UserAddEditPage } from './pages/UserAddEditPage'
 import { RoleAddEditPage } from './pages/RoleAddEditPage'
 import { ProjectAddEditPage } from './pages/ProjectAddEditPage'
-import { ProjectCreatePage } from './pages/ProjectCreatePage'
-import CreateProjectUploadFile from './components/Forms/CreateProjectForm/CreateProjectUploadFile'
-import CreateProjectCheckColumns from './components/Forms/CreateProjectForm/CreateProjectCheckColumns'
+import ProjectDetailsPage from './pages/ProjectDetails'
+import ProjectCheckDatasetColumnsPage from './pages/ProjectCheckDatasetColumnsPage'
 
 function App() {
   history.navigate = useNavigate()
@@ -123,6 +122,14 @@ function App() {
             }
           />
           <Route
+            path="/projects/:id"
+            element={
+              <PrivateRoute>
+                <ProjectDetailsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/projects/add"
             element={
               <PrivateRoute>
@@ -131,26 +138,10 @@ function App() {
             }
           />
           <Route
-            path="/projects/add/details"
+            path="/projects/:id/columns-check"
             element={
               <PrivateRoute>
-                <ProjectCreatePage />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/projects/add/file-upload"
-            element={
-              <PrivateRoute>
-                <CreateProjectUploadFile />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/projects/add/:id/columns-check"
-            element={
-              <PrivateRoute>
-                <CreateProjectCheckColumns />
+                <ProjectCheckDatasetColumnsPage />
               </PrivateRoute>
             }
           />

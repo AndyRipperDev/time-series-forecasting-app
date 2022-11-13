@@ -15,13 +15,13 @@ function useProjectService() {
     getAll,
     getByAuthUser,
     getById,
-    getById2,
     update,
-    update2,
-    update_cols,
+    updateWithDataset,
+    updateDatasetColumns,
     create,
-    create2,
-    uploadFile,
+    createWithDataset,
+    uploadDataset,
+    downloadDataset,
     delete: _delete,
     resetProjects: useResetRecoilState(projectsAtom),
     resetProject: useResetRecoilState(projectAtom),
@@ -48,13 +48,6 @@ function useProjectService() {
       .then(setProject)
   }
 
-  function getById2(id) {
-    return forecastApi
-      .get(`${urlPartProjects}/get/${id}`)
-      .then((response) => response.data)
-      .then(setProject)
-  }
-
   function create(project) {
     return forecastApi.post(urlPartProjects, {
       title: project.title,
@@ -62,7 +55,7 @@ function useProjectService() {
     })
   }
 
-  function create2(project) {
+  function createWithDataset(project) {
     const formData = new FormData()
     formData.append('title', project.title)
     formData.append('description', project.description)
@@ -74,10 +67,10 @@ function useProjectService() {
       },
     }
 
-    return forecastApi.post(urlPartProjects + '/create', formData, config)
+    return forecastApi.post(urlPartProjects + '/create-with-dataset', formData, config)
   }
 
-  function uploadFile(file) {
+  function uploadDataset(file) {
     const formData = new FormData()
     formData.append('file', file)
     const config = {
@@ -85,20 +78,37 @@ function useProjectService() {
         'content-type': 'multipart/form-data',
       },
     }
-    return forecastApi.post(urlPartProjects + '/upload', formData, config)
+    return forecastApi.post(urlPartProjects + '/upload-dataset', formData, config)
   }
+
+
+  function downloadDataset(project) {
+    return forecastApi({
+      url: `${urlPartProjects}/download-dataset/${project.id}`,
+      method: 'GET',
+      responseType: 'blob', // important
+    }).then((response) => {
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', project.dataset.filename);
+      document.body.appendChild(link);
+      link.click();
+    });
+  }
+
 
   function update(id, params) {
     return forecastApi
-      .patch(`${urlPartProjects}/update/${id}`, params)
+      .patch(`${urlPartProjects}/${id}`, params)
       .then((x) => {
         return x
       })
   }
 
-  function update2(id, params) {
+  function updateWithDataset(id, params) {
     return forecastApi
-      .patch(`${urlPartProjects}/update/${id}`, {
+      .patch(`${urlPartProjects}/update-with-dataset/${id}`, {
         title: params.title,
         description: params.description,
         delimiter: params.dataset.delimiter,
@@ -108,17 +118,15 @@ function useProjectService() {
       })
   }
 
-  function update_cols(id, params) {
+  function updateDatasetColumns(id, params) {
     return forecastApi.patch(`/dataset-columns/${id}`, params).then((x) => {
       return x
     })
   }
 
-  // prefixed with underscored because delete is a reserved word in javascript
   function _delete(id) {
     setProjects((projects) =>
       projects.map((x) => {
-        // add isDeleting prop to user being deleted
         if (x.id === id) return { ...x, isDeleting: true }
 
         return x
@@ -126,7 +134,6 @@ function useProjectService() {
     )
 
     return forecastApi.delete(`${urlPartProjects}/${id}`).then(() => {
-      // remove user from list after deleting
       setProjects((projects) => projects.filter((x) => x.id !== id))
     })
   }

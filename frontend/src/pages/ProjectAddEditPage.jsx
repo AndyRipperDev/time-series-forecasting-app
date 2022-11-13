@@ -21,17 +21,8 @@ function ProjectAddEditPage() {
   const mode = { add: !id, edit: !!id }
   const projectService = useProjectService()
   const alertActions = useAlertActions()
-  const [project, setProject] = useRecoilState(projectAtom)
+  const project = useRecoilValue(projectAtom)
 
-  const [file, setFile] = useState({
-    file: null,
-  })
-
-  const handleFileChange = (event) => {
-    setFile({ file: event.target.files[0] })
-  }
-
-  // form validation rules
   const validationSchema = Yup.object().shape({
     title: Yup.string().required('Title is required'),
     description: Yup.string().required('Description is required'),
@@ -45,60 +36,39 @@ function ProjectAddEditPage() {
 
   const formOptions = { resolver: yupResolver(validationSchema) }
 
-  // get functions to build form with useForm() hook
   const { register, handleSubmit, reset, formState } = useForm(formOptions)
   const { errors, isSubmitting } = formState
 
   useEffect(() => {
-    // fetch user details into recoil state in edit mode
     if (mode.edit) {
       projectService.getById(id)
     }
     return projectService.resetProject
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
-    // set default form values after user set in recoil state (in edit mode)
     if (mode.edit && project) {
       reset(project)
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project])
 
   function onSubmit(data) {
-    // if (document.getElementById('fileInput').value === '') {
-    //   console.log('nope')
-    //   return
-    // }
-
     return mode.add ? createProject(data) : updateProject(project.id, data)
   }
 
-  function handleSubmitFile(event) {
-    event.preventDefault()
-
-    return projectService.uploadFile(file.file).then(() => {
-      console.log('uploaded')
-      alertActions.success('File added')
-    })
-  }
-
   function createProject(data) {
-    return projectService.create2(data).then((response) => {
-      console.log('s' + response.data)
-      //document.getElementById('fileForm').click()
-      history.navigate(`/projects/add/${response.data.id}/columns-check`)
+    return projectService.createWithDataset(data).then((response) => {
+      history.navigate(`/projects/${response.data.id}/columns-check`)
     })
   }
 
   function updateProject(id, data) {
-    return projectService.update2(id, data).then((response) => {
-      history.navigate(`/projects/add/${response.data.id}/columns-check`)
-      // history.navigate('/projects')
-      alertActions.success('Project updated')
+    return projectService.updateWithDataset(id, data).then((response) => {
+      // if(project.dataset.delimiter === response.data.dataset.delimiter) {
+      //   history.navigate(`/projects/${response.data.id}`)
+      // } else {
+        history.navigate(`/projects/${response.data.id}/columns-check`)
+      // }
     })
   }
 
@@ -109,7 +79,7 @@ function ProjectAddEditPage() {
         <div className="grid place-items-center text-center">
           <ul className="steps w-full md:w-2/3 lg:w-1/2 mb-20 mt-12">
             <li className="step step-primary">Fill Project Data</li>
-            <li className="step">Check Columns</li>
+            <li className="step">Check Dataset Columns</li>
           </ul>
 
           <BasicForm
@@ -155,14 +125,6 @@ function ProjectAddEditPage() {
                 )}
               </>
             )}
-            {/*<FormInput*/}
-            {/*  label={'Delimiter'}*/}
-            {/*  type={'text'}*/}
-            {/*  name={'delimiter'}*/}
-            {/*  forId={'delimiterId'}*/}
-            {/*  registerHookForm={register('dataset.delimiter')}*/}
-            {/*  errorMessage={errors.dataset?.delimiter?.message}*/}
-            {/*/>*/}
             <label className="label pb-0" htmlFor={'delimiter'}>
               <span className="label-text text-base font-semibold">
                 Delimiter
@@ -185,21 +147,6 @@ function ProjectAddEditPage() {
               </div>
             )}
           </BasicForm>
-
-          {/*<form onSubmit={handleSubmitFile} encType="multipart/form-data">*/}
-          {/*  <label>*/}
-          {/*    <input*/}
-          {/*      id={'fileInput'}*/}
-          {/*      name="file"*/}
-          {/*      type="file"*/}
-          {/*      className="file:btn file:btn-primary"*/}
-          {/*      onChange={handleFileChange}*/}
-          {/*      required*/}
-          {/*    />*/}
-          {/*  </label>*/}
-
-          {/*  <button id={'fileForm'} type="submit" />*/}
-          {/*</form>*/}
         </div>
       )}
       {loading && <LoadingPage />}

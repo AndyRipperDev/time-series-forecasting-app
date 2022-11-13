@@ -38,4 +38,16 @@ def update_project(dataset_id: int, dataset_columns: list[dataset_column_schema.
             if column.id == col_update.id:
                 db_project = dataset_column_crud.update(db, dataset_column=column, updates=col_update)
 
-    return dataset_column_crud.get_by_dataset_id(db, dataset_id=dataset_id)
+    db_columns = dataset_column_crud.get_by_dataset_id(db, dataset_id=dataset_id)
+
+    db_dataset = dataset_crud.get(db, dataset_id)
+
+    file_path = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(
+        db_dataset.project_id) + '/' + db_dataset.filename
+
+    file_path_processed = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(
+        db_dataset.project_id) + '/' + db_dataset.filename_processed
+
+    file_processing.process_dataset(file_path, file_path_processed, db_dataset.delimiter, db_columns)
+
+    return db_columns

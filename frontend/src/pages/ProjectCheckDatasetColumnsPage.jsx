@@ -1,19 +1,19 @@
 import { useEffect } from 'react'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilState } from 'recoil'
 
-import { authAtom, projectAtom } from 'state'
-import { Link, useParams } from 'react-router-dom'
-import { useProjectService } from '../../../services/project.service'
-import LoadingPage from '../../Loadings/LoadingPage'
+import { projectAtom } from 'state'
+import { useParams } from 'react-router-dom'
+import { useProjectService } from '../services/project.service'
+import LoadingPage from '../components/Loadings/LoadingPage'
+import { history } from '../helpers'
 
-const CreateProjectCheckColumns = () => {
+const ProjectCheckDatasetColumnsPage = () => {
   const { id } = useParams()
   const projectService = useProjectService()
   const [project, setProject] = useRecoilState(projectAtom)
-  const auth = useRecoilValue(authAtom)
 
   useEffect(() => {
-    projectService.getById2(id)
+    projectService.getById(id)
   }, [])
 
   const handleDataTypeChange = (event, id) => {
@@ -37,18 +37,17 @@ const CreateProjectCheckColumns = () => {
       }
     }
 
-    console.log(newProject)
     setProject(newProject);
   }
 
   function handleSubmit(event) {
-    alert('Submitted');
     event.preventDefault();
-    projectService.update_cols(project.dataset.id, project.dataset.columns)
+    projectService.updateDatasetColumns(project.dataset.id, project.dataset.columns).then(() => {
+      history.navigate(`/projects/${project.id}`)
+    })
   }
 
   const loading = !project
-  console.log(project)
   return (
     <div>
       {loading ? (
@@ -71,9 +70,6 @@ const CreateProjectCheckColumns = () => {
                       <th scope="col" className="py-5 px-6 md:px-8">
                         Data Type
                       </th>
-                      {/*<th scope="col" className="py-5 px-6 md:px-8">*/}
-                      {/*  Data Type Change*/}
-                      {/*</th>*/}
                     </tr>
                   </thead>
                   <tbody>
@@ -88,7 +84,6 @@ const CreateProjectCheckColumns = () => {
                         >
                           {column.name}
                         </th>
-                        {/*<td className="py-5 px-6 md:px-8">{column.data_type}</td>*/}
                         <td className="py-5 px-6 md:px-8">
                           <select className="select select-bordered w-full max-w-xs" value={column.data_type} onChange={(e) => handleDataTypeChange(e, column.id)}>
                             <option value="object">object</option>
@@ -114,4 +109,4 @@ const CreateProjectCheckColumns = () => {
   )
 }
 
-export default CreateProjectCheckColumns
+export default ProjectCheckDatasetColumnsPage
