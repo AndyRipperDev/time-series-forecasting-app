@@ -15,4 +15,9 @@ const projectDatasetViewAtom = atom({
   default: null,
 })
 
-export { projectsAtom, projectAtom, projectDatasetViewAtom }
+const projectDatasetColumnsViewAtom = atom({
+  key: 'projectDatasetColumnsView',
+  default: null,
+})
+
+export { projectsAtom, projectAtom, projectDatasetViewAtom, projectDatasetColumnsViewAtom }

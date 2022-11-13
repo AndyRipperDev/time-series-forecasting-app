@@ -143,6 +143,33 @@ def read_project_with_dataset_values(project_id: int, skip: int = 0, limit: int 
     return {'dataset': dataset[skip: skip + limit], 'currentPage': current_page, 'firstPage': first_page, 'prevPage': prev_page, 'nextPage': next_page, 'lastPage': last_page, 'count': count}
 
 
+@router.get("/get-dataset-columns-with-values/{project_id}", status_code=status.HTTP_200_OK)
+def read_project_with_dataset_columns_with_values(project_id: int, column: str = None, db: Session = Depends(dependencies.get_db),
+                 current_user: user_model.User = Depends(dependencies.get_current_active_user)):
+    db_project = project_crud.get(db, project_id=project_id)
+    if db_project is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+
+    if db_project.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
+
+    file_path_processed = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(
+        db_project.id) + '/' + db_project.dataset.filename_processed
+
+    df = file_processing.get_processed_dataset(file_path_processed, db_project.dataset.delimiter)
+
+    dataset = df.to_dict('list')
+    dataset_col = {}
+
+    if column is not None:
+        for k, v in dataset.items():
+            if column == k:
+                dataset_col[k] = v
+                break
+
+    return dataset_col if column is not None else dataset
+
+
 @router.get("/download-dataset/{project_id}", status_code=status.HTTP_200_OK)
 def read_project(project_id: int, db: Session = Depends(dependencies.get_db),
                  current_user: user_model.User = Depends(dependencies.get_current_active_user)):

@@ -1,7 +1,14 @@
 import { useSetRecoilState, useRecoilState, useResetRecoilState } from 'recoil'
 
 import { history, useAxiosWrapper } from '../helpers'
-import { authAtom, projectsAtom, projectAtom, userAtom, projectDatasetViewAtom } from '../state'
+import {
+  authAtom,
+  projectsAtom,
+  projectAtom,
+  userAtom,
+  projectDatasetViewAtom,
+  projectDatasetColumnsViewAtom,
+} from '../state'
 
 export { useProjectService }
 
@@ -10,6 +17,7 @@ function useProjectService() {
   const setProjects = useSetRecoilState(projectsAtom)
   const setProject = useSetRecoilState(projectAtom)
   const setProjectDatasetView = useSetRecoilState(projectDatasetViewAtom)
+  const setProjectDatasetColumnsView = useSetRecoilState(projectDatasetColumnsViewAtom)
   const forecastApi = useAxiosWrapper().forecastApi
 
   return {
@@ -17,6 +25,7 @@ function useProjectService() {
     getByAuthUser,
     getById,
     getDatasetValues,
+    getDatasetColumnValues,
     update,
     updateWithDataset,
     updateDatasetColumns,
@@ -29,6 +38,7 @@ function useProjectService() {
     resetProjects: useResetRecoilState(projectsAtom),
     resetProject: useResetRecoilState(projectAtom),
     resetDatasetView: useResetRecoilState(projectDatasetViewAtom),
+    resetDatasetColumnsView: useResetRecoilState(projectDatasetColumnsViewAtom),
   }
 
   function getAll() {
@@ -58,6 +68,15 @@ function useProjectService() {
       .then((response) => response.data)
       .then(setProjectDatasetView)
   }
+
+  function getDatasetColumnValues(projectId) {
+    return forecastApi
+      .get(`${urlPartProjects}/get-dataset-columns-with-values/${projectId}`)
+      .then((response) => response.data)
+      .then(setProjectDatasetColumnsView)
+  }
+
+
 
 
   function create(project) {

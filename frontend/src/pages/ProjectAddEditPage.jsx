@@ -125,13 +125,14 @@ function ProjectAddEditPage() {
                 )}
               </>
             )}
-            <label className="label pb-0" htmlFor={'delimiter'}>
+            <label className="label pb-0" htmlFor={'delimiterId'}>
               <span className="label-text text-base font-semibold">
                 Delimiter
               </span>
             </label>
             <select
               name={'delimiter'}
+              id={'delimiterId'}
               className="select select-bordered w-full max-w-xs"
               {...register('dataset.delimiter')}
             >

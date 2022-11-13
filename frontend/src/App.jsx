@@ -26,6 +26,7 @@ import { RoleAddEditPage } from './pages/RoleAddEditPage'
 import { ProjectAddEditPage } from './pages/ProjectAddEditPage'
 import ProjectDetailsPage from './pages/ProjectDetails'
 import ProjectCheckDatasetColumnsPage from './pages/ProjectCheckDatasetColumnsPage'
+import { ProjectDetailsColumnPlotsPage } from './pages/ProjectDetailsColumnPlotsPage'
 
 function App() {
   history.navigate = useNavigate()
@@ -126,6 +127,14 @@ function App() {
             element={
               <PrivateRoute>
                 <ProjectDetailsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/projects/:id/columns-view"
+            element={
+              <PrivateRoute>
+                <ProjectDetailsColumnPlotsPage />
               </PrivateRoute>
             }
           />
