@@ -211,13 +211,22 @@ def delete_project(project_id: int, db: Session = Depends(dependencies.get_db),
     if db_project is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
 
+    file_dir = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(db_project.id) + '/'
+    file_path = file_dir + db_project.dataset.filename
+    file_path_processed = file_dir + db_project.dataset.filename_processed
+
     db_dataset = dataset_crud.get_by_project_id(db=db, project_id=db_project.id)
     db_columns = dataset_column_crud.get_by_dataset_id(db, dataset_id=db_dataset.id)
     for col in db_columns:
         dataset_column_crud.delete(db, col)
     dataset_crud.delete(db=db, dataset=db_dataset)
 
+
     if not project_crud.delete(db, project=db_project):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Project not deleted")
+
+    Path(file_path).unlink()
+    Path(file_path_processed).unlink()
+    Path(file_dir).rmdir()
 
     return {"message": "Project successfully deleted"}

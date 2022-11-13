@@ -25,6 +25,7 @@ function useProjectService() {
     uploadDataset,
     downloadDataset,
     delete: _delete,
+    deleteProject,
     resetProjects: useResetRecoilState(projectsAtom),
     resetProject: useResetRecoilState(projectAtom),
     resetDatasetView: useResetRecoilState(projectDatasetViewAtom),
@@ -146,6 +147,14 @@ function useProjectService() {
 
     return forecastApi.delete(`${urlPartProjects}/${id}`).then(() => {
       setProjects((projects) => projects.filter((x) => x.id !== id))
+    })
+  }
+
+  function deleteProject(project) {
+    setProject({ ...project, isDeleting: true })
+
+    return forecastApi.delete(`${urlPartProjects}/${project.id}`).then(() => {
+      setProject(null)
     })
   }
 }

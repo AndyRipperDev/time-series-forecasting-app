@@ -29,7 +29,7 @@ const ProjectDetailsPage = () => {
   }
 
   function handleDelete(event) {
-    projectService.delete(project.id).then((response) => {
+    projectService.deleteProject(project).then((response) => {
       history.navigate(`/projects`)
     })
   }
