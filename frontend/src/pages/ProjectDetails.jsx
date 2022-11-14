@@ -20,7 +20,10 @@ const ProjectDetailsPage = () => {
       projectService.getDatasetValues(id)
     })
 
-    return projectService.resetDatasetView
+    return () => {
+      projectService.resetDatasetView()
+      projectService.resetProject()
+    };
   }, [])
 
 

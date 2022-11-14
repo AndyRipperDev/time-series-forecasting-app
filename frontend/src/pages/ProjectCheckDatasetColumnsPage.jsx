@@ -14,6 +14,8 @@ const ProjectCheckDatasetColumnsPage = () => {
 
   useEffect(() => {
     projectService.getById(id)
+
+    return projectService.resetProject
   }, [])
 
   const handleDataTypeChange = (event, id) => {
@@ -55,12 +57,13 @@ const ProjectCheckDatasetColumnsPage = () => {
       ) : (
         <div className="grid place-items-center text-center">
           <ul className="steps w-full md:w-2/3 lg:w-1/2 mb-20 mt-12">
-            <li className="step step-primary">Fill Project Data</li>
-            <li className="step step-primary">Check Columns</li>
+            <li className="step step-primary font-semibold">Fill Project Data</li>
+            <li className="step step-primary font-semibold">Check Dataset Columns</li>
           </ul>
           {project && (
             <form onSubmit={handleSubmit}>
-              <div className="overflow-x-auto relative shadow-xl rounded-xl bg-base-200">
+              <h1 className={'text-center text-2xl font-bold mb-6'}>Check Dataset Columns</h1>
+              <div className="overflow-x-auto relative shadow-xl rounded-xl bg-base-200 mb-20">
                 <table className="w-full text-sm text-left">
                   <thead className="text-xs uppercase bg-base-300">
                     <tr>
@@ -99,7 +102,7 @@ const ProjectCheckDatasetColumnsPage = () => {
                     ))}
                   </tbody>
                 </table>
-                <input type="submit" value="Confirm" className="btn btn-primary mt-8 mb-4" />
+                <input type="submit" value="Save" className="btn w-5/6 btn-primary mt-8 mb-6" />
               </div>
             </form>
           )}

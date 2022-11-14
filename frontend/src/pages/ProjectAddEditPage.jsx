@@ -78,16 +78,16 @@ function ProjectAddEditPage() {
       {!loading && (
         <div className="grid place-items-center text-center">
           <ul className="steps w-full md:w-2/3 lg:w-1/2 mb-20 mt-12">
-            <li className="step step-primary">Fill Project Data</li>
-            <li className="step">Check Dataset Columns</li>
+            <li className="step step-primary font-semibold">Fill Project Data</li>
+            <li className="step font-semibold">Check Dataset Columns</li>
           </ul>
 
           <BasicForm
             className="overflow-y-auto"
             onSubmit={handleSubmit(onSubmit)}
             isSubmitting={isSubmitting}
-            heading={mode.add ? 'Add Project' : 'Edit Project'}
-            action={mode.add ? 'Add' : 'Save'}
+            heading={mode.add ? 'Create Project' : 'Edit Project'}
+            action={mode.add ? 'Create' : 'Save'}
           >
             <FormInput
               label={'Title'}
