@@ -104,13 +104,13 @@ const ProjectDetailsPage = () => {
                 </div>
               </div>
               {loadingDatasetView ? (
-                <div className={'my-20'}>
+                <div className={'my-24'}>
                   <Loading />
                 </div>
               ) : (
                 <div>
                   {projectDatasetView.dataset && projectDatasetView.dataset.length !== 0 ? (
-                    <div className={'my-20'}>
+                    <div className={'my-24'}>
                       <div className={'flex justify-between'}>
                         <h1 className={'text-left text-2xl font-bold my-4'}>Dataset values</h1>
                         <div className={'flex mb-4'}>
