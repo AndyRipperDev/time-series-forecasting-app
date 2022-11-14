@@ -17,7 +17,9 @@ function useProjectService() {
   const setProjects = useSetRecoilState(projectsAtom)
   const setProject = useSetRecoilState(projectAtom)
   const setProjectDatasetView = useSetRecoilState(projectDatasetViewAtom)
-  const setProjectDatasetColumnsView = useSetRecoilState(projectDatasetColumnsViewAtom)
+  const setProjectDatasetColumnsView = useSetRecoilState(
+    projectDatasetColumnsViewAtom
+  )
   const forecastApi = useAxiosWrapper().forecastApi
 
   return {
@@ -62,9 +64,11 @@ function useProjectService() {
       .then(setProject)
   }
 
-  function getDatasetValues(projectId, skip= 0, limit = 100) {
+  function getDatasetValues(projectId, skip = 0, limit = 100) {
     return forecastApi
-      .get(`${urlPartProjects}/get-dataset-values/${projectId}/?skip=${skip}&limit=${limit}`)
+      .get(
+        `${urlPartProjects}/get-dataset-values/${projectId}/?skip=${skip}&limit=${limit}`
+      )
       .then((response) => response.data)
       .then(setProjectDatasetView)
   }
@@ -75,9 +79,6 @@ function useProjectService() {
       .then((response) => response.data)
       .then(setProjectDatasetColumnsView)
   }
-
-
-
 
   function create(project) {
     return forecastApi.post(urlPartProjects, {
@@ -98,7 +99,11 @@ function useProjectService() {
       },
     }
 
-    return forecastApi.post(urlPartProjects + '/create-with-dataset', formData, config)
+    return forecastApi.post(
+      urlPartProjects + '/create-with-dataset',
+      formData,
+      config
+    )
   }
 
   function uploadDataset(file) {
@@ -109,9 +114,12 @@ function useProjectService() {
         'content-type': 'multipart/form-data',
       },
     }
-    return forecastApi.post(urlPartProjects + '/upload-dataset', formData, config)
+    return forecastApi.post(
+      urlPartProjects + '/upload-dataset',
+      formData,
+      config
+    )
   }
-
 
   function downloadDataset(project) {
     return forecastApi({
@@ -119,22 +127,19 @@ function useProjectService() {
       method: 'GET',
       responseType: 'blob', // important
     }).then((response) => {
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', project.dataset.filename);
-      document.body.appendChild(link);
-      link.click();
-    });
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', project.dataset.filename)
+      document.body.appendChild(link)
+      link.click()
+    })
   }
 
-
   function update(id, params) {
-    return forecastApi
-      .patch(`${urlPartProjects}/${id}`, params)
-      .then((x) => {
-        return x
-      })
+    return forecastApi.patch(`${urlPartProjects}/${id}`, params).then((x) => {
+      return x
+    })
   }
 
   function updateWithDataset(id, params) {
