@@ -39,22 +39,32 @@ function ProjectDetailsColumnPlotsPage() {
               <h1 className="text-3xl font-bold mb-20">
                 Dataset Columns Visualization
               </h1>
+
               {Object.keys(projectDatasetColumnsView).map(
                 (colKey, colIndex) => {
                   return (
-                    <Plot
-                      className={'mx-auto'}
-                      key={colIndex}
-                      data={[
-                        {
-                          y: projectDatasetColumnsView[colKey],
-                          type: 'scattergl',
-                          mode: 'lines',
-                          marker: { color: 'red' },
-                        },
-                      ]}
-                      layout={{ width: 600, height: 400, title: colKey }}
-                    />
+                    <div key={colIndex} className="collapse collapse-arrow border border-base-200 bg-base-200 rounded-box my-2">
+                      <input type="checkbox"
+                             defaultChecked={true} />
+                      <div className="collapse-title text-xl font-medium">
+                        {colKey}
+                      </div>
+                      <div className="collapse-content">
+                        <Plot
+                          className={'mx-auto'}
+
+                          data={[
+                            {
+                              y: projectDatasetColumnsView[colKey],
+                              type: 'scattergl',
+                              mode: 'lines',
+                              marker: { color: 'red' },
+                            },
+                          ]}
+                          layout={{ width: 600, height: 400, title: colKey }}
+                        />
+                      </div>
+                    </div>
                   )
                 }
               )}
