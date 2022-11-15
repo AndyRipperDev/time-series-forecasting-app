@@ -31,8 +31,6 @@ function ProjectDetailsColumnPlotsPage() {
   }, [])
 
   const loading = !projectDatasetColumnsView
-  console.log(daisyuiColors[`[data-theme=${theme}]`].secondary)
-  console.log(daisyuiColors[`[data-theme=${theme}]`]['base-100'])
   return (
     <div>
       {loading ? (
@@ -67,7 +65,6 @@ function ProjectDetailsColumnPlotsPage() {
                               y: projectDatasetColumnsView[colKey],
                               type: 'scattergl',
                               mode: 'lines',
-                              // marker: { color: 'red' },
                               marker: {
                                 color:
                                   daisyuiColors[`[data-theme=${theme}]`][
@@ -80,9 +77,6 @@ function ProjectDetailsColumnPlotsPage() {
                             width: 600,
                             height: 400,
                             title: colKey,
-                            // paper_bgcolor: 'rgba(0, 0, 0, 0)',
-                            // plot_bgcolor: 'rgba(0, 0, 0, 0)',
-
                             font: {
                               color:
                                 daisyuiColors[`[data-theme=${theme}]`][
