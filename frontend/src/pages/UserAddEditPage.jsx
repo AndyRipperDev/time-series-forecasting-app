@@ -86,8 +86,8 @@ function UserAddEditPage() {
           <BasicForm
             onSubmit={handleSubmit(onSubmit)}
             isSubmitting={isSubmitting}
-            heading={mode.add ? 'Add User' : 'Edit User'}
-            action={mode.add ? 'Add' : 'Save'}
+            heading={mode.add ? 'Create User' : 'Edit User'}
+            action={mode.add ? 'Create' : 'Save'}
           >
             <FormInput
               label={'Full Name'}

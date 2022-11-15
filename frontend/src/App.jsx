@@ -23,6 +23,10 @@ import RolesManagePage from './pages/RolesManagePage'
 import { AdminRoute } from './components/Nav/AdminRoute'
 import { UserAddEditPage } from './pages/UserAddEditPage'
 import { RoleAddEditPage } from './pages/RoleAddEditPage'
+import { ProjectAddEditPage } from './pages/ProjectAddEditPage'
+import ProjectDetailsPage from './pages/ProjectDetails'
+import ProjectCheckDatasetColumnsPage from './pages/ProjectCheckDatasetColumnsPage'
+import { ProjectDetailsColumnPlotsPage } from './pages/ProjectDetailsColumnPlotsPage'
 
 function App() {
   history.navigate = useNavigate()
@@ -115,6 +119,46 @@ function App() {
             element={
               <PrivateRoute>
                 <ProjectsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/projects/:id"
+            element={
+              <PrivateRoute>
+                <ProjectDetailsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/projects/:id/columns-view"
+            element={
+              <PrivateRoute>
+                <ProjectDetailsColumnPlotsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/projects/add"
+            element={
+              <PrivateRoute>
+                <ProjectAddEditPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/projects/:id/columns-check"
+            element={
+              <PrivateRoute>
+                <ProjectCheckDatasetColumnsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/projects/edit/:id"
+            element={
+              <PrivateRoute>
+                <ProjectAddEditPage />
               </PrivateRoute>
             }
           />

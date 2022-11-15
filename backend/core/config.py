@@ -17,10 +17,12 @@ class Settings(BaseSettings):
     DB_USER: str = "root"
     DB_PASSWORD: str = ""
     DB_CONNECTOR: str = "mariadb+mariadbconnector"
-    DB_NAME: str = "time_series_forecast4"
+    DB_NAME: str = "time_series_forecast8"
 
     SQLALCHEMY_DATABASE_URI: str = DB_CONNECTOR + "://" + DB_USER + (
         (":" + DB_PASSWORD) if DB_PASSWORD != "" else DB_PASSWORD) + "@" + DB_SERVER + ":" + str(DB_PORT) + "/" + DB_NAME
+
+    FILE_STORAGE_DIR = "data/user_data"
 
     FIRST_SUPERUSER_EMAIL: str = "test@test.com"
     FIRST_SUPERUSER_PASSWORD: str = "Test"

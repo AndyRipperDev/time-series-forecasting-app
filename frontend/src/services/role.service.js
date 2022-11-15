@@ -44,15 +44,6 @@ function useRoleService() {
 
   function update(id, params) {
     return forecastApi.patch(`${urlPartRoles}/${id}`, params).then((x) => {
-      // update stored user if the logged in user updated their own record
-      // if (id === auth?.user?.id) {
-      //   // update local storage
-      //   const user = { ...auth, ...params }
-      //   localStorage.setItem('user', JSON.stringify(user))
-      //
-      //   // update auth user in recoil state
-      //   setAuth(user)
-      // }
       return x
     })
   }
