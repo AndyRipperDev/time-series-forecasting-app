@@ -67,7 +67,7 @@ function ProjectAddEditPage() {
       // if(project.dataset.delimiter === response.data.dataset.delimiter) {
       //   history.navigate(`/projects/${response.data.id}`)
       // } else {
-        history.navigate(`/projects/${response.data.id}/columns-check`)
+      history.navigate(`/projects/${response.data.id}/columns-check`)
       // }
     })
   }
@@ -76,9 +76,11 @@ function ProjectAddEditPage() {
   return (
     <>
       {!loading && (
-        <div className="grid place-items-center text-center">
+        <div className="grid place-items-center text-center mb-20">
           <ul className="steps w-full md:w-2/3 lg:w-1/2 mb-20 mt-12">
-            <li className="step step-primary font-semibold">Fill Project Data</li>
+            <li className="step step-primary font-semibold">
+              Fill Project Data
+            </li>
             <li className="step font-semibold">Check Dataset Columns</li>
           </ul>
 

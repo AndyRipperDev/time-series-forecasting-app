@@ -80,8 +80,8 @@ function RoleAddEditPage() {
           <BasicForm
             onSubmit={handleSubmit(onSubmit)}
             isSubmitting={isSubmitting}
-            heading={mode.add ? 'Add Role' : 'Edit Role'}
-            action={mode.add ? 'Add' : 'Save'}
+            heading={mode.add ? 'Create Role' : 'Edit Role'}
+            action={mode.add ? 'Create' : 'Save'}
           >
             <FormInput
               label={'Title'}

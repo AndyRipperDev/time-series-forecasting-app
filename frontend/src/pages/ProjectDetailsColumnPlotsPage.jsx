@@ -36,23 +36,27 @@ function ProjectDetailsColumnPlotsPage() {
         <div className={'my-12'}>
           {projectDatasetColumnsView && (
             <div className={'flex flex-col items-center'}>
-              <h1 className="text-3xl font-bold mb-20">
+              <h1 className="text-3xl font-bold md:text-4xl mb-16">
+                {project.title}
+              </h1>
+              <h1 className="text-2xl font-bold mb-12">
                 Dataset Columns Visualization
               </h1>
 
               {Object.keys(projectDatasetColumnsView).map(
                 (colKey, colIndex) => {
                   return (
-                    <div key={colIndex} className="collapse collapse-arrow border border-base-200 bg-base-200 rounded-box my-2">
-                      <input type="checkbox"
-                             defaultChecked={true} />
+                    <div
+                      key={colIndex}
+                      className="collapse collapse-arrow border border-base-200 bg-base-200 rounded-box my-2"
+                    >
+                      <input type="checkbox" defaultChecked={true} />
                       <div className="collapse-title text-xl font-medium">
                         {colKey}
                       </div>
                       <div className="collapse-content">
                         <Plot
                           className={'mx-auto'}
-
                           data={[
                             {
                               y: projectDatasetColumnsView[colKey],

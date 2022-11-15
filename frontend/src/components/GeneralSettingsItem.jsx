@@ -10,8 +10,8 @@ const GeneralSettingsItem = (props) => {
         {props.redirect ? (
           <Link
             to={`/${props.redirect}`}
-            className={`btn btn-sm btn-outline ${
-              props.isPrimary ? 'btn-primary' : 'btn-error'
+            className={`btn btn-sm btn-outline w-20 ${
+              props.isPrimary ? 'btn-info' : 'btn-error'
             } `}
           >
             {props.action}
@@ -19,8 +19,8 @@ const GeneralSettingsItem = (props) => {
         ) : (
           <button
             onClick={props.onClick}
-            className={`btn btn-sm btn-outline ${
-              props.isPrimary ? 'btn-primary' : 'btn-error'
+            className={`btn btn-sm btn-outline w-20 ${
+              props.isPrimary ? 'btn-info' : 'btn-error'
             }`}
           >
             {props.action}
