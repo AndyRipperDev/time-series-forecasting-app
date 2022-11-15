@@ -3,7 +3,9 @@ import { useParams } from 'react-router-dom'
 
 import { useRecoilValue } from 'recoil'
 
-import { projectAtom, projectDatasetColumnsViewAtom } from '../state'
+import daisyuiColors from 'daisyui/src/colors/themes'
+
+import { projectAtom, projectDatasetColumnsViewAtom, themeAtom } from '../state'
 import { useProjectService } from '../services/project.service'
 
 import Plot from 'react-plotly.js'
@@ -15,6 +17,7 @@ function ProjectDetailsColumnPlotsPage() {
   const { id } = useParams()
   const projectService = useProjectService()
   const project = useRecoilValue(projectAtom)
+  const theme = useRecoilValue(themeAtom)
   const projectDatasetColumnsView = useRecoilValue(
     projectDatasetColumnsViewAtom
   )
@@ -28,6 +31,8 @@ function ProjectDetailsColumnPlotsPage() {
   }, [])
 
   const loading = !projectDatasetColumnsView
+  console.log(daisyuiColors[`[data-theme=${theme}]`].secondary)
+  console.log(daisyuiColors[`[data-theme=${theme}]`]['base-100'])
   return (
     <div>
       {loading ? (
@@ -62,10 +67,37 @@ function ProjectDetailsColumnPlotsPage() {
                               y: projectDatasetColumnsView[colKey],
                               type: 'scattergl',
                               mode: 'lines',
-                              marker: { color: 'red' },
+                              // marker: { color: 'red' },
+                              marker: {
+                                color:
+                                  daisyuiColors[`[data-theme=${theme}]`][
+                                    'secondary'
+                                  ],
+                              },
                             },
                           ]}
-                          layout={{ width: 600, height: 400, title: colKey }}
+                          layout={{
+                            width: 600,
+                            height: 400,
+                            title: colKey,
+                            // paper_bgcolor: 'rgba(0, 0, 0, 0)',
+                            // plot_bgcolor: 'rgba(0, 0, 0, 0)',
+
+                            font: {
+                              color:
+                                daisyuiColors[`[data-theme=${theme}]`][
+                                  'base-content'
+                                ],
+                            },
+                            paper_bgcolor:
+                              daisyuiColors[`[data-theme=${theme}]`][
+                                'base-200'
+                              ],
+                            plot_bgcolor:
+                              daisyuiColors[`[data-theme=${theme}]`][
+                                'base-200'
+                              ],
+                          }}
                         />
                       </div>
                     </div>
