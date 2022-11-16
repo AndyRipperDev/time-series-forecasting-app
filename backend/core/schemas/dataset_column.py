@@ -4,6 +4,7 @@ from pydantic import BaseModel
 class DatasetColumnBase(BaseModel):
     name: str
     data_type: str
+    is_date: bool
 
 
 class DatasetColumnCreate(DatasetColumnBase):
@@ -25,3 +26,4 @@ class DatasetColumnUpdateSchema(BaseModel):
     id: int
     name: str | None = None
     data_type: str | None = None
+    is_date: bool | None = None

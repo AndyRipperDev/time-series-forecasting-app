@@ -42,6 +42,30 @@ const ProjectCheckDatasetColumnsPage = () => {
     setProject(newProject);
   }
 
+  const handleIsDateChange = (event, id) => {
+    let newCols = [...project.dataset.columns].map((column) => {
+      if (column.id === id) return { ...column, is_date: true };
+      else return { ...column, is_date: false };
+    });
+
+    let newProject = {
+      description: project.description,
+      title: project.title,
+      id: project.id,
+      user_id: project.user_id,
+      dataset: {
+        delimiter: project.dataset.delimiter,
+        filename: project.dataset.filename,
+        filename_processed: project.dataset.filename_processed,
+        project_id: project.dataset.project_id,
+        id: project.dataset.id,
+        columns: newCols
+      }
+    }
+
+    setProject(newProject);
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
     projectService.updateDatasetColumns(project.dataset.id, project.dataset.columns).then(() => {
@@ -73,6 +97,9 @@ const ProjectCheckDatasetColumnsPage = () => {
                       <th scope="col" className="py-5 px-6 md:px-8">
                         Data Type
                       </th>
+                      <th scope="col" className="py-5 px-6 md:px-8">
+                        Is Date
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -97,6 +124,14 @@ const ProjectCheckDatasetColumnsPage = () => {
                             <option value="timedelta[ns]">timedelta[ns]</option>
                             <option value="category">category</option>
                           </select>
+                        </td>
+                        <td className="py-5 px-6 md:px-8">
+                          <input
+                            type={'checkbox'}
+                            className={'checkbox checkbox-primary'}
+                            checked={column.is_date}
+                            onChange={(e) => handleIsDateChange(e, column.id)}
+                          />
                         </td>
                       </tr>
                     ))}

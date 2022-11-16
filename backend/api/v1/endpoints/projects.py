@@ -64,9 +64,11 @@ async def create_project_with_dataset(
                                               delimiter=delimiter)
     db_dataset = dataset_crud.create(db=db, dataset=db_dataset, project_id=db_project.id)
 
+    i = 0
     for k, v in columns.items():
-        col_sch = dataset_column_schema.DatasetColumnCreate(name=k, data_type=v)
+        col_sch = dataset_column_schema.DatasetColumnCreate(name=k, data_type=v, is_date=i == 0)
         dataset_column_crud.create(db=db, dataset_column=col_sch, dataset_id=db_dataset.id)
+        i += 1
 
     db_columns = dataset_column_crud.get_by_dataset_id(db, dataset_id=db_dataset.id)
 
@@ -160,14 +162,27 @@ def read_project_with_dataset_columns_with_values(project_id: int, column: str =
 
     dataset = df.to_dict('list')
     dataset_col = {}
+    dataset_cols = {}
+    date_col = ''
+
+    for k, v in dataset.items():
+        for col in db_project.dataset.columns:
+            if col.name == k:
+                dataset_cols[k] = {'is_date': col.is_date, 'values': v[0:1000]}
+                if col.is_date:
+                    date_col = k
 
     if column is not None:
-        for k, v in dataset.items():
-            if column == k:
-                dataset_col[k] = v
-                break
+        dataset_col[column] = dataset_cols[column]
+        dataset_col[date_col] = dataset_cols[date_col]
 
-    return dataset_col if column is not None else dataset
+    # if column is not None:
+    #     for k, v in dataset.items():
+    #         if column == k:
+    #             dataset_col[k] = v
+    #             break
+
+    return dataset_col if column is not None else dataset_cols
 
 
 @router.get("/download-dataset/{project_id}", status_code=status.HTTP_200_OK)
@@ -226,9 +241,12 @@ def update_project_with_dataset(project_id: int, project: project_schema.Project
         file_path = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(
             db_project.id) + '/' + db_dataset.filename
         columns = file_processing.check_columns_json(file_path, project.delimiter)
+
+        i = 0
         for k, v in columns.items():
-            col_sch = dataset_column_schema.DatasetColumnCreate(name=k, data_type=v)
+            col_sch = dataset_column_schema.DatasetColumnCreate(name=k, data_type=v, is_date=i == 0)
             dataset_column_crud.create(db=db, dataset_column=col_sch, dataset_id=db_dataset.id)
+            i += 1
 
     updates_dataset = dataset_schema.DatasetUpdateSchema(delimiter=project.delimiter)
     db_dataset = dataset_crud.update(db=db, dataset=db_dataset, updates=updates_dataset)
