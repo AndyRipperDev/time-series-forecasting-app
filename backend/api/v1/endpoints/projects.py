@@ -17,6 +17,7 @@ from core.schemas import dataset as dataset_schema
 
 from core.crud import dataset_column as dataset_column_crud
 from core.schemas import dataset_column as dataset_column_schema
+from core.enums.dataset_column_enum import ColumnMissingValuesMethod, ColumnScalingMethod
 
 from api import dependencies
 
@@ -66,7 +67,7 @@ async def create_project_with_dataset(
 
     i = 0
     for k, v in columns.items():
-        col_sch = dataset_column_schema.DatasetColumnCreate(name=k, data_type=v, is_date=i == 0)
+        col_sch = dataset_column_schema.DatasetColumnCreate(name=k, data_type=v, is_date=i == 0, scaling=None, missing_values_handler=ColumnMissingValuesMethod.FillZeros)
         dataset_column_crud.create(db=db, dataset_column=col_sch, dataset_id=db_dataset.id)
         i += 1
 
@@ -244,7 +245,7 @@ def update_project_with_dataset(project_id: int, project: project_schema.Project
 
         i = 0
         for k, v in columns.items():
-            col_sch = dataset_column_schema.DatasetColumnCreate(name=k, data_type=v, is_date=i == 0)
+            col_sch = dataset_column_schema.DatasetColumnCreate(name=k, data_type=v, is_date=i == 0, scaling=None, missing_values_handler=ColumnMissingValuesMethod.FillZeros)
             dataset_column_crud.create(db=db, dataset_column=col_sch, dataset_id=db_dataset.id)
             i += 1
 

@@ -1,10 +1,17 @@
 from pydantic import BaseModel
+from enum import Enum
+from core.enums.dataset_column_enum import ColumnMissingValuesMethod, ColumnScalingMethod
 
 
 class DatasetColumnBase(BaseModel):
     name: str
     data_type: str
     is_date: bool
+    scaling: ColumnScalingMethod | None = None
+    missing_values_handler: ColumnMissingValuesMethod | None = None
+
+    class Config:
+        use_enum_values = True
 
 
 class DatasetColumnCreate(DatasetColumnBase):
@@ -27,3 +34,5 @@ class DatasetColumnUpdateSchema(BaseModel):
     name: str | None = None
     data_type: str | None = None
     is_date: bool | None = None
+    scaling: ColumnScalingMethod | None = None
+    missing_values_handler: ColumnMissingValuesMethod | None = None

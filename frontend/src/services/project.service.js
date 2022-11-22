@@ -8,14 +8,19 @@ import {
   userAtom,
   projectDatasetViewAtom,
   projectDatasetColumnsViewAtom,
+  projectDatasetColumnOptionsAtom,
 } from '../state'
 
 export { useProjectService }
 
 function useProjectService() {
   const urlPartProjects = '/projects'
+  const urlPartColumns = '/dataset-columns'
   const setProjects = useSetRecoilState(projectsAtom)
   const setProject = useSetRecoilState(projectAtom)
+  const setProjectDatasetColumnOptionsAtom = useSetRecoilState(
+    projectDatasetColumnOptionsAtom
+  )
   const setProjectDatasetView = useSetRecoilState(projectDatasetViewAtom)
   const setProjectDatasetColumnsView = useSetRecoilState(
     projectDatasetColumnsViewAtom
@@ -28,6 +33,7 @@ function useProjectService() {
     getById,
     getDatasetValues,
     getDatasetColumnValues,
+    getDatasetColumnOptions,
     update,
     updateWithDataset,
     updateDatasetColumns,
@@ -41,6 +47,9 @@ function useProjectService() {
     resetProject: useResetRecoilState(projectAtom),
     resetDatasetView: useResetRecoilState(projectDatasetViewAtom),
     resetDatasetColumnsView: useResetRecoilState(projectDatasetColumnsViewAtom),
+    resetDatasetColumnOptions: useResetRecoilState(
+      projectDatasetColumnOptionsAtom
+    ),
   }
 
   function getAll() {
@@ -78,6 +87,13 @@ function useProjectService() {
       .get(`${urlPartProjects}/get-dataset-columns-with-values/${projectId}`)
       .then((response) => response.data)
       .then(setProjectDatasetColumnsView)
+  }
+
+  function getDatasetColumnOptions() {
+    return forecastApi
+      .get(urlPartColumns + '/column-options')
+      .then((response) => response.data)
+      .then(setProjectDatasetColumnOptionsAtom)
   }
 
   function create(project) {
@@ -155,7 +171,7 @@ function useProjectService() {
   }
 
   function updateDatasetColumns(id, params) {
-    return forecastApi.patch(`/dataset-columns/${id}`, params).then((x) => {
+    return forecastApi.patch(`${urlPartColumns}/${id}`, params).then((x) => {
       return x
     })
   }
