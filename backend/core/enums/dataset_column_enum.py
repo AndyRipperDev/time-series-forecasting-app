@@ -14,12 +14,3 @@ class ColumnMissingValuesMethod(Enum):
 class ColumnScalingMethod(Enum):
     MinMax = 'MinMax'
     PowerTransformer = 'PowerTransformer'
-
-
-"""
-FillZeros = 'Fill with zeros'
-FillMedian = 'Fill with median'
-FillMean = 'Fill with mean'
-FillMostFrequent = 'Fill with most frequent value'
-Drop = 'Drop column'
-"""

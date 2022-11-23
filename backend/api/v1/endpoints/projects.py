@@ -19,6 +19,10 @@ from core.crud import dataset_column as dataset_column_crud
 from core.schemas import dataset_column as dataset_column_schema
 from core.enums.dataset_column_enum import ColumnMissingValuesMethod, ColumnScalingMethod
 
+from core.crud import time_period as time_period_crud
+from core.schemas import time_period as time_period_schema
+from core.enums.time_period_enum import TimePeriodUnit
+
 from api import dependencies
 
 router = APIRouter(
@@ -64,6 +68,9 @@ async def create_project_with_dataset(
                                                                                                       '_processed'),
                                               delimiter=delimiter)
     db_dataset = dataset_crud.create(db=db, dataset=db_dataset, project_id=db_project.id)
+
+    time_period_create = time_period_schema.TimePeriodCreate(value=1, unit=TimePeriodUnit.Year)
+    time_period_crud.create(db=db, time_period=time_period_create, dataset_id=db_dataset.id)
 
     i = 0
     for k, v in columns.items():
@@ -280,6 +287,10 @@ def delete_project(project_id: int, db: Session = Depends(dependencies.get_db),
     file_path_processed = file_dir + db_project.dataset.filename_processed
 
     db_dataset = dataset_crud.get_by_project_id(db=db, project_id=db_project.id)
+
+    db_time_period = time_period_crud.get_by_dataset_id(db=db, dataset_id=db_dataset.id)
+    time_period_crud.delete(db, db_time_period)
+
     db_columns = dataset_column_crud.get_by_dataset_id(db, dataset_id=db_dataset.id)
     for col in db_columns:
         dataset_column_crud.delete(db, col)

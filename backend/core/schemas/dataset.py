@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 import core.schemas.dataset_column as dataset_column
+import core.schemas.time_period as time_period
 
 
 class DatasetBase(BaseModel):
@@ -22,6 +23,7 @@ class Dataset(DatasetBase):
 class DatasetSchema(Dataset):
     project_id: int
     columns: list[dataset_column.DatasetColumn] = []
+    time_period: time_period.TimePeriod
 
 
 class DatasetUpdateSchema(BaseModel):
