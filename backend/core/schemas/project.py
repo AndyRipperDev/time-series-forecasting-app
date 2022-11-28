@@ -32,3 +32,5 @@ class ProjectDatasetUpdateSchema(BaseModel):
     title: str | None = None
     description: str | None = None
     delimiter: str | None = None
+    time_period_value: int | None = None
+    time_period_unit: str | None = None

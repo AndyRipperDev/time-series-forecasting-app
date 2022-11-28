@@ -47,6 +47,8 @@ async def create_project_with_dataset(
         title: str = Form(...),
         description: str = Form(...),
         delimiter: str = Form(...),
+        time_period_value: int = Form(...),
+        time_period_unit: str = Form(...),
         file: UploadFile = File(...),
         db: Session = Depends(dependencies.get_db),
         current_user: user_model.User = Depends(dependencies.get_current_active_user)):
@@ -69,7 +71,7 @@ async def create_project_with_dataset(
                                               delimiter=delimiter)
     db_dataset = dataset_crud.create(db=db, dataset=db_dataset, project_id=db_project.id)
 
-    time_period_create = time_period_schema.TimePeriodCreate(value=1, unit=TimePeriodUnit.Year)
+    time_period_create = time_period_schema.TimePeriodCreate(value=time_period_value, unit=time_period_unit)
     time_period_crud.create(db=db, time_period=time_period_create, dataset_id=db_dataset.id)
 
     i = 0
@@ -240,6 +242,10 @@ def update_project_with_dataset(project_id: int, project: project_schema.Project
     db_project = project_crud.update_dataset(db, project=db_project, updates=project)
 
     db_dataset = dataset_crud.get_by_project_id(db=db, project_id=db_project.id)
+
+    db_time_period = time_period_crud.get_by_dataset_id(db, dataset_id=db_dataset.id)
+    time_period_updates = time_period_schema.TimePeriodUpdateSchema(id=db_time_period.id, value=project.time_period_value, unit=project.time_period_unit)
+    db_time_period = time_period_crud.update(db, time_period=db_time_period, updates=time_period_updates)
 
     if db_dataset.delimiter != project.delimiter:
         db_columns = dataset_column_crud.get_by_dataset_id(db, dataset_id=db_dataset.id)
