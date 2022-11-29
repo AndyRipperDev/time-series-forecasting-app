@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 import core.schemas.dataset as dataset
+from core.enums.time_period_enum import TimePeriodUnit
 
 
 class ProjectBase(BaseModel):
@@ -33,4 +34,4 @@ class ProjectDatasetUpdateSchema(BaseModel):
     description: str | None = None
     delimiter: str | None = None
     time_period_value: int | None = None
-    time_period_unit: str | None = None
+    time_period_unit: TimePeriodUnit | None = None

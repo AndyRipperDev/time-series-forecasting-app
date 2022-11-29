@@ -34,7 +34,7 @@ function ProjectDetailsColumnPlotsPage() {
   useEffect(() => {
     if (projectDatasetColumnsView) {
       Object.keys(projectDatasetColumnsView).map((colKey, colIndex) => {
-        if(projectDatasetColumnsView[colKey].is_date) {
+        if (projectDatasetColumnsView[colKey].is_date) {
           setDateColumn(projectDatasetColumnsView[colKey].values)
         }
       })
@@ -62,7 +62,7 @@ function ProjectDetailsColumnPlotsPage() {
                   return (
                     <div key={colIndex}>
                       {!projectDatasetColumnsView[colKey].is_date && (
-                        <div className="collapse collapse-arrow border border-base-200 bg-base-200 rounded-box my-2" >
+                        <div className="collapse collapse-arrow border border-base-200 bg-base-200 rounded-box my-2">
                           <input type="checkbox" defaultChecked={true} />
                           <div className="collapse-title text-xl font-medium">
                             {colKey}
@@ -80,7 +80,7 @@ function ProjectDetailsColumnPlotsPage() {
                                     color:
                                       daisyuiColors[`[data-theme=${theme}]`][
                                         'secondary'
-                                        ],
+                                      ],
                                   },
                                 },
                               ]}
@@ -92,16 +92,16 @@ function ProjectDetailsColumnPlotsPage() {
                                   color:
                                     daisyuiColors[`[data-theme=${theme}]`][
                                       'base-content'
-                                      ],
+                                    ],
                                 },
                                 paper_bgcolor:
                                   daisyuiColors[`[data-theme=${theme}]`][
                                     'base-200'
-                                    ],
+                                  ],
                                 plot_bgcolor:
                                   daisyuiColors[`[data-theme=${theme}]`][
                                     'base-200'
-                                    ],
+                                  ],
                               }}
                             />
                           </div>

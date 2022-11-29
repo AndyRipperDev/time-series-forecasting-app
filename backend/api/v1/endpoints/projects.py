@@ -48,7 +48,7 @@ async def create_project_with_dataset(
         description: str = Form(...),
         delimiter: str = Form(...),
         time_period_value: int = Form(...),
-        time_period_unit: str = Form(...),
+        time_period_unit: TimePeriodUnit = Form(...),
         file: UploadFile = File(...),
         db: Session = Depends(dependencies.get_db),
         current_user: user_model.User = Depends(dependencies.get_current_active_user)):
