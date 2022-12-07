@@ -91,9 +91,11 @@ function useProjectService() {
       .then(setProjectDatasetView)
   }
 
-  function getDatasetColumnValues(projectId) {
+  function getDatasetColumnValues(projectId, skip = 0, limit = 1000) {
     return forecastApi
-      .get(`${urlPartProjects}/get-dataset-columns-with-values/${projectId}`)
+      .get(
+        `${urlPartProjects}/get-dataset-columns-with-values/${projectId}/?skip=${skip}&limit=${limit}`
+      )
       .then((response) => response.data)
       .then(setProjectDatasetColumnsView)
   }
