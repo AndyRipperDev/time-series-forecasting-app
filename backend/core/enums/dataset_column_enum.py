@@ -13,4 +13,5 @@ class ColumnMissingValuesMethod(Enum):
 @unique
 class ColumnScalingMethod(Enum):
     MinMax = 'MinMax'
+    Standard = 'Standard'
     PowerTransformer = 'PowerTransformer'

@@ -1,7 +1,7 @@
 import pandas as pd
 from pathlib import Path
 from core.enums.dataset_column_enum import ColumnMissingValuesMethod, ColumnScalingMethod
-from sklearn.preprocessing import MinMaxScaler, PowerTransformer
+from sklearn.preprocessing import MinMaxScaler, PowerTransformer, StandardScaler
 
 
 def add_text_to_filename(filename, text):
@@ -70,6 +70,9 @@ def scale_columns(df, db_columns):
                         df[[column]] = scaler.fit_transform(df[[column]])
                     elif db_column.scaling == ColumnScalingMethod.PowerTransformer:
                         scaler = PowerTransformer()
+                        df[[column]] = scaler.fit_transform(df[[column]])
+                    elif db_column.scaling == ColumnScalingMethod.Standard:
+                        scaler = StandardScaler()
                         df[[column]] = scaler.fit_transform(df[[column]])
                 except:
                     continue
