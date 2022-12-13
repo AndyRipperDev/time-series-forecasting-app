@@ -8,14 +8,24 @@ import {
   userAtom,
   projectDatasetViewAtom,
   projectDatasetColumnsViewAtom,
+  projectDatasetColumnOptionsAtom,
+  projectDatasetTimePeriodOptionsAtom,
 } from '../state'
 
 export { useProjectService }
 
 function useProjectService() {
   const urlPartProjects = '/projects'
+  const urlPartColumns = '/dataset-columns'
+  const urlPartTimePeriod = '/time-period'
   const setProjects = useSetRecoilState(projectsAtom)
   const setProject = useSetRecoilState(projectAtom)
+  const setProjectDatasetColumnOptions = useSetRecoilState(
+    projectDatasetColumnOptionsAtom
+  )
+  const setProjectDatasetTimePeriodOptions = useSetRecoilState(
+    projectDatasetTimePeriodOptionsAtom
+  )
   const setProjectDatasetView = useSetRecoilState(projectDatasetViewAtom)
   const setProjectDatasetColumnsView = useSetRecoilState(
     projectDatasetColumnsViewAtom
@@ -28,6 +38,8 @@ function useProjectService() {
     getById,
     getDatasetValues,
     getDatasetColumnValues,
+    getDatasetColumnOptions,
+    getDatasetTimePeriodOptions,
     update,
     updateWithDataset,
     updateDatasetColumns,
@@ -41,6 +53,12 @@ function useProjectService() {
     resetProject: useResetRecoilState(projectAtom),
     resetDatasetView: useResetRecoilState(projectDatasetViewAtom),
     resetDatasetColumnsView: useResetRecoilState(projectDatasetColumnsViewAtom),
+    resetDatasetColumnOptions: useResetRecoilState(
+      projectDatasetColumnOptionsAtom
+    ),
+    resetDatasetTimePeriodOptions: useResetRecoilState(
+      projectDatasetTimePeriodOptionsAtom
+    ),
   }
 
   function getAll() {
@@ -73,11 +91,27 @@ function useProjectService() {
       .then(setProjectDatasetView)
   }
 
-  function getDatasetColumnValues(projectId) {
+  function getDatasetColumnValues(projectId, skip = 0, limit = 1000) {
     return forecastApi
-      .get(`${urlPartProjects}/get-dataset-columns-with-values/${projectId}`)
+      .get(
+        `${urlPartProjects}/get-dataset-columns-with-values/${projectId}/?skip=${skip}&limit=${limit}`
+      )
       .then((response) => response.data)
       .then(setProjectDatasetColumnsView)
+  }
+
+  function getDatasetColumnOptions() {
+    return forecastApi
+      .get(urlPartColumns + '/column-options')
+      .then((response) => response.data)
+      .then(setProjectDatasetColumnOptions)
+  }
+
+  function getDatasetTimePeriodOptions() {
+    return forecastApi
+      .get(urlPartTimePeriod)
+      .then((response) => response.data)
+      .then(setProjectDatasetTimePeriodOptions)
   }
 
   function create(project) {
@@ -92,6 +126,8 @@ function useProjectService() {
     formData.append('title', project.title)
     formData.append('description', project.description)
     formData.append('delimiter', project.dataset.delimiter)
+    formData.append('time_period_value', project.dataset.time_period.value)
+    formData.append('time_period_unit', project.dataset.time_period.unit)
     formData.append('file', project.file[0])
     const config = {
       headers: {
@@ -148,6 +184,8 @@ function useProjectService() {
         title: params.title,
         description: params.description,
         delimiter: params.dataset.delimiter,
+        time_period_value: params.dataset.time_period.value,
+        time_period_unit: params.dataset.time_period.unit,
       })
       .then((x) => {
         return x
@@ -155,7 +193,7 @@ function useProjectService() {
   }
 
   function updateDatasetColumns(id, params) {
-    return forecastApi.patch(`/dataset-columns/${id}`, params).then((x) => {
+    return forecastApi.patch(`${urlPartColumns}/${id}`, params).then((x) => {
       return x
     })
   }

@@ -17,6 +17,11 @@ from core.schemas import dataset as dataset_schema
 
 from core.crud import dataset_column as dataset_column_crud
 from core.schemas import dataset_column as dataset_column_schema
+from core.enums.dataset_column_enum import ColumnMissingValuesMethod, ColumnScalingMethod
+
+from core.crud import time_period as time_period_crud
+from core.schemas import time_period as time_period_schema
+from core.enums.time_period_enum import TimePeriodUnit
 
 from api import dependencies
 
@@ -42,6 +47,8 @@ async def create_project_with_dataset(
         title: str = Form(...),
         description: str = Form(...),
         delimiter: str = Form(...),
+        time_period_value: int = Form(...),
+        time_period_unit: TimePeriodUnit = Form(...),
         file: UploadFile = File(...),
         db: Session = Depends(dependencies.get_db),
         current_user: user_model.User = Depends(dependencies.get_current_active_user)):
@@ -64,9 +71,14 @@ async def create_project_with_dataset(
                                               delimiter=delimiter)
     db_dataset = dataset_crud.create(db=db, dataset=db_dataset, project_id=db_project.id)
 
+    time_period_create = time_period_schema.TimePeriodCreate(value=time_period_value, unit=time_period_unit)
+    time_period_crud.create(db=db, time_period=time_period_create, dataset_id=db_dataset.id)
+
+    i = 0
     for k, v in columns.items():
-        col_sch = dataset_column_schema.DatasetColumnCreate(name=k, data_type=v)
+        col_sch = dataset_column_schema.DatasetColumnCreate(name=k, data_type=v, is_date=i == 0, scaling=None, missing_values_handler=ColumnMissingValuesMethod.FillZeros)
         dataset_column_crud.create(db=db, dataset_column=col_sch, dataset_id=db_dataset.id)
+        i += 1
 
     db_columns = dataset_column_crud.get_by_dataset_id(db, dataset_id=db_dataset.id)
 
@@ -144,7 +156,7 @@ def read_project_with_dataset_values(project_id: int, skip: int = 0, limit: int 
 
 
 @router.get("/get-dataset-columns-with-values/{project_id}", status_code=status.HTTP_200_OK)
-def read_project_with_dataset_columns_with_values(project_id: int, column: str = None, db: Session = Depends(dependencies.get_db),
+def read_project_with_dataset_columns_with_values(project_id: int, skip: int = 0, limit: int = 100, column: str = None, db: Session = Depends(dependencies.get_db),
                  current_user: user_model.User = Depends(dependencies.get_current_active_user)):
     db_project = project_crud.get(db, project_id=project_id)
     if db_project is None:
@@ -160,14 +172,32 @@ def read_project_with_dataset_columns_with_values(project_id: int, column: str =
 
     dataset = df.to_dict('list')
     dataset_col = {}
+    dataset_cols = {}
+    date_col = ''
+    dataset_len = 0
+
+    for k, v in dataset.items():
+        for col in db_project.dataset.columns:
+            if col.name == k:
+                dataset_cols[k] = {'is_date': col.is_date, 'values': v[skip:limit]}
+                if col.is_date:
+                    date_col = k
+                    dataset_len = len(v)
 
     if column is not None:
-        for k, v in dataset.items():
-            if column == k:
-                dataset_col[k] = v
-                break
+        dataset_col[column] = dataset_cols[column]
+        dataset_col[date_col] = dataset_cols[date_col]
 
-    return dataset_col if column is not None else dataset
+    # if column is not None:
+    #     for k, v in dataset.items():
+    #         if column == k:
+    #             dataset_col[k] = v
+    #             break
+
+    return {'dataset': dataset_col if column is not None else dataset_cols, 'values_count': dataset_len}
+
+
+    # return dataset_col if column is not None else dataset_cols
 
 
 @router.get("/download-dataset/{project_id}", status_code=status.HTTP_200_OK)
@@ -218,6 +248,10 @@ def update_project_with_dataset(project_id: int, project: project_schema.Project
 
     db_dataset = dataset_crud.get_by_project_id(db=db, project_id=db_project.id)
 
+    db_time_period = time_period_crud.get_by_dataset_id(db, dataset_id=db_dataset.id)
+    time_period_updates = time_period_schema.TimePeriodUpdateSchema(id=db_time_period.id, value=project.time_period_value, unit=project.time_period_unit)
+    db_time_period = time_period_crud.update(db, time_period=db_time_period, updates=time_period_updates)
+
     if db_dataset.delimiter != project.delimiter:
         db_columns = dataset_column_crud.get_by_dataset_id(db, dataset_id=db_dataset.id)
         for col in db_columns:
@@ -226,9 +260,12 @@ def update_project_with_dataset(project_id: int, project: project_schema.Project
         file_path = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(
             db_project.id) + '/' + db_dataset.filename
         columns = file_processing.check_columns_json(file_path, project.delimiter)
+
+        i = 0
         for k, v in columns.items():
-            col_sch = dataset_column_schema.DatasetColumnCreate(name=k, data_type=v)
+            col_sch = dataset_column_schema.DatasetColumnCreate(name=k, data_type=v, is_date=i == 0, scaling=None, missing_values_handler=ColumnMissingValuesMethod.FillZeros)
             dataset_column_crud.create(db=db, dataset_column=col_sch, dataset_id=db_dataset.id)
+            i += 1
 
     updates_dataset = dataset_schema.DatasetUpdateSchema(delimiter=project.delimiter)
     db_dataset = dataset_crud.update(db=db, dataset=db_dataset, updates=updates_dataset)
@@ -261,6 +298,10 @@ def delete_project(project_id: int, db: Session = Depends(dependencies.get_db),
     file_path_processed = file_dir + db_project.dataset.filename_processed
 
     db_dataset = dataset_crud.get_by_project_id(db=db, project_id=db_project.id)
+
+    db_time_period = time_period_crud.get_by_dataset_id(db=db, dataset_id=db_dataset.id)
+    time_period_crud.delete(db, db_time_period)
+
     db_columns = dataset_column_crud.get_by_dataset_id(db, dataset_id=db_dataset.id)
     for col in db_columns:
         dataset_column_crud.delete(db, col)

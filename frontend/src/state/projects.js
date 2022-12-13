@@ -20,4 +20,21 @@ const projectDatasetColumnsViewAtom = atom({
   default: null,
 })
 
-export { projectsAtom, projectAtom, projectDatasetViewAtom, projectDatasetColumnsViewAtom }
+const projectDatasetColumnOptionsAtom = atom({
+  key: 'projectDatasetColumnOptions',
+  default: null,
+})
+
+const projectDatasetTimePeriodOptionsAtom = atom({
+  key: 'projectDatasetTimePeriodOptions',
+  default: null,
+})
+
+export {
+  projectsAtom,
+  projectAtom,
+  projectDatasetViewAtom,
+  projectDatasetColumnsViewAtom,
+  projectDatasetColumnOptionsAtom,
+  projectDatasetTimePeriodOptionsAtom,
+}

@@ -5,7 +5,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as Yup from 'yup'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { projectAtom } from '../state'
+import { projectAtom, projectDatasetTimePeriodOptionsAtom } from '../state'
 import { useAlertActions } from '../actions'
 import FormInput from '../components/FormInput'
 import BasicForm from '../components/Forms/BasicForm'
@@ -22,12 +22,19 @@ function ProjectAddEditPage() {
   const projectService = useProjectService()
   const alertActions = useAlertActions()
   const project = useRecoilValue(projectAtom)
+  const projectDatasetTimePeriodOptions = useRecoilValue(
+    projectDatasetTimePeriodOptionsAtom
+  )
 
   const validationSchema = Yup.object().shape({
     title: Yup.string().required('Title is required'),
     description: Yup.string().required('Description is required'),
     dataset: Yup.object().shape({
       delimiter: Yup.string().required('Delimiter is required'),
+      time_period: Yup.object().shape({
+        value: Yup.string().required('Time Period is required'),
+        unit: Yup.string().required('Time Period Unit is required'),
+      }),
     }),
     file: Yup.mixed().test('fileSize', 'Dataset file is required', (value) => {
       return mode.add ? value.length : 1
@@ -43,7 +50,13 @@ function ProjectAddEditPage() {
     if (mode.edit) {
       projectService.getById(id)
     }
-    return projectService.resetProject
+
+    projectService.getDatasetTimePeriodOptions()
+
+    return () => {
+      projectService.resetProject()
+      projectService.resetDatasetTimePeriodOptions()
+    }
   }, [])
 
   useEffect(() => {
@@ -72,7 +85,7 @@ function ProjectAddEditPage() {
     })
   }
 
-  const loading = mode.edit && !project
+  const loading = (mode.edit && !project) || !projectDatasetTimePeriodOptions
   return (
     <>
       {!loading && (
@@ -149,6 +162,67 @@ function ProjectAddEditPage() {
                 {errors.dataset?.delimiter?.message}
               </div>
             )}
+            <label className="label pb-0" htmlFor={'timePeriodValueId'}>
+              <span className="label-text text-base font-semibold">
+                Time Period
+              </span>
+            </label>
+            <div className={'flex items-start space-x-4'}>
+              <FormInput
+                label={'Time Period'}
+                type={'number'}
+                name={'timePeriodValue'}
+                forId={'timePeriodValueId'}
+                hideLabel={true}
+                registerHookForm={register('dataset.time_period.value')}
+                errorMessage={errors.dataset?.time_period?.value?.message}
+              />
+              {projectDatasetTimePeriodOptions && (
+                <>
+                  <select
+                    name={'timePeriodUnit'}
+                    id={'timePeriodUnitId'}
+                    className="select select-bordered max-w-xs"
+                    {...register('dataset.time_period.unit')}
+                  >
+                    {projectDatasetTimePeriodOptions.time_period_units.map(
+                      (unit) => (
+                        <option key={unit} value={unit}>
+                          {unit}
+                        </option>
+                      )
+                    )}
+                  </select>
+                  {errors.dataset?.time_period?.unit?.message && (
+                    <div className="text-red-500 mt-1 text-left">
+                      {errors.dataset?.time_period?.unit?.message}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+            {/*<label className="label pb-0" htmlFor={'timePeriodUnitId'}>*/}
+            {/*  <span className="label-text text-base font-semibold">*/}
+            {/*    Time Period Value*/}
+            {/*  </span>*/}
+            {/*</label>*/}
+            {/*<select*/}
+            {/*  name={'timePeriodUnit'}*/}
+            {/*  id={'timePeriodUnitId'}*/}
+            {/*  className="select select-bordered w-full max-w-xs"*/}
+            {/*  {...register('dataset.time_period.unit')}*/}
+            {/*>*/}
+            {/*  <option value=";">;</option>*/}
+            {/*  <option value=",">,</option>*/}
+            {/*  <option value="|">|</option>*/}
+            {/*  <option value="\t">Tab</option>*/}
+            {/*  <option value=" ">Space</option>*/}
+            {/*</select>*/}
+            {/*{errors.dataset?.time_period?.unit?.message && (*/}
+            {/*  <div className="text-red-500 mt-1 text-left">*/}
+            {/*    {errors.dataset?.time_period?.unit?.message}*/}
+            {/*  </div>*/}
+            {/*)}*/}
           </BasicForm>
         </div>
       )}

@@ -1,5 +1,7 @@
 import pandas as pd
 from pathlib import Path
+from core.enums.dataset_column_enum import ColumnMissingValuesMethod, ColumnScalingMethod
+from sklearn.preprocessing import MinMaxScaler, PowerTransformer, StandardScaler
 
 
 def add_text_to_filename(filename, text):
@@ -35,6 +37,48 @@ def retype_columns(df, db_columns):
     return df
 
 
+def handle_missing_values(df, db_columns):
+    for db_column in db_columns:
+        if db_column.missing_values_handler is None:
+            continue
+        for i, column in enumerate(df):
+            if column == db_column.name:
+                try:
+                    if db_column.missing_values_handler == ColumnMissingValuesMethod.FillZeros:
+                        df[column] = df[column].fillna(0)
+                    elif db_column.missing_values_handler == ColumnMissingValuesMethod.FillMean:
+                        df[column] = df[column].fillna(df[column].mean())
+                    elif db_column.missing_values_handler == ColumnMissingValuesMethod.FillMedian:
+                        df[column] = df[column].fillna(df[column].median())
+                    elif db_column.missing_values_handler == ColumnMissingValuesMethod.FillMostFrequent:
+                        df[column] = df[column].fillna(df[column].value_counts().index[0])
+                    elif db_column.missing_values_handler == ColumnMissingValuesMethod.Drop:
+                        df[column] = df[column].dropna()
+                except:
+                    continue
+    return df
+
+def scale_columns(df, db_columns):
+    for db_column in db_columns:
+        if db_column.scaling is None:
+            continue
+        for i, column in enumerate(df):
+            if column == db_column.name:
+                try:
+                    if db_column.scaling == ColumnScalingMethod.MinMax:
+                        scaler = MinMaxScaler()
+                        df[[column]] = scaler.fit_transform(df[[column]])
+                    elif db_column.scaling == ColumnScalingMethod.PowerTransformer:
+                        scaler = PowerTransformer()
+                        df[[column]] = scaler.fit_transform(df[[column]])
+                    elif db_column.scaling == ColumnScalingMethod.Standard:
+                        scaler = StandardScaler()
+                        df[[column]] = scaler.fit_transform(df[[column]])
+                except:
+                    continue
+    return df
+
+
 def df_to_csv(df, path, delimiter):
     # Prepend dtypes to the top of df
     df2 = df.copy()
@@ -58,9 +102,10 @@ def df_from_csv(path, delimiter):
 
 def process_dataset(file_name, file_name_processed, delimiter, db_columns):
     df = pd.read_csv(file_name, sep=delimiter)
-    df = df.dropna()
 
     df = retype_columns(df, db_columns)
+    df = handle_missing_values(df, db_columns)
+    df = scale_columns(df, db_columns)
 
     df_to_csv(df, file_name_processed, delimiter)
 

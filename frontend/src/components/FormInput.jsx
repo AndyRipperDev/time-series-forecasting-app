@@ -1,11 +1,13 @@
 const FormInput = (props) => {
   return (
     <div className="form-control w-full max-w-xs">
-      <label className="label" htmlFor={props.forId}>
-        <span className="label-text text-base font-semibold">
-          {props.label}
-        </span>
-      </label>
+      {!props.hideLabel && (
+        <label className="label" htmlFor={props.forId}>
+          <span className="label-text text-base font-semibold">
+            {props.label}
+          </span>
+        </label>
+      )}
       <input
         name={props.name}
         type={props.type}

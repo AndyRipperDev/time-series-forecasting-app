@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 
 import { authAtom, projectAtom, projectDatasetViewAtom } from 'state'
@@ -14,6 +14,10 @@ const ProjectDetailsPage = () => {
   const projectService = useProjectService()
   const project = useRecoilValue(projectAtom)
   const projectDatasetView = useRecoilValue(projectDatasetViewAtom)
+  const [nextPageLoad, setNextPageLoad] = useState(false)
+  const [lastPageLoad, setLastPageLoad] = useState(false)
+  const [prevPageLoad, setPrevPageLoad] = useState(false)
+  const [firstPageLoad, setFirstPageLoad] = useState(false)
 
   useEffect(() => {
     projectService.getById(id).then((response) => {
@@ -38,22 +42,42 @@ const ProjectDetailsPage = () => {
 
   function handleNextPage(event) {
     if (projectDatasetView.nextPage !== null) {
-      projectService.getDatasetValues(id, projectDatasetView.nextPage)
+      setNextPageLoad(true)
+      projectService
+        .getDatasetValues(id, projectDatasetView.nextPage)
+        .then(() => {
+          setNextPageLoad(false)
+        })
     }
   }
 
   function handlePrevPage(event) {
     if (projectDatasetView.prevPage !== null) {
-      projectService.getDatasetValues(id, projectDatasetView.prevPage)
+      setPrevPageLoad(true)
+      projectService
+        .getDatasetValues(id, projectDatasetView.prevPage)
+        .then(() => {
+          setPrevPageLoad(false)
+        })
     }
   }
 
   function handleFirstPage(event) {
-    projectService.getDatasetValues(id, projectDatasetView.firstPage)
+    setFirstPageLoad(true)
+    projectService
+      .getDatasetValues(id, projectDatasetView.firstPage)
+      .then(() => {
+        setFirstPageLoad(false)
+      })
   }
 
   function handleLastPage(event) {
-    projectService.getDatasetValues(id, projectDatasetView.lastPage)
+    setLastPageLoad(true)
+    projectService
+      .getDatasetValues(id, projectDatasetView.lastPage)
+      .then(() => {
+        setLastPageLoad(false)
+      })
   }
 
   const loading = !project
@@ -210,95 +234,111 @@ const ProjectDetailsPage = () => {
                           <div className="btn-group my-auto">
                             <button
                               className={`btn ${
+                                firstPageLoad ? 'loading' : ''
+                              } ${
                                 projectDatasetView.prevPage === null
                                   ? 'btn-disabled'
                                   : ''
                               }`}
                               onClick={handleFirstPage}
                             >
-                              <svg
-                                className="w-6 h-6"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
-                                />
-                              </svg>
+                              {!firstPageLoad && (
+                                <svg
+                                  className="w-6 h-6"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+                                  />
+                                </svg>
+                              )}
                             </button>
                             <button
                               className={`btn ${
+                                prevPageLoad ? 'loading' : ''
+                              } ${
                                 projectDatasetView.prevPage === null
                                   ? 'btn-disabled'
                                   : ''
                               }`}
                               onClick={handlePrevPage}
                             >
-                              <svg
-                                className="w-6 h-6"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M15 19l-7-7 7-7"
-                                />
-                              </svg>
+                              {!prevPageLoad && (
+                                <svg
+                                  className="w-6 h-6"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M15 19l-7-7 7-7"
+                                  />
+                                </svg>
+                              )}
                             </button>
                             <button
                               className={`btn ${
+                                nextPageLoad ? 'loading' : ''
+                              } ${
                                 projectDatasetView.nextPage === null
                                   ? 'btn-disabled'
                                   : ''
                               }`}
                               onClick={handleNextPage}
                             >
-                              <svg
-                                className="w-6 h-6"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M9 5l7 7-7 7"
-                                />
-                              </svg>
+                              {!nextPageLoad && (
+                                <svg
+                                  className="w-6 h-6"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 5l7 7-7 7"
+                                  />
+                                </svg>
+                              )}
                             </button>
                             <button
                               className={`btn ${
+                                lastPageLoad ? 'loading' : ''
+                              } ${
                                 projectDatasetView.nextPage === null
                                   ? 'btn-disabled'
                                   : ''
                               }`}
                               onClick={handleLastPage}
                             >
-                              <svg
-                                className="w-6 h-6"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M13 5l7 7-7 7M5 5l7 7-7 7"
-                                />
-                              </svg>
+                              {!lastPageLoad && (
+                                <svg
+                                  className="w-6 h-6"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M13 5l7 7-7 7M5 5l7 7-7 7"
+                                  />
+                                </svg>
+                              )}
                             </button>
                           </div>
                         </div>

@@ -17,6 +17,7 @@ from core.schemas import dataset as dataset_schema
 from core.crud import dataset_column as dataset_column_crud
 from core.schemas import dataset_column as dataset_column_schema
 
+from core.enums.dataset_column_enum import ColumnMissingValuesMethod, ColumnScalingMethod
 from api import dependencies
 
 router = APIRouter(
@@ -51,3 +52,8 @@ def update_project(dataset_id: int, dataset_columns: list[dataset_column_schema.
     file_processing.process_dataset(file_path, file_path_processed, db_dataset.delimiter, db_columns)
 
     return db_columns
+
+
+@router.get("/column-options", status_code=status.HTTP_200_OK)
+def read_column_options(db: Session = Depends(dependencies.get_db), current_user: user_model.User = Depends(dependencies.get_current_active_user)):
+    return {'scaling_values': list(ColumnScalingMethod), 'missing_values': list(ColumnMissingValuesMethod)}
