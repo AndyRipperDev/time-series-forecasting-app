@@ -15,6 +15,7 @@ python-multipart = "*"
 sqlalchemy-utils = "*"
 pandas = "*"
 scikit-learn = "*"
+statsmodels = "*"
 
 [dev-packages]
 

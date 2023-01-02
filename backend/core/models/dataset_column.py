@@ -1,6 +1,7 @@
 import enum
 from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Boolean, Enum
 
+from sqlalchemy.orm import relationship
 from core.db.base_class import Base
 from core.enums.dataset_column_enum import ColumnMissingValuesMethod, ColumnScalingMethod
 
@@ -17,3 +18,4 @@ class DatasetColumn(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     dataset_id = Column(Integer, ForeignKey("dataset.id"))
+    forecasting_predictions = relationship("Forecasting", backref="datasetcolumns")
