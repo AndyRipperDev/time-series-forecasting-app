@@ -195,7 +195,7 @@ function ProjectDetailsColumnPlotsPage() {
                                 },
                               ]}
                               layout={{
-                                width: '100%',
+                                // width: '100%',
                                 //width: 600,
                                 //height: 400,
                                 title: colKey,
