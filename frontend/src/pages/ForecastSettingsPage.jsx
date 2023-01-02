@@ -20,6 +20,8 @@ const ForecastSettingsPage = () => {
   const projectDatasetColumnsView = useRecoilValue(
     projectDatasetColumnsViewAtom
   )
+  const [splitValueRange, setSplitValueRange] = useState(80)
+  const [splitDataValue, setSplitDataValue] = useState(0)
 
   useEffect(() => {
     projectService.getDatasetColumns(id)
@@ -29,6 +31,14 @@ const ForecastSettingsPage = () => {
       projectService.resetDatasetColumnsView()
     }
   }, [])
+
+  useEffect(() => {
+    if(projectDatasetColumnsView) {
+      setSplitValueRange(80)
+      splitData(80)
+    }
+
+  }, [projectDatasetColumnsView])
 
   function setColumnsView(column) {
     setLoadingColView(true)
@@ -43,6 +53,18 @@ const ForecastSettingsPage = () => {
     setColumnsView(e.target.value)
   }
 
+  function splitData(percentValue) {
+    let splitValue = Math.round(projectDatasetColumnsView.values_count * percentValue / 100)
+    setSplitDataValue(splitValue)
+  }
+
+  function handleSplitRangeChange(e) {
+    let percentValue = e.target.value
+    setSplitValueRange(percentValue)
+    splitData(percentValue)
+    // window.dispatchEvent(new Event('resize'))
+  }
+
   const loading = !projectDatasetColumns
   // const loadingColView = !projectDatasetColumnsView
   return (
@@ -55,60 +77,86 @@ const ForecastSettingsPage = () => {
             <div className={'flex flex-col items-center space-y-4 w-full mb-6'}>
               <div
                 className={
-                  'flex flex-col items-center space-y-4 w-3/4 md:w-2/3 lg:w-1/2 xl:w-1/3 bg-base-200 p-6 rounded-2xl shadow-xl mb-6'
+                  'flex flex-col items-center space-y-4 w-3/4 md:w-2/3 lg:w-1/2 xl:w-1/3 '
                 }
               >
-                <h1 className={'text-xl font-bold text-center'}>
+                <h1 className={'text-3xl font-bold text-center mb-10'}>
                   Forecast Settings
                 </h1>
-                <select
-                  className="select select-bordered w-full max-w-xs"
-                  onChange={(e) => handleSelectedColumnChange(e)}
-                >
-                  <option
-                    value=""
-                    disabled={projectDatasetColumnsView !== null}
+                <div className="grid grid-cols-3 gap-4 w-full bg-base-200 p-6 rounded-2xl shadow-xl mb-10">
+                  <div className="place-self-center">
+                    <p className="text-lg font-semibold">Select Column</p>
+                  </div>
+                  <div className="col-span-2"><select
+                    className="select select-bordered w-full max-w-xs"
+                    onChange={(e) => handleSelectedColumnChange(e)}
                   >
-                    --Please choose a column--
-                  </option>
-                  {projectDatasetColumns.map(
-                    (column) =>
-                      !column.is_date && (
-                        <option key={column.id} value={column.name}>
-                          {column.name}
-                        </option>
-                      )
-                  )}
-                </select>
+                    <option
+                      value=""
+                      disabled={projectDatasetColumnsView !== null}
+                    >
+                      --Please choose a column--
+                    </option>
+                    {projectDatasetColumns.map(
+                      (column) =>
+                        !column.is_date && (
+                          <option key={column.id} value={column.name}>
+                            {column.name}
+                          </option>
+                        )
+                    )}
+                  </select>
+                  </div>
+                </div>
+
               </div>
               {loadingColView ? (
                 <LoadingPage />
               ) : (
                 <div className={'w-3/4 mx-auto'}>
                   {projectDatasetColumnsView && (
-                    <div className=" bg-base-200 rounded-2xl my-4 p-5">
+                    <div>
+                    <div className=" bg-base-200 rounded-2xl shadow-xl my-4 p-5">
                       <Plot
                         className={'w-full h-full'}
                         data={[
                           {
                             y: Object.values(
                               projectDatasetColumnsView?.dataset
-                            )[0].values,
+                            )[0].values.slice(0, splitDataValue),
                             x: Object.values(
                               projectDatasetColumnsView?.dataset
-                            )[1].values,
+                            )[1].values.slice(0, splitDataValue),
                             type: 'scatter',
                             mode: 'lines',
+                            name: 'Training Data',
+                            marker: {
+                              color:
+                                daisyuiColors[`[data-theme=${theme}]`][
+                                  'primary'
+                                ],
+                            },
+                          },
+                          {
+                            y: Object.values(
+                              projectDatasetColumnsView?.dataset
+                            )[0].values.slice(splitDataValue),
+                            x: Object.values(
+                              projectDatasetColumnsView?.dataset
+                            )[1].values.slice(splitDataValue),
+                            type: 'scatter',
+                            mode: 'lines',
+                            name: 'Test Data',
                             marker: {
                               color:
                                 daisyuiColors[`[data-theme=${theme}]`][
                                   'secondary'
-                                ],
+                                  ],
                             },
                           },
                         ]}
                         layout={{
-                          width: '100%',
+                          // width: '100%',
                           title: Object.keys(
                             projectDatasetColumnsView?.dataset
                           )[0],
@@ -127,8 +175,40 @@ const ForecastSettingsPage = () => {
                         useResizeHandler={true}
                         style={{ width: '100%', height: '100%' }}
                       />
+
+                    </div>
+                      <div
+                        className={
+                          'flex flex-col space-y-4 w-full bg-base-200 p-6 rounded-2xl shadow-xl mb-6'
+                        }
+                      >
+
+                        <div className="flex flex-col w-full border-opacity-50">
+                          <div>
+                            <label htmlFor="" className={'font-bold text-lg'}>
+                              Split Ratio
+                            </label>
+                            <div className="badge ml-4">{splitValueRange} : {100 - splitValueRange}</div>
+                            <div className={'flex space-x-4 mb-6 mt-2 items-center'}>
+                              <div className="badge">0</div>
+                              <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={splitValueRange}
+                                onChange={handleSplitRangeChange}
+                                className="range range-primary"
+                              />
+                              <div className="badge">
+                                100
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )}
+
                 </div>
               )}
             </div>
