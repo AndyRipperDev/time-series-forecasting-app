@@ -156,7 +156,7 @@ def read_project_with_dataset_values(project_id: int, skip: int = 0, limit: int 
 
 
 @router.get("/get-dataset-columns-with-values/{project_id}", status_code=status.HTTP_200_OK)
-def read_project_with_dataset_columns_with_values(project_id: int, skip: int = 0, limit: int = 100, column: str = None, db: Session = Depends(dependencies.get_db),
+def read_project_with_dataset_columns_with_values(project_id: int, skip: int = 0, limit: int = 100, column: str = None, all_values: bool = False, db: Session = Depends(dependencies.get_db),
                  current_user: user_model.User = Depends(dependencies.get_current_active_user)):
     db_project = project_crud.get(db, project_id=project_id)
     if db_project is None:
@@ -179,7 +179,7 @@ def read_project_with_dataset_columns_with_values(project_id: int, skip: int = 0
     for k, v in dataset.items():
         for col in db_project.dataset.columns:
             if col.name == k:
-                dataset_cols[k] = {'is_date': col.is_date, 'values': v[skip:limit]}
+                dataset_cols[k] = {'is_date': col.is_date, 'values': v if all_values else v[skip:limit]}
                 if col.is_date:
                     date_col = k
                     dataset_len = len(v)

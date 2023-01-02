@@ -10,6 +10,7 @@ import {
   projectDatasetColumnsViewAtom,
   projectDatasetColumnOptionsAtom,
   projectDatasetTimePeriodOptionsAtom,
+  projectDatasetColumnsAtom,
 } from '../state'
 
 export { useProjectService }
@@ -27,6 +28,7 @@ function useProjectService() {
     projectDatasetTimePeriodOptionsAtom
   )
   const setProjectDatasetView = useSetRecoilState(projectDatasetViewAtom)
+  const setProjectDatasetColumns = useSetRecoilState(projectDatasetColumnsAtom)
   const setProjectDatasetColumnsView = useSetRecoilState(
     projectDatasetColumnsViewAtom
   )
@@ -37,6 +39,7 @@ function useProjectService() {
     getByAuthUser,
     getById,
     getDatasetValues,
+    getDatasetColumns,
     getDatasetColumnValues,
     getDatasetColumnOptions,
     getDatasetTimePeriodOptions,
@@ -53,6 +56,7 @@ function useProjectService() {
     resetProject: useResetRecoilState(projectAtom),
     resetDatasetView: useResetRecoilState(projectDatasetViewAtom),
     resetDatasetColumnsView: useResetRecoilState(projectDatasetColumnsViewAtom),
+    resetDatasetColumns: useResetRecoilState(projectDatasetColumnsAtom),
     resetDatasetColumnOptions: useResetRecoilState(
       projectDatasetColumnOptionsAtom
     ),
@@ -91,10 +95,18 @@ function useProjectService() {
       .then(setProjectDatasetView)
   }
 
-  function getDatasetColumnValues(projectId, skip = 0, limit = 1000) {
+  function getDatasetColumnValues(
+    projectId,
+    skip = 0,
+    limit = 1000,
+    column = null,
+    allValues = false
+  ) {
     return forecastApi
       .get(
-        `${urlPartProjects}/get-dataset-columns-with-values/${projectId}/?skip=${skip}&limit=${limit}`
+        `${urlPartProjects}/get-dataset-columns-with-values/${projectId}/?skip=${skip}&limit=${limit}${
+          column ? '&column=' + column : ''
+        }${allValues ? '&all_values=' + allValues : ''}`
       )
       .then((response) => response.data)
       .then(setProjectDatasetColumnsView)
@@ -105,6 +117,13 @@ function useProjectService() {
       .get(urlPartColumns + '/column-options')
       .then((response) => response.data)
       .then(setProjectDatasetColumnOptions)
+  }
+
+  function getDatasetColumns(projectId) {
+    return forecastApi
+      .get(`${urlPartColumns}/get-with-project-id/${projectId}`)
+      .then((response) => response.data)
+      .then(setProjectDatasetColumns)
   }
 
   function getDatasetTimePeriodOptions() {

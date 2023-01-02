@@ -27,6 +27,7 @@ import { ProjectAddEditPage } from './pages/ProjectAddEditPage'
 import ProjectDetailsPage from './pages/ProjectDetails'
 import ProjectCheckDatasetColumnsPage from './pages/ProjectCheckDatasetColumnsPage'
 import { ProjectDetailsColumnPlotsPage } from './pages/ProjectDetailsColumnPlotsPage'
+import ForecastSettingsPage from './pages/ForecastSettingsPage'
 
 function App() {
   history.navigate = useNavigate()
@@ -159,6 +160,14 @@ function App() {
             element={
               <PrivateRoute>
                 <ProjectAddEditPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/projects/forecast-settings/:id"
+            element={
+              <PrivateRoute>
+                <ForecastSettingsPage />
               </PrivateRoute>
             }
           />

@@ -54,6 +54,17 @@ def update_project(dataset_id: int, dataset_columns: list[dataset_column_schema.
     return db_columns
 
 
+@router.get("/get-with-project-id/{project_id}", response_model=list[dataset_column_schema.DatasetColumnSchema], status_code=status.HTTP_200_OK)
+def read_project_columns(project_id: int,
+                   db: Session = Depends(dependencies.get_db),
+                   current_user: user_model.User = Depends(dependencies.get_current_active_user)):
+    db_project = project_crud.get(db, project_id=project_id)
+    if db_project is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+
+    return db_project.dataset.columns
+
+
 @router.get("/column-options", status_code=status.HTTP_200_OK)
 def read_column_options(db: Session = Depends(dependencies.get_db), current_user: user_model.User = Depends(dependencies.get_current_active_user)):
     return {'scaling_values': list(ColumnScalingMethod), 'missing_values': list(ColumnMissingValuesMethod)}
