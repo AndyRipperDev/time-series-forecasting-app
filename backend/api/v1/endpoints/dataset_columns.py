@@ -39,7 +39,7 @@ def update_project(dataset_id: int, dataset_columns: list[dataset_column_schema.
             if column.id == col_update.id:
                 db_project = dataset_column_crud.update(db, dataset_column=column, updates=col_update)
 
-    db_columns = dataset_column_crud.get_by_dataset_id(db, dataset_id=dataset_id)
+    db_columns = dataset_column_crud.get_active_by_dataset_id(db, dataset_id=dataset_id)
 
     db_dataset = dataset_crud.get(db, dataset_id)
 
@@ -62,7 +62,9 @@ def read_project_columns(project_id: int,
     if db_project is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
 
-    return db_project.dataset.columns
+    return dataset_column_crud.get_active_by_dataset_id(db, dataset_id=db_project.dataset.id)
+
+    # return db_project.dataset.columns
 
 
 @router.get("/column-options", status_code=status.HTTP_200_OK)

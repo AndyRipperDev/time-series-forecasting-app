@@ -76,11 +76,11 @@ async def create_project_with_dataset(
 
     i = 0
     for k, v in columns.items():
-        col_sch = dataset_column_schema.DatasetColumnCreate(name=k, data_type=v, is_date=i == 0, scaling=None, missing_values_handler=ColumnMissingValuesMethod.FillZeros)
+        col_sch = dataset_column_schema.DatasetColumnCreate(name=k, data_type=v, is_date=i == 0, scaling=None, is_removed=False, missing_values_handler=ColumnMissingValuesMethod.FillZeros)
         dataset_column_crud.create(db=db, dataset_column=col_sch, dataset_id=db_dataset.id)
         i += 1
 
-    db_columns = dataset_column_crud.get_by_dataset_id(db, dataset_id=db_dataset.id)
+    db_columns = dataset_column_crud.get_active_by_dataset_id(db, dataset_id=db_dataset.id)
 
     file_path = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(
         db_dataset.project_id) + '/' + db_dataset.filename
@@ -263,14 +263,14 @@ def update_project_with_dataset(project_id: int, project: project_schema.Project
 
         i = 0
         for k, v in columns.items():
-            col_sch = dataset_column_schema.DatasetColumnCreate(name=k, data_type=v, is_date=i == 0, scaling=None, missing_values_handler=ColumnMissingValuesMethod.FillZeros)
+            col_sch = dataset_column_schema.DatasetColumnCreate(name=k, data_type=v, is_date=i == 0, scaling=None, is_removed=False, missing_values_handler=ColumnMissingValuesMethod.FillZeros)
             dataset_column_crud.create(db=db, dataset_column=col_sch, dataset_id=db_dataset.id)
             i += 1
 
     updates_dataset = dataset_schema.DatasetUpdateSchema(delimiter=project.delimiter)
     db_dataset = dataset_crud.update(db=db, dataset=db_dataset, updates=updates_dataset)
 
-    db_columns = dataset_column_crud.get_by_dataset_id(db, dataset_id=db_dataset.id)
+    db_columns = dataset_column_crud.get_active_by_dataset_id(db, dataset_id=db_dataset.id)
 
     file_path = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(
         db_dataset.project_id) + '/' + db_dataset.filename

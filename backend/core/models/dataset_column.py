@@ -10,6 +10,7 @@ class DatasetColumn(Base):
     name = Column(String(250))
     data_type = Column(String(30))
     is_date = Column(Boolean, default=False, nullable=False)
+    is_removed = Column(Boolean, default=False, nullable=False)
     scaling = Column(Enum(ColumnScalingMethod), nullable=True, default=None)
     missing_values_handler = Column(Enum(ColumnMissingValuesMethod), nullable=True, default=ColumnMissingValuesMethod.FillZeros)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

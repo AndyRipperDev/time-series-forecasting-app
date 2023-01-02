@@ -37,6 +37,23 @@ def retype_columns(df, db_columns):
     return df
 
 
+def get_db_column_names(db_columns):
+    col_names = []
+    for column in db_columns:
+        col_names.append(column.name)
+
+    return col_names
+
+
+def handle_dropping_columns(df, db_columns):
+    col_names = get_db_column_names(db_columns)
+    for i, column in enumerate(df):
+        if column not in col_names:
+            df = df.drop(column, axis=1)
+
+    return df
+
+
 def handle_missing_values(df, db_columns):
     for db_column in db_columns:
         if db_column.missing_values_handler is None:
@@ -103,6 +120,7 @@ def df_from_csv(path, delimiter):
 def process_dataset(file_name, file_name_processed, delimiter, db_columns):
     df = pd.read_csv(file_name, sep=delimiter)
 
+    df = handle_dropping_columns(df, db_columns)
     df = retype_columns(df, db_columns)
     df = handle_missing_values(df, db_columns)
     df = scale_columns(df, db_columns)
