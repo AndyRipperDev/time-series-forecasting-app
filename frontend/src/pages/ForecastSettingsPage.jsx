@@ -123,10 +123,10 @@ const ForecastSettingsPage = () => {
                           {
                             y: Object.values(
                               projectDatasetColumnsView?.dataset
-                            )[0].values.slice(0, splitDataValue),
+                            )[0].values.slice(0, splitDataValue + 1),
                             x: Object.values(
                               projectDatasetColumnsView?.dataset
-                            )[1].values.slice(0, splitDataValue),
+                            )[1].values.slice(0, splitDataValue + 1),
                             type: 'scatter',
                             mode: 'lines',
                             name: 'Training Data',
