@@ -3,20 +3,23 @@ import { useRecoilValue } from 'recoil'
 import {
   projectDatasetColumnsAtom,
   themeAtom,
-  projectDatasetColumnsViewAtom,
+  projectDatasetColumnsViewAtom, forecastingModelsAtom,
 } from '../state'
 import { useEffect, useState } from 'react'
 import { useProjectService } from '../services/project.service'
 import LoadingPage from '../components/Loadings/LoadingPage'
 import Plot from 'react-plotly.js'
 import daisyuiColors from 'daisyui/src/colors/themes'
+import { useForecastService } from '../services/forecast.service'
 
 const ForecastSettingsPage = () => {
   const { id } = useParams()
   const [loadingColView, setLoadingColView] = useState(false)
   const projectService = useProjectService()
+  const forecastService = useForecastService()
   const theme = useRecoilValue(themeAtom)
   const projectDatasetColumns = useRecoilValue(projectDatasetColumnsAtom)
+  const forecastingModels = useRecoilValue(forecastingModelsAtom)
   const projectDatasetColumnsView = useRecoilValue(
     projectDatasetColumnsViewAtom
   )
@@ -25,10 +28,12 @@ const ForecastSettingsPage = () => {
 
   useEffect(() => {
     projectService.getDatasetColumns(id)
+    forecastService.getAllModels()
 
     return () => {
       projectService.resetDatasetColumns()
       projectService.resetDatasetColumnsView()
+      forecastService.resetForecastingModels()
     }
   }, [])
 
@@ -53,6 +58,11 @@ const ForecastSettingsPage = () => {
     setColumnsView(e.target.value)
   }
 
+
+  function handleSelectedForecastingModelChange(e) {
+    console.log(e.target.value)
+  }
+
   function splitData(percentValue) {
     let splitValue = Math.round(projectDatasetColumnsView.values_count * percentValue / 100)
     setSplitDataValue(splitValue)
@@ -72,23 +82,21 @@ const ForecastSettingsPage = () => {
       {loading ? (
         <LoadingPage />
       ) : (
-        <div className={'flex flex-col items-center'}>
+        <div className={'w-full'}>
           {projectDatasetColumns && (
-            <div className={'flex flex-col items-center space-y-4 w-full mb-6'}>
-              <div
-                className={
-                  'flex flex-col items-center space-y-4 w-3/4 md:w-2/3 lg:w-1/2 xl:w-1/3 '
-                }
-              >
-                <h1 className={'text-3xl font-bold text-center mb-10'}>
-                  Forecast Settings
-                </h1>
-                <div className="grid grid-cols-3 gap-4 w-full bg-base-200 p-6 rounded-2xl shadow-xl mb-10">
-                  <div className="place-self-center">
-                    <p className="text-lg font-semibold">Select Column</p>
-                  </div>
-                  <div className="col-span-2"><select
-                    className="select select-bordered w-full max-w-xs"
+            <div className={'flex flex-col items-center mx-auto w-5/6 md:w-2/3 max-w-6xl space-y-4 mb-6'}>
+              <h1 className={'text-3xl font-bold text-center mb-20'}>
+                Forecast Settings
+              </h1>
+
+              <h2 className={'text-2xl font-bold self-start mb-4 mt-20'}>
+                Choose Data
+              </h2>
+              <div className="flex space-x-4 justify-between items-center w-full bg-base-200 p-6 rounded-2xl shadow-xl mb-10">
+                <p className="text-lg font-semibold">Select Column</p>
+                <div>
+                  <select
+                    className="select select-bordered w-full"
                     onChange={(e) => handleSelectedColumnChange(e)}
                   >
                     <option
@@ -106,109 +114,132 @@ const ForecastSettingsPage = () => {
                         )
                     )}
                   </select>
-                  </div>
                 </div>
-
               </div>
+
               {loadingColView ? (
                 <LoadingPage />
               ) : (
-                <div className={'w-3/4 mx-auto'}>
+                <div className={'w-full'}>
                   {projectDatasetColumnsView && (
                     <div>
-                    <div className=" bg-base-200 rounded-2xl shadow-xl my-4 p-5">
-                      <Plot
-                        className={'w-full h-full'}
-                        data={[
-                          {
-                            y: Object.values(
-                              projectDatasetColumnsView?.dataset
-                            )[0].values.slice(0, splitDataValue + 1),
-                            x: Object.values(
-                              projectDatasetColumnsView?.dataset
-                            )[1].values.slice(0, splitDataValue + 1),
-                            type: 'scatter',
-                            mode: 'lines',
-                            name: 'Training Data',
-                            marker: {
-                              color:
-                                daisyuiColors[`[data-theme=${theme}]`][
-                                  'primary'
-                                ],
+                      <h2 className={'text-2xl font-bold self-start mb-4 mt-20'}>
+                        Split Data
+                      </h2>
+                      <div className=" bg-base-200 rounded-2xl shadow-xl my-4 p-5">
+                        <Plot
+                          className={'w-full h-full'}
+                          data={[
+                            {
+                              y: Object.values(
+                                projectDatasetColumnsView?.dataset
+                              )[0].values.slice(0, splitDataValue + 1),
+                              x: Object.values(
+                                projectDatasetColumnsView?.dataset
+                              )[1].values.slice(0, splitDataValue + 1),
+                              type: 'scatter',
+                              mode: 'lines',
+                              name: 'Training Data',
+                              marker: {
+                                color:
+                                  daisyuiColors[`[data-theme=${theme}]`][
+                                    'primary'
+                                    ],
+                              },
                             },
-                          },
-                          {
-                            y: Object.values(
+                            {
+                              y: Object.values(
+                                projectDatasetColumnsView?.dataset
+                              )[0].values.slice(splitDataValue),
+                              x: Object.values(
+                                projectDatasetColumnsView?.dataset
+                              )[1].values.slice(splitDataValue),
+                              type: 'scatter',
+                              mode: 'lines',
+                              name: 'Test Data',
+                              marker: {
+                                color:
+                                  daisyuiColors[`[data-theme=${theme}]`][
+                                    'secondary'
+                                    ],
+                              },
+                            },
+                          ]}
+                          layout={{
+                            // width: '100%',
+                            title: Object.keys(
                               projectDatasetColumnsView?.dataset
-                            )[0].values.slice(splitDataValue),
-                            x: Object.values(
-                              projectDatasetColumnsView?.dataset
-                            )[1].values.slice(splitDataValue),
-                            type: 'scatter',
-                            mode: 'lines',
-                            name: 'Test Data',
-                            marker: {
+                            )[0],
+                            font: {
                               color:
                                 daisyuiColors[`[data-theme=${theme}]`][
-                                  'secondary'
+                                  'base-content'
                                   ],
                             },
-                          },
-                        ]}
-                        layout={{
-                          // width: '100%',
-                          title: Object.keys(
-                            projectDatasetColumnsView?.dataset
-                          )[0],
-                          font: {
-                            color:
-                              daisyuiColors[`[data-theme=${theme}]`][
-                                'base-content'
-                              ],
-                          },
-                          paper_bgcolor:
-                            daisyuiColors[`[data-theme=${theme}]`]['base-200'],
-                          plot_bgcolor:
-                            daisyuiColors[`[data-theme=${theme}]`]['base-200'],
-                          autosize: true,
-                        }}
-                        useResizeHandler={true}
-                        style={{ width: '100%', height: '100%' }}
-                      />
+                            paper_bgcolor:
+                              daisyuiColors[`[data-theme=${theme}]`]['base-200'],
+                            plot_bgcolor:
+                              daisyuiColors[`[data-theme=${theme}]`]['base-200'],
+                            autosize: true,
+                          }}
+                          useResizeHandler={true}
+                          style={{ width: '100%', height: '100%' }}
+                        />
+                      </div>
 
-                    </div>
-                      <div
-                        className={
-                          'flex flex-col space-y-4 w-full bg-base-200 p-6 rounded-2xl shadow-xl mb-6'
-                        }
-                      >
-
-                        <div className="flex flex-col w-full border-opacity-50">
-                          <div>
-                            <label htmlFor="" className={'font-bold text-lg'}>
-                              Split Ratio
-                            </label>
-                            <div className="badge ml-4">{splitValueRange} : {100 - splitValueRange}</div>
-                            <div className={'flex space-x-4 mb-6 mt-2 items-center'}>
-                              <div className="badge">0</div>
-                              <input
-                                type="range"
-                                min="0"
-                                max="100"
-                                value={splitValueRange}
-                                onChange={handleSplitRangeChange}
-                                className="range range-primary"
-                              />
-                              <div className="badge">
-                                100
-                              </div>
-                            </div>
+                      <div className={'w-full bg-base-200 py-4 px-6 rounded-2xl shadow-xl mt-6'}>
+                        <label htmlFor="" className={'font-bold text-lg'}>
+                          Split Ratio
+                        </label>
+                        <div className="badge ml-4">{splitValueRange} : {100 - splitValueRange}</div>
+                        <div className={'flex space-x-4 mb-6 mt-2 items-center'}>
+                          <div className="badge">0</div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={splitValueRange}
+                            onChange={handleSplitRangeChange}
+                            className="range range-primary"
+                          />
+                          <div className="badge">
+                            100
                           </div>
                         </div>
                       </div>
+
+                      <h2 className={'text-2xl font-bold self-start mb-4 mt-24'}>
+                        Set Model
+                      </h2>
+                      <div className={'w-full'}>
+                        {forecastingModels && (
+                          <div className="flex space-x-4 justify-between items-center w-full bg-base-200 p-6 rounded-2xl shadow-xl mb-10">
+                            <p className="text-lg font-semibold">Select Forecasting Model</p>
+                            <div>
+                              <select
+                                className="select select-bordered w-full"
+                                onChange={(e) => handleSelectedForecastingModelChange(e)}
+                              >
+                                {forecastingModels.models.map(
+                                  (model) =>
+                                    <option key={model} value={model}>
+                                      {model}
+                                    </option>
+                                )}
+                              </select>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className={'w-full flex justify-center mt-24'}>
+                        <button className="btn btn-primary btn-wide gap-3">
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                          Forecast
+                        </button>
+                      </div>
                     </div>
                   )}
-
                 </div>
               )}
             </div>
