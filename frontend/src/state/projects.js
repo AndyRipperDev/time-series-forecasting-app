@@ -35,6 +35,11 @@ const projectDatasetTimePeriodOptionsAtom = atom({
   default: null,
 })
 
+const projectTimePeriodAtom = atom({
+  key: 'projectTimePeriod',
+  default: null,
+})
+
 export {
   projectsAtom,
   projectAtom,
@@ -43,4 +48,5 @@ export {
   projectDatasetColumnOptionsAtom,
   projectDatasetTimePeriodOptionsAtom,
   projectDatasetColumnsAtom,
+  projectTimePeriodAtom,
 }

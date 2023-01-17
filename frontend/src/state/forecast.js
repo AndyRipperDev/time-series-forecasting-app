@@ -5,6 +5,18 @@ const forecastingModelsAtom = atom({
   default: null
 });
 
+const forecastingModelAtom = atom({
+  key: 'forecastingModel',
+  default: null
+});
+
+const modelParamsAtom = atom({
+  key: 'modelParams',
+  default: null
+});
+
 export {
-  forecastingModelsAtom
+  forecastingModelsAtom,
+  forecastingModelAtom,
+  modelParamsAtom
 };

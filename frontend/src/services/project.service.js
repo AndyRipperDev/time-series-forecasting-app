@@ -11,6 +11,7 @@ import {
   projectDatasetColumnOptionsAtom,
   projectDatasetTimePeriodOptionsAtom,
   projectDatasetColumnsAtom,
+  projectTimePeriodAtom,
 } from '../state'
 
 export { useProjectService }
@@ -21,6 +22,7 @@ function useProjectService() {
   const urlPartTimePeriod = '/time-period'
   const setProjects = useSetRecoilState(projectsAtom)
   const setProject = useSetRecoilState(projectAtom)
+  const setProjectTimePeriod = useSetRecoilState(projectTimePeriodAtom)
   const setProjectDatasetColumnOptions = useSetRecoilState(
     projectDatasetColumnOptionsAtom
   )
@@ -43,6 +45,7 @@ function useProjectService() {
     getDatasetColumnValues,
     getDatasetColumnOptions,
     getDatasetTimePeriodOptions,
+    getProjectTimePeriod,
     update,
     updateWithDataset,
     updateDatasetColumns,
@@ -62,6 +65,9 @@ function useProjectService() {
     ),
     resetDatasetTimePeriodOptions: useResetRecoilState(
       projectDatasetTimePeriodOptionsAtom
+    ),
+    resetProjectTimePeriod: useResetRecoilState(
+      projectTimePeriodAtom
     ),
   }
 
@@ -132,6 +138,15 @@ function useProjectService() {
       .then((response) => response.data)
       .then(setProjectDatasetTimePeriodOptions)
   }
+
+  function getProjectTimePeriod(projectId) {
+    return forecastApi
+      .get(`${urlPartTimePeriod}/project/${projectId}`)
+      .then((response) => response.data)
+      .then(setProjectTimePeriod)
+  }
+
+
 
   function create(project) {
     return forecastApi.post(urlPartProjects, {
