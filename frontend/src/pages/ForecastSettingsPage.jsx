@@ -3,7 +3,11 @@ import { useRecoilValue, useRecoilState } from 'recoil'
 import {
   projectDatasetColumnsAtom,
   themeAtom,
-  projectDatasetColumnsViewAtom, forecastingModelsAtom, forecastingModelAtom, modelParamsAtom, projectTimePeriodAtom
+  projectDatasetColumnsViewAtom,
+  forecastingModelsAtom,
+  forecastingModelAtom,
+  modelParamsAtom,
+  projectTimePeriodAtom,
 } from '../state'
 import { useEffect, useState } from 'react'
 import { useProjectService } from '../services/project.service'
@@ -21,7 +25,8 @@ const ForecastSettingsPage = () => {
   const [loadingColView, setLoadingColView] = useState(false)
   const projectService = useProjectService()
   const forecastService = useForecastService()
-  const [forecastingModel, setForecastingModel] = useRecoilState(forecastingModelAtom)
+  const [forecastingModel, setForecastingModel] =
+    useRecoilState(forecastingModelAtom)
   const [modelParams, setModelParams] = useRecoilState(modelParamsAtom)
   const theme = useRecoilValue(themeAtom)
   const projectTimePeriod = useRecoilValue(projectTimePeriodAtom)
@@ -48,11 +53,10 @@ const ForecastSettingsPage = () => {
   }, [])
 
   useEffect(() => {
-    if(projectDatasetColumnsView) {
+    if (projectDatasetColumnsView) {
       setSplitValueRange(80)
       splitData(80)
     }
-
   }, [projectDatasetColumnsView])
 
   function setColumnsView(column) {
@@ -68,14 +72,13 @@ const ForecastSettingsPage = () => {
     setColumnsView(e.target.value)
   }
 
-
   function handleSelectedForecastingModelChange(e) {
     let model = e.target.value
     setForecastingModel(model)
 
     let newModelParams = null
 
-    if (model === 'Arima') {
+    if (model.toUpperCase() === 'ARIMA') {
       newModelParams = {
         autoTune: false,
         autoTuneParams: {
@@ -93,7 +96,7 @@ const ForecastSettingsPage = () => {
         },
         forecastHorizon: 1,
       }
-    } else if (model === 'Sarima') {
+    } else if (model.toUpperCase() === 'SARIMA') {
       newModelParams = {
         autoTune: false,
         autoTuneParams: {
@@ -121,7 +124,9 @@ const ForecastSettingsPage = () => {
   }
 
   function splitData(percentValue) {
-    let splitValue = Math.round(projectDatasetColumnsView.values_count * percentValue / 100)
+    let splitValue = Math.round(
+      (projectDatasetColumnsView.values_count * percentValue) / 100
+    )
     setSplitDataValue(splitValue)
   }
 
@@ -133,31 +138,31 @@ const ForecastSettingsPage = () => {
   }
 
   const handleAutoTuneChange = (event) => {
-    let model = {...modelParams}
-    model.autoTune = ! model.autoTune
+    let model = { ...modelParams }
+    model.autoTune = !model.autoTune
     setModelParams(model)
   }
 
   const handleUseLogChange = (event) => {
-    let model = {...modelParams}
-    let preprocessing = {...model.preprocessing}
-    preprocessing.useLog = ! preprocessing.useLog
+    let model = { ...modelParams }
+    let preprocessing = { ...model.preprocessing }
+    preprocessing.useLog = !preprocessing.useLog
     model.preprocessing = preprocessing
     setModelParams(model)
   }
 
   const handleDecompositionChange = (event) => {
-    let model = {...modelParams}
-    let preprocessing = {...model.preprocessing}
-    preprocessing.useDecompose = ! preprocessing.useDecompose
+    let model = { ...modelParams }
+    let preprocessing = { ...model.preprocessing }
+    preprocessing.useDecompose = !preprocessing.useDecompose
     model.preprocessing = preprocessing
     setModelParams(model)
   }
 
   const handleNumberParamChange = (event, paramName) => {
     let paramValue = event.target.value
-    let model = {...modelParams}
-    let params = {...model.params}
+    let model = { ...modelParams }
+    let params = { ...model.params }
 
     params[paramName] = paramValue
 
@@ -166,35 +171,35 @@ const ForecastSettingsPage = () => {
   }
 
   const handleForecastHorizonChange = (event) => {
-    let model = {...modelParams}
+    let model = { ...modelParams }
     model.forecastHorizon = event.target.value
     setModelParams(model)
   }
 
   const handleAutoTuneMethodChange = (event) => {
-    let model = {...modelParams}
-    let autoTuneParams = {...model.autoTuneParams}
+    let model = { ...modelParams }
+    let autoTuneParams = { ...model.autoTuneParams }
     autoTuneParams.bruteForce = event.target.value
     model.autoTuneParams = autoTuneParams
     setModelParams(model)
   }
 
   const handleAutoTuneLevelChange = (event) => {
-    let model = {...modelParams}
-    let autoTuneParams = {...model.autoTuneParams}
+    let model = { ...modelParams }
+    let autoTuneParams = { ...model.autoTuneParams }
     autoTuneParams.tuneLevel = event.target.value
     model.autoTuneParams = autoTuneParams
     setModelParams(model)
   }
 
   const getTuneLevelInfo = () => {
-      if (modelParams.autoTuneParams.tuneLevel == 2) {
-        return 'Slower - Sometimes may or may not give the best parameters'
-      } else if(modelParams.autoTuneParams.tuneLevel == 3) {
-         return 'Slow - Gives the best parameters'
-      }
+    if (modelParams.autoTuneParams.tuneLevel == 2) {
+      return 'Slower - Sometimes may or may not give the best parameters'
+    } else if (modelParams.autoTuneParams.tuneLevel == 3) {
+      return 'Slow - Gives the best parameters'
+    }
 
-      return 'Fast - May not give the best parameters'
+    return 'Fast - May not give the best parameters'
   }
 
   var interval = null
@@ -229,7 +234,11 @@ const ForecastSettingsPage = () => {
       ) : (
         <div className={'w-full'}>
           {projectDatasetColumns && (
-            <div className={'flex flex-col items-center mx-auto w-5/6 md:w-2/3 max-w-6xl space-y-4 mb-6'}>
+            <div
+              className={
+                'flex flex-col items-center mx-auto w-5/6 md:w-2/3 max-w-6xl space-y-4 mb-6'
+              }
+            >
               <h1 className={'text-3xl font-bold text-center mb-20'}>
                 Forecast Settings
               </h1>
@@ -282,7 +291,7 @@ const ForecastSettingsPage = () => {
                                 color:
                                   daisyuiColors[`[data-theme=${theme}]`][
                                     'primary'
-                                    ],
+                                  ],
                               },
                             },
                             {
@@ -299,7 +308,7 @@ const ForecastSettingsPage = () => {
                                 color:
                                   daisyuiColors[`[data-theme=${theme}]`][
                                     'secondary'
-                                    ],
+                                  ],
                               },
                             },
                           ]}
@@ -312,12 +321,16 @@ const ForecastSettingsPage = () => {
                               color:
                                 daisyuiColors[`[data-theme=${theme}]`][
                                   'base-content'
-                                  ],
+                                ],
                             },
                             paper_bgcolor:
-                              daisyuiColors[`[data-theme=${theme}]`]['base-200'],
+                              daisyuiColors[`[data-theme=${theme}]`][
+                                'base-200'
+                              ],
                             plot_bgcolor:
-                              daisyuiColors[`[data-theme=${theme}]`]['base-200'],
+                              daisyuiColors[`[data-theme=${theme}]`][
+                                'base-200'
+                              ],
                             autosize: true,
                           }}
                           useResizeHandler={true}
@@ -325,12 +338,20 @@ const ForecastSettingsPage = () => {
                         />
                       </div>
 
-                      <div className={'w-full bg-base-200 py-4 px-6 rounded-2xl shadow-xl mt-6'}>
+                      <div
+                        className={
+                          'w-full bg-base-200 py-4 px-6 rounded-2xl shadow-xl mt-6'
+                        }
+                      >
                         <label htmlFor="" className={'font-bold text-lg'}>
                           Split Ratio
                         </label>
-                        <div className="badge ml-4">{splitValueRange} : {100 - splitValueRange}</div>
-                        <div className={'flex space-x-4 mb-6 mt-2 items-center'}>
+                        <div className="badge ml-4">
+                          {splitValueRange} : {100 - splitValueRange}
+                        </div>
+                        <div
+                          className={'flex space-x-4 mb-6 mt-2 items-center'}
+                        >
                           <div className="badge">0</div>
                           <input
                             type="range"
@@ -340,9 +361,7 @@ const ForecastSettingsPage = () => {
                             onChange={handleSplitRangeChange}
                             className="range range-primary"
                           />
-                          <div className="badge">
-                            100
-                          </div>
+                          <div className="badge">100</div>
                         </div>
                       </div>
 
@@ -352,7 +371,9 @@ const ForecastSettingsPage = () => {
                           <ParamSettingItem title="Select Forecasting Model">
                             <select
                               className="select select-bordered w-full"
-                              onChange={(e) => handleSelectedForecastingModelChange(e)}
+                              onChange={(e) =>
+                                handleSelectedForecastingModelChange(e)
+                              }
                             >
                               <option
                                 value=""
@@ -360,12 +381,11 @@ const ForecastSettingsPage = () => {
                               >
                                 --Please choose a model--
                               </option>
-                              {forecastingModels.models.map(
-                                (model) =>
-                                  <option key={model} value={model}>
-                                    {model}
-                                  </option>
-                              )}
+                              {forecastingModels.models.map((model) => (
+                                <option key={model} value={model}>
+                                  {model}
+                                </option>
+                              ))}
                             </select>
                           </ParamSettingItem>
                         )}
@@ -376,8 +396,13 @@ const ForecastSettingsPage = () => {
                           <ParamHeading>Set Parameters</ParamHeading>
 
                           <div className={'w-full'}>
-                            <ParamSubheading firstParam={true}>Preprocessing</ParamSubheading>
-                            <ParamSettingItem title="Logarithmize" inGroup={true}>
+                            <ParamSubheading firstParam={true}>
+                              Preprocessing
+                            </ParamSubheading>
+                            <ParamSettingItem
+                              title="Logarithmize"
+                              inGroup={true}
+                            >
                               <input
                                 type={'checkbox'}
                                 className={'checkbox checkbox-primary'}
@@ -385,7 +410,10 @@ const ForecastSettingsPage = () => {
                                 onChange={(e) => handleUseLogChange(e)}
                               />
                             </ParamSettingItem>
-                            <ParamSettingItem title="Use Decomposition" inGroup={true}>
+                            <ParamSettingItem
+                              title="Use Decomposition"
+                              inGroup={true}
+                            >
                               <input
                                 type={'checkbox'}
                                 className={'checkbox checkbox-primary'}
@@ -395,18 +423,26 @@ const ForecastSettingsPage = () => {
                             </ParamSettingItem>
 
                             <ParamSubheading>General Settings</ParamSubheading>
-                            <ParamSettingItem title="Forecast horizon" inGroup={true}>
+                            <ParamSettingItem
+                              title="Forecast horizon"
+                              inGroup={true}
+                            >
                               <div className={'flex space-x-4 items-center'}>
                                 <input
                                   type={'number'}
                                   min={1}
-                                  className={'input input-bordered w-full max-w-xs'}
+                                  className={
+                                    'input input-bordered w-full max-w-xs'
+                                  }
                                   value={modelParams.forecastHorizon}
-                                  onChange={(e) => handleForecastHorizonChange(e)}
+                                  onChange={(e) =>
+                                    handleForecastHorizonChange(e)
+                                  }
                                 />
-                                <p className={'font-bold'}>{projectTimePeriod?.project_time_period?.unit}</p>
+                                <p className={'font-bold'}>
+                                  {projectTimePeriod?.project_time_period?.unit}
+                                </p>
                               </div>
-
                             </ParamSettingItem>
                             <ParamSettingItem title="Auto tune model">
                               <input
@@ -417,18 +453,25 @@ const ForecastSettingsPage = () => {
                               />
                             </ParamSettingItem>
 
-
                             {modelParams.autoTune ? (
                               <div>
-                                <ParamSubheading>Auto Tune Settings</ParamSubheading>
+                                <ParamSubheading>
+                                  Auto Tune Settings
+                                </ParamSubheading>
                                 <ParamSettingItem title="Method" inGroup={true}>
                                   <select
                                     className="select select-bordered w-full"
-                                    value={modelParams.autoTuneParams.bruteForce}
-                                    onChange={(e) => handleAutoTuneMethodChange(e)}
+                                    value={
+                                      modelParams.autoTuneParams.bruteForce
+                                    }
+                                    onChange={(e) =>
+                                      handleAutoTuneMethodChange(e)
+                                    }
                                   >
                                     <option value={true}>Brute Force</option>
-                                    <option value={false}>Hyperparameter Optimization</option>
+                                    <option value={false}>
+                                      Hyperparameter Optimization
+                                    </option>
                                   </select>
                                 </ParamSettingItem>
                                 <ParamSettingItem
@@ -438,7 +481,9 @@ const ForecastSettingsPage = () => {
                                   <select
                                     className="select select-bordered w-full"
                                     value={modelParams.autoTuneParams.tuneLevel}
-                                    onChange={(e) => handleAutoTuneLevelChange(e)}
+                                    onChange={(e) =>
+                                      handleAutoTuneLevelChange(e)
+                                    }
                                   >
                                     <option value={1}>Low</option>
                                     <option value={2}>Medium</option>
@@ -448,19 +493,31 @@ const ForecastSettingsPage = () => {
                               </div>
                             ) : (
                               <div>
-                                <ParamSubheading>Manual Parameter Settings</ParamSubheading>
+                                <ParamSubheading>
+                                  Manual Parameter Settings
+                                </ParamSubheading>
 
                                 {Object.keys(modelParams.params).map(
-                                  (key, index, {length}) => {
+                                  (key, index, { length }) => {
                                     return (
-                                      <ParamSettingItem key={key} title={key} inGroup={length - 1 !== index}>
+                                      <ParamSettingItem
+                                        key={key}
+                                        title={key}
+                                        inGroup={length - 1 !== index}
+                                      >
                                         <input
                                           type={'number'}
                                           min={0}
-                                          max={key.toUpperCase() === 'D' ? 2 : null}
-                                          className={'input input-bordered w-full max-w-xs'}
+                                          max={
+                                            key.toUpperCase() === 'D' ? 2 : null
+                                          }
+                                          className={
+                                            'input input-bordered w-full max-w-xs'
+                                          }
                                           value={modelParams.params[key]}
-                                          onChange={(e) => handleNumberParamChange(e, key)}
+                                          onChange={(e) =>
+                                            handleNumberParamChange(e, key)
+                                          }
                                         />
                                       </ParamSettingItem>
                                     )
@@ -470,7 +527,7 @@ const ForecastSettingsPage = () => {
                             )}
                           </div>
                         </div>
-                        )}
+                      )}
 
                       <div className={'w-full flex justify-center mt-24'}>
                         <button className="btn btn-primary btn-wide gap-3" onClick={handleForecastStart}>

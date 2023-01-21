@@ -3,6 +3,16 @@ from enum import Enum, unique
 
 @unique
 class ForecastingModel(Enum):
-    Arima = 'Arima'
-    Sarima = 'Sarima'
-    Sarimax = 'Sarimax'
+    ARIMA = 'ARIMA'
+    SARIMA = 'SARIMA'
+    DecisionTreeRegressor = 'DecisionTreeRegressor'
+    LGBMRegressor = 'LGBMRegressor'
+
+
+@unique
+class ForecastingStatus(Enum):
+    Ready = 'Ready'
+    Preprocessing = 'Preprocessing'
+    Training = 'Training'
+    Forecasting = 'Forecasting'
+    Finished = 'Finished'
