@@ -197,6 +197,27 @@ const ForecastSettingsPage = () => {
       return 'Fast - May not give the best parameters'
   }
 
+  var interval = null
+
+  let handleForecastCheck = () => {
+    forecastService.getQuickForecastingStatus(1).then((data) => {
+      console.log(data?.status)
+
+      // if(data === 1) {
+      //   clearInterval(interval);
+      // }
+    })
+  }
+
+  const initForecastingChecker = (e) => {
+    // interval = setInterval(handleForecastCheck, 30000)
+    interval = setInterval(handleForecastCheck, 1000)
+  }
+
+
+  const handleForecastStart = (event) => {
+    initForecastingChecker()
+  }
 
 
   const loading = !projectDatasetColumns
@@ -452,7 +473,7 @@ const ForecastSettingsPage = () => {
                         )}
 
                       <div className={'w-full flex justify-center mt-24'}>
-                        <button className="btn btn-primary btn-wide gap-3">
+                        <button className="btn btn-primary btn-wide gap-3" onClick={handleForecastStart}>
                           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
                           Forecast
                         </button>
