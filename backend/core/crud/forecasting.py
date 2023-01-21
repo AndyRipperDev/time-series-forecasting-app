@@ -1,0 +1,39 @@
+from sqlalchemy.orm import Session
+
+from core.schemas import forecasting as forecasting_schema
+from core.models import forecasting as forecasting_model
+
+
+def get_all(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(forecasting_model.Forecasting).offset(skip).limit(limit).all()
+
+
+def get(db: Session, forecasting_id: int):
+    return db.query(forecasting_model.Forecasting).filter(forecasting_model.Forecasting.id == forecasting_id).first()
+
+
+def create(db: Session, forecasting: forecasting_schema.ForecastingCreate, column_id: int):
+    db_forecasting = forecasting_model.Forecasting(**forecasting.dict())
+    db_forecasting.column_id = column_id
+    db.add(db_forecasting)
+    db.commit()
+    db.refresh(db_forecasting)
+    return db_forecasting
+
+
+def update(db: Session, forecasting: forecasting_model.Forecasting, updates: forecasting_schema.ForecastingUpdateSchema):
+    update_data = updates.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(forecasting, key, value)
+    db.commit()
+    return forecasting
+
+
+def delete(db: Session, forecasting: forecasting_model.Forecasting):
+    result = True
+    try:
+        db.delete(forecasting)
+        db.commit()
+    except:
+        result = False
+    return result
