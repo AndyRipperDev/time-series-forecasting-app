@@ -8,6 +8,7 @@ import {
   forecastingModelAtom,
   modelParamsAtom,
   projectTimePeriodAtom,
+  createdForecastingAtom
 } from '../state'
 import { useEffect, useState } from 'react'
 import { useProjectService } from '../services/project.service'
@@ -19,6 +20,7 @@ import ParamSettingItem from '../components/ParamSettingItem'
 import ParamHeading from '../components/ParamHeading'
 import ParamSubheading from '../components/ParamSubheading'
 import FormInput from '../components/FormInput'
+import { history } from '../helpers'
 
 const ForecastSettingsPage = () => {
   const { id } = useParams()
@@ -32,11 +34,13 @@ const ForecastSettingsPage = () => {
   const projectTimePeriod = useRecoilValue(projectTimePeriodAtom)
   const projectDatasetColumns = useRecoilValue(projectDatasetColumnsAtom)
   const forecastingModels = useRecoilValue(forecastingModelsAtom)
+  const createdForecasting = useRecoilValue(createdForecastingAtom)
   const projectDatasetColumnsView = useRecoilValue(
     projectDatasetColumnsViewAtom
   )
   const [splitValueRange, setSplitValueRange] = useState(80)
   const [splitDataValue, setSplitDataValue] = useState(0)
+  const [selectedColumnName, setSelectedColumnName] = useState('')
 
   useEffect(() => {
     projectService.getDatasetColumns(id)
@@ -49,6 +53,7 @@ const ForecastSettingsPage = () => {
       projectService.resetDatasetColumnsView()
       forecastService.resetForecastingModels()
       forecastService.resetForecastingModel()
+      forecastService.resetCreatedForecasting()
     }
   }, [])
 
@@ -59,8 +64,15 @@ const ForecastSettingsPage = () => {
     }
   }, [projectDatasetColumnsView])
 
+  useEffect(() => {
+    if(createdForecasting !== null) {
+      history.navigate(`/forecasting/${createdForecasting.id}`)
+    }
+  }, [createdForecasting])
+
   function setColumnsView(column) {
     setLoadingColView(true)
+    setSelectedColumnName(column)
     projectService.resetDatasetColumnsView()
     projectService.getDatasetColumnValues(id, 0, 0, column, true).then(() => {
       window.dispatchEvent(new Event('resize'))
@@ -202,26 +214,9 @@ const ForecastSettingsPage = () => {
     return 'Fast - May not give the best parameters'
   }
 
-  var interval = null
-
-  let handleForecastCheck = () => {
-    forecastService.getQuickForecastingStatus(1).then((data) => {
-      console.log(data?.status)
-
-      // if(data === 1) {
-      //   clearInterval(interval);
-      // }
-    })
-  }
-
-  const initForecastingChecker = (e) => {
-    // interval = setInterval(handleForecastCheck, 30000)
-    interval = setInterval(handleForecastCheck, 1000)
-  }
-
 
   const handleForecastStart = (event) => {
-    initForecastingChecker()
+    forecastService.create2(id, selectedColumnName, forecastingModel, splitValueRange, modelParams)
   }
 
 

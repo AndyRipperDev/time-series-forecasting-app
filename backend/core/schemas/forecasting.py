@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Json
 import core.schemas.dataset as dataset
 from core.enums.forecasting_model_enum import ForecastingModel, ForecastingStatus
 
@@ -7,6 +7,7 @@ class ForecastingBase(BaseModel):
     model: ForecastingModel
     status: ForecastingStatus
     split_ratio: int
+    params: Json | None = None
     results_filename: str
 
 
@@ -29,4 +30,5 @@ class ForecastingUpdateSchema(BaseModel):
     model: ForecastingModel | None = None
     status: ForecastingStatus | None = None
     split_ratio: int | None = None
+    params: Json | None = None
 

@@ -16,3 +16,5 @@ class ForecastingStatus(Enum):
     Training = 'Training'
     Forecasting = 'Forecasting'
     Finished = 'Finished'
+
+

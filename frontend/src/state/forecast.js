@@ -20,9 +20,27 @@ const forecastingStatusAtom = atom({
   default: null
 });
 
+const createdForecastingAtom = atom({
+  key: 'createdForecasting',
+  default: null
+});
+
+const forecastingResultAtom = atom({
+  key: 'forecastingResult',
+  default: null
+});
+
+const forecastingResultsAtom = atom({
+  key: 'forecastingResults',
+  default: null
+});
+
 export {
   forecastingModelsAtom,
   forecastingModelAtom,
   modelParamsAtom,
-  forecastingStatusAtom
+  forecastingStatusAtom,
+  createdForecastingAtom,
+  forecastingResultsAtom,
+  forecastingResultAtom
 };
