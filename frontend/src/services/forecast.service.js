@@ -19,7 +19,7 @@ function useForecastService() {
   return {
     getAllModels,
     create,
-    create2,
+    createWithCustomBody,
     getForecastingStatus,
     getForecastingResult,
     getForecastingResults,
@@ -33,11 +33,11 @@ function useForecastService() {
     resetForecastingResults: useResetRecoilState(forecastingResultsAtom),
   }
 
-  function create(forecast) {
+  function createWithCustomBody(forecast) {
     return forecastApi.post(urlPartForecast, forecast)
   }
 
-  function create2(projectId, columnName, model, splitRatio, forecast) {
+  function create(projectId, columnName, model, splitRatio, forecast) {
     return forecastApi.post(`${urlPartForecast}/${projectId}/?column=${columnName}`, {
       model: model,
       status: 'Ready',

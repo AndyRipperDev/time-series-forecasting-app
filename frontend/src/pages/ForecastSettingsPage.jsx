@@ -216,7 +216,7 @@ const ForecastSettingsPage = () => {
 
 
   const handleForecastStart = (event) => {
-    forecastService.create2(id, selectedColumnName, forecastingModel, splitValueRange, modelParams)
+    forecastService.create(id, selectedColumnName, forecastingModel, splitValueRange, modelParams)
   }
 
 

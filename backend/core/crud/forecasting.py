@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-
+from sqlalchemy import desc
 from core.schemas import forecasting as forecasting_schema
 from core.models import forecasting as forecasting_model
 from core.models import dataset_column as dataset_column_model
@@ -52,6 +52,8 @@ def get_all_by_user_project(db: Session, user_id: int):
         dataset_model.Dataset.project_id == project_model.Project.id,
     ).filter(
         project_model.Project.user_id == user_id,
+    ).order_by(
+        desc(forecasting_model.Forecasting.created_at)
     ).all()
 
 
