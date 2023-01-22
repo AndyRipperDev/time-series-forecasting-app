@@ -17,7 +17,7 @@ const ForecastingDetailsPage = () => {
 
   useEffect(() => {
     forecastService.getForecastingResult(id)
-    const newIntervalId = setInterval(handleForecastCheck, 1000000)
+    const newIntervalId = setInterval(handleForecastCheck, 30000)
     setIntervalId(newIntervalId)
 
     return () => {
