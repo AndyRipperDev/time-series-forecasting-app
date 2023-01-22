@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Enum, JSON
+from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Enum, JSON, Boolean
 from core.db.base_class import Base
 from core.enums.forecasting_model_enum import ForecastingModel, ForecastingStatus
 
@@ -8,6 +8,12 @@ class Forecasting(Base):
     model = Column(Enum(ForecastingModel), nullable=False, default=ForecastingModel.ARIMA)
     status = Column(Enum(ForecastingStatus), nullable=False, default=ForecastingStatus.Ready)
     split_ratio = Column(Integer, nullable=False, default=80)
+    auto_tune = Column(Boolean, default=False, nullable=False)
+    tune_brute_force = Column(Boolean, default=False, nullable=False)
+    tune_level = Column(Integer, nullable=False, default=1)
+    use_log_transform = Column(Boolean, default=False, nullable=False)
+    use_decomposition = Column(Boolean, default=False, nullable=False)
+    forecast_horizon = Column(Integer, nullable=False, default=1)
     params = Column(JSON, nullable=True)
     results_filename = Column(String(250))
     created_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -95,7 +95,7 @@ const ForecastingDetailsPage = () => {
                   </tr>
                   </thead>
                   <tbody>
-                  {Object.keys(forecastingResult.params.params).map(
+                  {Object.keys(forecastingResult.params).map(
                     (key, index, { length }) => {
                       return (
                         <tr className="bg-base-200 hover:bg-base-100" key={key}>
@@ -103,7 +103,7 @@ const ForecastingDetailsPage = () => {
                             {key}
                           </td>
                           <td className="py-5 px-6 md:px-8">
-                            {forecastingResult.params.params[key]}
+                            {forecastingResult.params[key]}
                           </td>
                         </tr>
                       )

@@ -42,7 +42,13 @@ function useForecastService() {
       model: model,
       status: 'Ready',
       split_ratio: splitRatio,
-      params: JSON.stringify(forecast),
+      auto_tune: forecast.autoTune,
+      tune_brute_force: forecast.autoTuneParams.bruteForce,
+      tune_level: forecast.autoTuneParams.tuneLevel,
+      use_log_transform: forecast.preprocessing.useLog,
+      use_decomposition: forecast.preprocessing.useDecompose,
+      forecast_horizon: forecast.forecastHorizon,
+      params: JSON.stringify(forecast.params),
       results_filename: 'forecast_results.csv'
     })
     .then((response) => response.data)
