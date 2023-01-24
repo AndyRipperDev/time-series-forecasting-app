@@ -42,9 +42,9 @@ def get_forecast_ready_dataset(df, split_ratio, dataset_columns, target_column_n
     return df, df_train, df_test
 
 
-def get_filename_with_path(filename, user_id, project_id):
+def get_filename_with_path(filename, user_id, project_id, forecast_id=None):
     return settings.FILE_STORAGE_DIR + '/' + str(user_id) + '/projects/' + str(
-        project_id) + '/' + filename
+        project_id) + ('/' if forecast_id is None else '/forecasting/' + str(forecast_id) + '/') + filename
 
 
 def add_text_to_filename(filename, text):

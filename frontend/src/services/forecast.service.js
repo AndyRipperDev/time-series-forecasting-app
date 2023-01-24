@@ -1,7 +1,16 @@
 import { useSetRecoilState, useRecoilState, useResetRecoilState } from 'recoil'
 
 import { useAxiosWrapper } from '../helpers'
-import { forecastingModelsAtom, forecastingModelAtom, modelParamsAtom, forecastingStatusAtom, createdForecastingAtom, forecastingResultAtom, forecastingResultsAtom} from '../state'
+import { forecastingModelsAtom,
+  forecastingModelAtom,
+  modelParamsAtom,
+  forecastingStatusAtom,
+  createdForecastingAtom,
+  forecastingResultAtom,
+  forecastingResultsAtom,
+  forecastingPredictedResultsAtom,
+  forecastingPredictedTestResultsAtom
+} from '../state'
 
 export { useForecastService }
 
@@ -12,6 +21,8 @@ function useForecastService() {
   const setForecastingStatus = useSetRecoilState(forecastingStatusAtom)
   const setForecastingResult = useSetRecoilState(forecastingResultAtom)
   const setForecastingResults = useSetRecoilState(forecastingResultsAtom)
+  const setForecastingPredictedResults = useSetRecoilState(forecastingPredictedResultsAtom)
+  const setForecastingPredictedTestResults = useSetRecoilState(forecastingPredictedTestResultsAtom)
   const setModelParams = useSetRecoilState(modelParamsAtom)
   const setCreatedForecasting = useSetRecoilState(createdForecastingAtom)
   const forecastApi = useAxiosWrapper().forecastApi
@@ -23,6 +34,8 @@ function useForecastService() {
     getForecastingStatus,
     getForecastingResult,
     getForecastingResults,
+    getForecastingPredictedResults,
+    getForecastingPredictedTestResults,
     getQuickForecastingStatus,
     resetForecastingModels: useResetRecoilState(forecastingModelsAtom),
     resetForecastingModel: useResetRecoilState(forecastingModelAtom),
@@ -31,6 +44,8 @@ function useForecastService() {
     resetCreatedForecasting: useResetRecoilState(createdForecastingAtom),
     resetForecastingResult: useResetRecoilState(forecastingResultAtom),
     resetForecastingResults: useResetRecoilState(forecastingResultsAtom),
+    resetForecastingPredictedResults: useResetRecoilState(forecastingPredictedResultsAtom),
+    resetForecastingPredictedTestResults: useResetRecoilState(forecastingPredictedTestResultsAtom),
   }
 
   function createWithCustomBody(forecast) {
@@ -81,6 +96,20 @@ function useForecastService() {
       .get(`${urlPartForecast}/user/`)
       .then((response) => response.data)
       .then(setForecastingResults)
+  }
+
+  function getForecastingPredictedResults(id) {
+    return forecastApi
+      .get(`${urlPartForecast}/${id}/results/`)
+      .then((response) => response.data)
+      .then(setForecastingPredictedResults)
+  }
+
+  function getForecastingPredictedTestResults(id) {
+    return forecastApi
+      .get(`${urlPartForecast}/${id}/test-results/`)
+      .then((response) => response.data)
+      .then(setForecastingPredictedTestResults)
   }
 
   function getQuickForecastingStatus(id) {

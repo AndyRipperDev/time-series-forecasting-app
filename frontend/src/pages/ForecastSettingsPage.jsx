@@ -35,9 +35,8 @@ const ForecastSettingsPage = () => {
   const projectDatasetColumns = useRecoilValue(projectDatasetColumnsAtom)
   const forecastingModels = useRecoilValue(forecastingModelsAtom)
   const createdForecasting = useRecoilValue(createdForecastingAtom)
-  const projectDatasetColumnsView = useRecoilValue(
-    projectDatasetColumnsViewAtom
-  )
+  const projectDatasetColumnsView = useRecoilValue(projectDatasetColumnsViewAtom)
+
   const [splitValueRange, setSplitValueRange] = useState(80)
   const [splitDataValue, setSplitDataValue] = useState(0)
   const [selectedColumnName, setSelectedColumnName] = useState('')
@@ -92,7 +91,7 @@ const ForecastSettingsPage = () => {
       autoTune: false,
       autoTuneParams: {
         bruteForce: false,
-        tuneLevel: 0,
+        tuneLevel: 1,
       },
       preprocessing: {
         useLog: false,

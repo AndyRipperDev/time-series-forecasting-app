@@ -15,7 +15,10 @@ from core.enums.forecasting_model_enum import ForecastingModel, ForecastingStatu
 from api import dependencies
 from core.background_tasks.forecasting import start_forecasting
 
+from core.config import settings
+from core.processing import file_processing
 from collections import defaultdict
+import pandas as pd
 
 router = APIRouter(
     prefix="/forecast",
@@ -149,3 +152,51 @@ def read_forecasting(forecast_id: int, db: Session = Depends(dependencies.get_db
     time_period = db_forecasting.datasetcolumns.datasets.time_period
 
     return db_forecasting
+
+
+@router.get("/{forecast_id}/results/", status_code=status.HTTP_200_OK)
+def read_forecasting_results(forecast_id: int, db: Session = Depends(dependencies.get_db),
+                     current_user: user_model.User = Depends(dependencies.get_current_active_user)):
+    db_forecasting = forecasting_crud.get(db, forecasting_id=forecast_id)
+    if db_forecasting is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Forecasting not found")
+
+    if db_forecasting.datasetcolumns.datasets.project.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
+
+    if db_forecasting.status != ForecastingStatus.Finished:
+        return {'results': {}}
+
+    file_path_results = file_processing.get_filename_with_path(settings.FILE_PREDICTED_RESULTS_FILENAME, db_forecasting.datasetcolumns.datasets.project.user_id, db_forecasting.datasetcolumns.datasets.project.id, db_forecasting.id)
+    df = pd.read_csv(file_path_results, sep=db_forecasting.datasetcolumns.datasets.delimiter)
+
+    dataset = df.to_dict('list')
+    dataset_keys = list(dataset.keys())
+    if len(dataset_keys) > 1:
+        dataset['timestamp'] = dataset.pop(dataset_keys[0])
+
+    return {'results': dataset}
+
+
+@router.get("/{forecast_id}/test-results/", status_code=status.HTTP_200_OK)
+def read_forecasting_test_results(forecast_id: int, db: Session = Depends(dependencies.get_db),
+                     current_user: user_model.User = Depends(dependencies.get_current_active_user)):
+    db_forecasting = forecasting_crud.get(db, forecasting_id=forecast_id)
+    if db_forecasting is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Forecasting not found")
+
+    if db_forecasting.datasetcolumns.datasets.project.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
+
+    if db_forecasting.status != ForecastingStatus.Finished:
+        return {'results': {}}
+
+    file_path_results = file_processing.get_filename_with_path(settings.FILE_PREDICTED_TEST_RESULTS_FILENAME, db_forecasting.datasetcolumns.datasets.project.user_id, db_forecasting.datasetcolumns.datasets.project.id, db_forecasting.id)
+    df = pd.read_csv(file_path_results, sep=db_forecasting.datasetcolumns.datasets.delimiter)
+
+    dataset = df.to_dict('list')
+    dataset_keys = list(dataset.keys())
+    if len(dataset_keys) > 1:
+        dataset['timestamp'] = dataset.pop(dataset_keys[0])
+
+    return {'results': dataset}

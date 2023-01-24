@@ -3,30 +3,62 @@ import LoadingPage from '../components/Loadings/LoadingPage'
 import { useEffect, useState } from 'react'
 import { history } from '../helpers'
 import { useForecastService } from '../services/forecast.service'
-import { forecastingResultAtom} from '../state'
+import {
+  forecastingResultAtom,
+  forecastingPredictedResultsAtom,
+  forecastingPredictedTestResultsAtom,
+  projectDatasetColumnsViewAtom, themeAtom,
+} from '../state'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import Loading from '../components/Loadings/Loading'
 import ParamSettingItem from '../components/ParamSettingItem'
 import ParamSubheading from '../components/ParamSubheading'
+import Plot from 'react-plotly.js'
+import daisyuiColors from 'daisyui/src/colors/themes'
+import { useProjectService } from '../services/project.service'
 
 const ForecastingDetailsPage = () => {
   const { id } = useParams()
   const forecastService = useForecastService()
+  const projectService = useProjectService()
+  const theme = useRecoilValue(themeAtom)
   const forecastingResult = useRecoilValue(forecastingResultAtom)
-  const [intervalId, setIntervalId] = useState(0);
+  const forecastingPredictedResults = useRecoilValue(forecastingPredictedResultsAtom)
+  const forecastingPredictedTestResults = useRecoilValue(forecastingPredictedTestResultsAtom)
+  const projectDatasetColumnsView = useRecoilValue(projectDatasetColumnsViewAtom)
+
+  const [intervalId, setIntervalId] = useState(0)
 
   useEffect(() => {
     forecastService.getForecastingResult(id)
-    const newIntervalId = setInterval(handleForecastCheck, 30000)
+    // const newIntervalId = setInterval(handleForecastCheck, 30000)
+    const newIntervalId = setInterval(handleForecastCheck, 1000)
     setIntervalId(newIntervalId)
 
     return () => {
       forecastService.resetForecastingResult()
-      clearInterval(newIntervalId)
-      setIntervalId(0)
+      projectService.resetDatasetColumnsView()
+      forecastService.resetForecastingPredictedResults()
+      forecastService.resetForecastingPredictedTestResults()
+      handleClearInterval(newIntervalId)
+      // clearInterval(newIntervalId)
+      // setIntervalId(0)
     }
   }, []);
 
+
+  function handleSetPlotView() {
+    forecastService.getForecastingPredictedResults(id)
+    forecastService.getForecastingPredictedTestResults(id)
+    projectService.getDatasetColumnValues(forecastingResult.datasetcolumns.datasets.project.id, 0, 0, forecastingResult.datasetcolumns.name, true).then(() => {
+      window.dispatchEvent(new Event('resize'))
+    })
+  }
+
+  const handleClearInterval = (interval) => {
+    clearInterval(interval)
+    setIntervalId(0)
+  }
 
   const handleForecastCheck = () => {
     forecastService.getForecastingResult(id)
@@ -35,12 +67,15 @@ const ForecastingDetailsPage = () => {
 
   if(forecastingResult?.status === 'Finished' || forecastingResult?.status === 'Failed') {
     if(intervalId) {
-      clearInterval(intervalId)
-      setIntervalId(0)
+      handleClearInterval(intervalId)
+      handleSetPlotView()
+      // clearInterval(intervalId)
+      // setIntervalId(0)
     }
   }
 
   const loading = forecastingResult?.status !== 'Finished' && forecastingResult?.status !== 'Failed'
+  const loadingPlotView = !projectDatasetColumnsView || !forecastingPredictedTestResults || !forecastingPredictedResults
 
   return (
     <div className={'my-12'}>
@@ -84,6 +119,87 @@ const ForecastingDetailsPage = () => {
                   <div className="stat-value">{forecastingResult.status}</div>
                 </div>
               </div>
+
+              {loadingPlotView ? (
+                <div className="place-items-center text-center">
+                  <h1 className="text-3xl font-bold text-center mb-20">{forecastingResult?.status}</h1>
+                  <Loading />
+                </div>
+              ) : (
+                <div className={'w-full'}>
+                  {projectDatasetColumnsView && forecastingPredictedResults && forecastingPredictedTestResults && (
+                    <div className=" bg-base-200 rounded-2xl shadow-xl my-4 p-5">
+                      <Plot
+                        className={'w-full h-full'}
+                        data={[
+                          {
+                            y: Object.values(projectDatasetColumnsView?.dataset)[0].values,
+                            x: Object.values(projectDatasetColumnsView?.dataset)[1].values,
+                            type: 'scatter',
+                            mode: 'lines',
+                            name: 'Real Data',
+                            marker: {
+                              color:
+                                daisyuiColors[`[data-theme=${theme}]`][
+                                  'primary'
+                                  ],
+                            },
+                          },
+                          {
+                            y: Object.values(forecastingPredictedTestResults?.results)[0],
+                            x: Object.values(forecastingPredictedTestResults?.results)[1],
+                            type: 'scatter',
+                            mode: 'lines',
+                            name: 'Predicted Test Data',
+                            marker: {
+                              color:
+                                daisyuiColors[`[data-theme=${theme}]`][
+                                  'secondary'
+                                  ],
+                            },
+                          },
+                          {
+                            y: Object.values(forecastingPredictedResults?.results)[0],
+                            x: Object.values(forecastingPredictedResults?.results)[1],
+                            type: 'scatter',
+                            mode: 'lines',
+                            name: 'Predicted Forecast',
+                            marker: {
+                              color:
+                                daisyuiColors[`[data-theme=${theme}]`][
+                                  'accent'
+                                  ],
+                            },
+                          },
+                        ]}
+                        layout={{
+                          // width: '100%',
+                          title: Object.keys(
+                            projectDatasetColumnsView?.dataset
+                          )[0],
+                          font: {
+                            color:
+                              daisyuiColors[`[data-theme=${theme}]`][
+                                'base-content'
+                                ],
+                          },
+                          paper_bgcolor:
+                            daisyuiColors[`[data-theme=${theme}]`][
+                              'base-200'
+                              ],
+                          plot_bgcolor:
+                            daisyuiColors[`[data-theme=${theme}]`][
+                              'base-200'
+                              ],
+                          autosize: true,
+                        }}
+                        useResizeHandler={true}
+                        style={{ width: '100%', height: '100%' }}
+                      />
+                    </div>
+                  )}
+                </div>
+                )}
 
               <h2 className={'text-2xl font-bold self-start mb-4 mt-16'}>Parameters</h2>
               <div className="overflow-x-auto mx-10 md:mx-32 relative shadow-xl rounded-xl max-w-screen-xl">
