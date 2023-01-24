@@ -88,47 +88,35 @@ const ForecastSettingsPage = () => {
     let model = e.target.value
     setForecastingModel(model)
 
-    let newModelParams = null
+    let newModelParams = {
+      autoTune: false,
+      autoTuneParams: {
+        bruteForce: false,
+        tuneLevel: 0,
+      },
+      preprocessing: {
+        useLog: false,
+        useDecompose: false,
+      },
+      params: {},
+      forecastHorizon: 1,
+    }
 
     if (model.toUpperCase() === 'ARIMA') {
-      newModelParams = {
-        autoTune: false,
-        autoTuneParams: {
-          bruteForce: false,
-          tuneLevel: 0,
-        },
-        preprocessing: {
-          useLog: false,
-          useDecompose: false,
-        },
-        params: {
-          p: 1,
-          d: 0,
-          q: 1,
-        },
-        forecastHorizon: 1,
+      newModelParams.params = {
+        p: 1,
+        d: 0,
+        q: 1,
       }
     } else if (model.toUpperCase() === 'SARIMA') {
-      newModelParams = {
-        autoTune: false,
-        autoTuneParams: {
-          bruteForce: false,
-          tuneLevel: 1,
-        },
-        preprocessing: {
-          useLog: false,
-          useDecompose: false,
-        },
-        params: {
-          p: 1,
-          d: 0,
-          q: 1,
-          P: 1,
-          D: 0,
-          Q: 1,
-          m: 12,
-        },
-        forecastHorizon: 1,
+      newModelParams.params = {
+        p: 1,
+        d: 0,
+        q: 1,
+        P: 1,
+        D: 0,
+        Q: 1,
+        m: 12,
       }
     }
 
@@ -172,7 +160,7 @@ const ForecastSettingsPage = () => {
   }
 
   const handleNumberParamChange = (event, paramName) => {
-    let paramValue = event.target.value
+    let paramValue = Number(event.target.value)
     let model = { ...modelParams }
     let params = { ...model.params }
 
@@ -184,14 +172,14 @@ const ForecastSettingsPage = () => {
 
   const handleForecastHorizonChange = (event) => {
     let model = { ...modelParams }
-    model.forecastHorizon = event.target.value
+    model.forecastHorizon = Number(event.target.value)
     setModelParams(model)
   }
 
   const handleAutoTuneMethodChange = (event) => {
     let model = { ...modelParams }
     let autoTuneParams = { ...model.autoTuneParams }
-    autoTuneParams.bruteForce = event.target.value
+    autoTuneParams.bruteForce = (event.target.value === 'true')
     model.autoTuneParams = autoTuneParams
     setModelParams(model)
   }
@@ -199,7 +187,7 @@ const ForecastSettingsPage = () => {
   const handleAutoTuneLevelChange = (event) => {
     let model = { ...modelParams }
     let autoTuneParams = { ...model.autoTuneParams }
-    autoTuneParams.tuneLevel = event.target.value
+    autoTuneParams.tuneLevel = Number(event.target.value)
     model.autoTuneParams = autoTuneParams
     setModelParams(model)
   }

@@ -3,6 +3,49 @@ from pathlib import Path
 from core.enums.dataset_column_enum import ColumnMissingValuesMethod, ColumnScalingMethod
 from sklearn.preprocessing import MinMaxScaler, PowerTransformer, StandardScaler
 
+from core.config import settings
+
+
+def save_forecast_file(user_id, project_id, forecast_id, forecast_filename, delimiter, df):
+    file_path_base = settings.FILE_STORAGE_DIR + '/' + str(user_id) + '/projects/' + str(project_id) + '/forecasting/' + str(forecast_id) + '/'
+    file_path = Path(file_path_base)
+    file_path.mkdir(parents=True, exist_ok=True)
+
+    df.to_csv(file_path_base + '/' + forecast_filename, sep=delimiter, index=True)
+    return file_path_base + '/' + forecast_filename
+
+
+def split_dataset(df, split_ratio):
+    split_bound = int(len(df) * split_ratio / 100)
+    df_train = df[:split_bound]
+    df_test = df[split_bound:]
+    return df_train, df_test
+
+
+def get_forecast_ready_dataset(df, split_ratio, dataset_columns, target_column_name):
+    index_col_name = None
+    for column in dataset_columns:
+        if column.is_date:
+            index_col_name = column.name
+            break
+
+    if index_col_name is None:
+        raise Exception()
+
+    if df.dtypes[target_column_name] == 'object':
+        raise Exception()
+
+    df.set_index(index_col_name, inplace=True)
+    df = df[target_column_name]
+    df_train, df_test = split_dataset(df, split_ratio)
+
+    return df, df_train, df_test
+
+
+def get_filename_with_path(filename, user_id, project_id):
+    return settings.FILE_STORAGE_DIR + '/' + str(user_id) + '/projects/' + str(
+        project_id) + '/' + filename
+
 
 def add_text_to_filename(filename, text):
     file_path = Path(filename)

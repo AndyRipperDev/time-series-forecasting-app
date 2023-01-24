@@ -16,6 +16,7 @@ sqlalchemy-utils = "*"
 pandas = "*"
 scikit-learn = "*"
 statsmodels = "*"
+optuna = "*"
 
 [dev-packages]
 

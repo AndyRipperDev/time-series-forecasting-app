@@ -6,6 +6,7 @@ from core.models import dataset_column as dataset_column_model
 from core.models import dataset as dataset_model
 from core.models import project as project_model
 
+from sqlalchemy.orm.attributes import flag_modified
 
 def get_all(db: Session, skip: int = 0, limit: int = 100):
     return db.query(forecasting_model.Forecasting).offset(skip).limit(limit).all()
@@ -74,6 +75,12 @@ def update(db: Session, forecasting: forecasting_model.Forecasting, updates: for
     update_data = updates.dict(exclude_unset=True)
     for key, value in update_data.items():
         setattr(forecasting, key, value)
+    db.commit()
+    return forecasting
+
+
+def update_params(db: Session, forecasting: forecasting_model.Forecasting, params):
+    forecasting.params = params
     db.commit()
     return forecasting
 

@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Enum, JSON, Boolean
+
 from core.db.base_class import Base
 from core.enums.forecasting_model_enum import ForecastingModel, ForecastingStatus
 
@@ -15,7 +16,6 @@ class Forecasting(Base):
     use_decomposition = Column(Boolean, default=False, nullable=False)
     forecast_horizon = Column(Integer, nullable=False, default=1)
     params = Column(JSON, nullable=True)
-    results_filename = Column(String(250))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

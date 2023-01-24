@@ -91,6 +91,7 @@ def read_forecasting_all_by_user(db: Session = Depends(dependencies.get_db),
     for row in db_forecasting:
         forecasting = row[0]
         project = forecasting.datasetcolumns.datasets.project
+        time_period = forecasting.datasetcolumns.datasets.time_period
         d[row[1].id][forecasting.column_id].append(forecasting)
         forecasting_dict[row[1].id].append(forecasting)
         # d[row[1].id].append({'forecasting': forecasting, 'project': forecasting.datasetcolumns.datasets.project})
@@ -144,5 +145,7 @@ def read_forecasting(forecast_id: int, db: Session = Depends(dependencies.get_db
 
     if db_forecasting.datasetcolumns.datasets.project.user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
+
+    time_period = db_forecasting.datasetcolumns.datasets.time_period
 
     return db_forecasting

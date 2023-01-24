@@ -33,14 +33,14 @@ const ForecastingDetailsPage = () => {
   }
 
 
-  if(forecastingResult?.status === 'Finished') {
+  if(forecastingResult?.status === 'Finished' || forecastingResult?.status === 'Failed') {
     if(intervalId) {
       clearInterval(intervalId)
       setIntervalId(0)
     }
   }
 
-  const loading = forecastingResult?.status !== 'Finished'
+  const loading = forecastingResult?.status !== 'Finished' && forecastingResult?.status !== 'Failed'
 
   return (
     <div className={'my-12'}>

@@ -14,7 +14,6 @@ class ForecastingBase(BaseModel):
     use_decomposition: bool
     forecast_horizon: int
     params: Json | None = None
-    results_filename: str
 
 
 
