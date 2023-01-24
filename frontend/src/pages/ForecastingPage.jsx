@@ -5,9 +5,11 @@ import { useEffect } from 'react'
 import Loading from '../components/Loadings/Loading'
 import LoadingPage from '../components/Loadings/LoadingPage'
 import { Link } from 'react-router-dom'
+import { useDateUtils } from '../helpers/dateUtils'
 
 const ForecastingPage = () => {
   const forecastService = useForecastService()
+  const dateUtils = useDateUtils()
   const forecastingResults = useRecoilValue(forecastingResultsAtom)
 
   useEffect(() => {
@@ -75,10 +77,25 @@ const ForecastingPage = () => {
                                           Split ratio
                                         </th>
                                         <th scope="col" className="py-5 px-6 md:px-8">
+                                          Forecast horizon
+                                        </th>
+                                        <th scope="col" className="py-5 px-6 md:px-8">
+                                          Auto tune
+                                        </th>
+                                        <th scope="col" className="py-5 px-6 md:px-8">
+                                          Log Transform
+                                        </th>
+                                        <th scope="col" className="py-5 px-6 md:px-8">
+                                          Decompose
+                                        </th>
+                                        <th scope="col" className="py-5 px-6 md:px-8">
                                           Started
                                         </th>
                                         <th scope="col" className="py-5 px-6 md:px-8">
                                           Finished
+                                        </th>
+                                        <th scope="col" className="py-5 px-6 md:px-8">
+                                          Elapsed Time
                                         </th>
                                         <th scope="col" className="py-5 px-6 md:px-8">
                                           Status
@@ -101,11 +118,30 @@ const ForecastingPage = () => {
                                             {forecast.split_ratio} : {100 - forecast.split_ratio}
                                           </td>
                                           <td className="py-5 px-6 md:px-8">
+                                            {forecast.forecast_horizon}
+                                          </td>
+                                          <td className="py-5 px-6 md:px-8">
+                                            <input type="checkbox" className="checkbox" disabled checked={forecast.auto_tune} />
+                                          </td>
+                                          <td className="py-5 px-6 md:px-8">
+                                            <input type="checkbox" className="checkbox" disabled checked={forecast.use_log_transform} />
+                                          </td>
+                                          <td className="py-5 px-6 md:px-8">
+                                            <input type="checkbox" className="checkbox" disabled checked={forecast.use_decomposition} />
+                                          </td>
+                                          <td className="py-5 px-6 md:px-8">
                                             {new Date(forecast.created_at).toLocaleString()}
                                           </td>
                                           <td className="py-5 px-6 md:px-8">
-                                            {forecast.updated_at && forecast.status === 'Finished' && (
+                                            {forecast.updated_at && (forecast.status === 'Finished' || forecast.status === 'Failed') && (
                                               new Date(forecast.updated_at).toLocaleString()
+                                            )}
+                                          </td>
+                                          <td className="py-5 px-6 md:px-8">
+                                            {forecast.updated_at && (forecast.status === 'Finished' || forecast.status === 'Failed') ? (
+                                              dateUtils.getDateDiff(forecast.created_at, forecast.updated_at)
+                                            ) : (
+                                              dateUtils.getDateDiff(forecast.created_at, new Date())
                                             )}
                                           </td>
                                           <td className="py-5 px-6 md:px-8">

@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom'
 import LoadingPage from '../components/Loadings/LoadingPage'
 import { useEffect, useState } from 'react'
-import { history } from '../helpers'
+import { history, useDateUtils } from '../helpers'
 import { useForecastService } from '../services/forecast.service'
 import {
   forecastingResultAtom,
@@ -21,6 +21,7 @@ const ForecastingDetailsPage = () => {
   const { id } = useParams()
   const forecastService = useForecastService()
   const projectService = useProjectService()
+  const dateUtils = useDateUtils()
   const theme = useRecoilValue(themeAtom)
   const forecastingResult = useRecoilValue(forecastingResultAtom)
   const forecastingPredictedResults = useRecoilValue(forecastingPredictedResultsAtom)
@@ -31,8 +32,8 @@ const ForecastingDetailsPage = () => {
 
   useEffect(() => {
     forecastService.getForecastingResult(id)
-    // const newIntervalId = setInterval(handleForecastCheck, 30000)
-    const newIntervalId = setInterval(handleForecastCheck, 1000)
+    const newIntervalId = setInterval(handleForecastCheck, 30000)
+    // const newIntervalId = setInterval(handleForecastCheck, 1000)
     setIntervalId(newIntervalId)
 
     return () => {
@@ -64,6 +65,17 @@ const ForecastingDetailsPage = () => {
     forecastService.getForecastingResult(id)
   }
 
+  const getBadge = (status) => {
+    if (status === 'Ready') {
+      return 'badge-info'
+    } else if (status === 'Finished') {
+      return 'badge-success'
+    } else if (status === 'Failed') {
+      return 'badge-error'
+    }
+    return 'badge-warning'
+  }
+
 
   if(forecastingResult?.status === 'Finished' || forecastingResult?.status === 'Failed') {
     if(intervalId) {
@@ -78,33 +90,59 @@ const ForecastingDetailsPage = () => {
   const loadingPlotView = !projectDatasetColumnsView || !forecastingPredictedTestResults || !forecastingPredictedResults
 
   return (
-    <div className={'my-12'}>
+    <div>
       {loading ? (
-          <div className="place-items-center text-center">
-            <h1 className="text-3xl font-bold text-center mb-20">{forecastingResult?.status}</h1>
+        <div className="flex h-screen justify-center items-center">
+          <div className={'flex flex-col items-center'}>
+            <h1 className="text-3xl font-bold text-center mb-12">{forecastingResult?.status}</h1>
             <Loading />
           </div>
+        </div>
       ) : (
-        <div className={'w-full'}>
+        <div className={'w-full my-12'}>
           {forecastingResult && (
-            <div className="mt-12 mx-auto max-w-screen-xl text-center">
-              <h1 className="text-3xl font-bold md:text-4xl mb-12">
+            <div className={'flex flex-col items-center mx-auto w-5/6 md:w-2/3 max-w-6xl space-y-4 mb-6' }>
+             {/*<div className="flex flex-col mt-12 mx-auto max-w-screen-lg text-center">*/}
+              <h1 className="text-3xl font-bold md:text-4xl mb-8">
                 {forecastingResult.datasetcolumns.name}
               </h1>
-              <div className="stats stats-vertical lg:stats-horizontal shadow-lg bg-base-200">
-                <div className="stat">
-                  <div className="stat-title">Started</div>
-                  <div className="stat-value text-3xl">{new Date(forecastingResult.created_at).toLocaleDateString()}</div>
-                  <div className="stat-title text-xl mt-1">{new Date(forecastingResult.created_at).toLocaleTimeString()}</div>
+              <div className={`badge badge-lg ${getBadge(forecastingResult.status)}`}>
+                {forecastingResult.status}
+              </div>
+              <div className="pb-4">{dateUtils.getDateDiff(forecastingResult.created_at, forecastingResult.updated_at)}</div>
+
+
+              <div className={'flex justify-center items-center space-x-6 pb-12'}>
+                <div className={'flex flex-col space-y-1'}>
+                  <p className={'font-bold'}>Started</p>
+                  <div className={`badge badge-lg p-3.5`}>
+                    {new Date(forecastingResult.created_at).toLocaleString()}
+                  </div>
                 </div>
-                <div className="stat">
-                  <div className="stat-title">Finished</div>
-                  <div className="stat-value text-3xl">{new Date(forecastingResult.updated_at).toLocaleDateString()}</div>
-                  <div className="stat-title text-xl mt-1">{new Date(forecastingResult.updated_at).toLocaleTimeString()}</div>
+                <div className={'flex flex-col space-y-1'}>
+                <p className={'font-bold'}>Finished</p>
+                  <div className={`badge badge-lg p-3.5`}>
+                    {new Date(forecastingResult.updated_at).toLocaleString()}
+                  </div>
                 </div>
               </div>
 
-              <h2 className={'text-2xl font-bold self-start mb-4 mt-16'}>Info</h2>
+
+
+              {/*<div className="stats stats-vertical lg:stats-horizontal shadow-lg bg-base-200">*/}
+              {/*  <div className="stat">*/}
+              {/*    <div className="stat-title">Started</div>*/}
+              {/*    <div className="stat-value text-3xl">{new Date(forecastingResult.created_at).toLocaleDateString()}</div>*/}
+              {/*    <div className="stat-title text-xl mt-1">{new Date(forecastingResult.created_at).toLocaleTimeString()}</div>*/}
+              {/*  </div>*/}
+              {/*  <div className="stat">*/}
+              {/*    <div className="stat-title">Finished</div>*/}
+              {/*    <div className="stat-value text-3xl">{new Date(forecastingResult.updated_at).toLocaleDateString()}</div>*/}
+              {/*    <div className="stat-title text-xl mt-1">{new Date(forecastingResult.updated_at).toLocaleTimeString()}</div>*/}
+              {/*  </div>*/}
+              {/*</div>*/}
+
+              {/*<h2 className={'text-2xl font-bold self-start mb-4 mt-16'}>Info</h2>*/}
               <div className="stats stats-vertical lg:stats-horizontal shadow-lg bg-base-200">
                 <div className="stat">
                   <div className="stat-title">Model</div>
@@ -115,14 +153,19 @@ const ForecastingDetailsPage = () => {
                   <div className="stat-value">{forecastingResult.split_ratio} : {100 - forecastingResult.split_ratio}</div>
                 </div>
                 <div className="stat">
-                  <div className="stat-title">Status</div>
-                  <div className="stat-value">{forecastingResult.status}</div>
+                  <div className="stat-title">Forecast Horizon</div>
+                  <div className="stat-value">{forecastingResult.forecast_horizon}</div>
                 </div>
+                {/*<div className="stat">*/}
+                {/*  <div className="stat-title">Elapsed Time</div>*/}
+                {/*  <div className="stat-value">{dateUtils.getDateDiff(forecastingResult.created_at, forecastingResult.updated_at)}</div>*/}
+                {/*</div>*/}
               </div>
 
+              <div className="flex flex-col mt-12 mx-auto w-full text-center">
               {loadingPlotView ? (
-                <div className="place-items-center text-center">
-                  <h1 className="text-3xl font-bold text-center mb-20">{forecastingResult?.status}</h1>
+                <div className="place-items-center text-center py-24">
+                  <h1 className="text-2xl font-bold text-center mb-12">Loading Chart</h1>
                   <Loading />
                 </div>
               ) : (
@@ -202,7 +245,7 @@ const ForecastingDetailsPage = () => {
                 )}
 
               <h2 className={'text-2xl font-bold self-start mb-4 mt-16'}>Parameters</h2>
-              <div className="overflow-x-auto mx-10 md:mx-32 relative shadow-xl rounded-xl max-w-screen-xl">
+              <div className="overflow-x-auto relative shadow-xl rounded-xl max-w-screen-xl">
                 <table className="w-full text-sm text-left">
                   <thead className="text-xs uppercase bg-base-300">
                   <tr>
@@ -227,6 +270,7 @@ const ForecastingDetailsPage = () => {
                   )}
                   </tbody>
                 </table>
+              </div>
               </div>
             </div>
           )}
