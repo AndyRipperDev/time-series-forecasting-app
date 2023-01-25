@@ -1,7 +1,8 @@
 import { useSetRecoilState, useRecoilState, useResetRecoilState } from 'recoil'
 
 import { useAxiosWrapper } from '../helpers'
-import { forecastingModelsAtom,
+import {
+  forecastingModelsAtom,
   forecastingModelAtom,
   modelParamsAtom,
   forecastingStatusAtom,
@@ -9,7 +10,7 @@ import { forecastingModelsAtom,
   forecastingResultAtom,
   forecastingResultsAtom,
   forecastingPredictedResultsAtom,
-  forecastingPredictedTestResultsAtom
+  forecastingPredictedTestResultsAtom,
 } from '../state'
 
 export { useForecastService }
@@ -21,8 +22,12 @@ function useForecastService() {
   const setForecastingStatus = useSetRecoilState(forecastingStatusAtom)
   const setForecastingResult = useSetRecoilState(forecastingResultAtom)
   const setForecastingResults = useSetRecoilState(forecastingResultsAtom)
-  const setForecastingPredictedResults = useSetRecoilState(forecastingPredictedResultsAtom)
-  const setForecastingPredictedTestResults = useSetRecoilState(forecastingPredictedTestResultsAtom)
+  const setForecastingPredictedResults = useSetRecoilState(
+    forecastingPredictedResultsAtom
+  )
+  const setForecastingPredictedTestResults = useSetRecoilState(
+    forecastingPredictedTestResultsAtom
+  )
   const setModelParams = useSetRecoilState(modelParamsAtom)
   const setCreatedForecasting = useSetRecoilState(createdForecastingAtom)
   const forecastApi = useAxiosWrapper().forecastApi
@@ -37,6 +42,8 @@ function useForecastService() {
     getForecastingPredictedResults,
     getForecastingPredictedTestResults,
     getQuickForecastingStatus,
+    downloadForecastedDataset,
+    downloadTestDataset,
     resetForecastingModels: useResetRecoilState(forecastingModelsAtom),
     resetForecastingModel: useResetRecoilState(forecastingModelAtom),
     resetModelParams: useResetRecoilState(modelParamsAtom),
@@ -44,8 +51,12 @@ function useForecastService() {
     resetCreatedForecasting: useResetRecoilState(createdForecastingAtom),
     resetForecastingResult: useResetRecoilState(forecastingResultAtom),
     resetForecastingResults: useResetRecoilState(forecastingResultsAtom),
-    resetForecastingPredictedResults: useResetRecoilState(forecastingPredictedResultsAtom),
-    resetForecastingPredictedTestResults: useResetRecoilState(forecastingPredictedTestResultsAtom),
+    resetForecastingPredictedResults: useResetRecoilState(
+      forecastingPredictedResultsAtom
+    ),
+    resetForecastingPredictedTestResults: useResetRecoilState(
+      forecastingPredictedTestResultsAtom
+    ),
   }
 
   function createWithCustomBody(forecast) {
@@ -53,21 +64,22 @@ function useForecastService() {
   }
 
   function create(projectId, columnName, model, splitRatio, forecast) {
-    return forecastApi.post(`${urlPartForecast}/${projectId}/?column=${columnName}`, {
-      model: model,
-      status: 'Ready',
-      split_ratio: splitRatio,
-      auto_tune: forecast.autoTune,
-      tune_brute_force: forecast.autoTuneParams.bruteForce,
-      tune_level: forecast.autoTuneParams.tuneLevel,
-      use_log_transform: forecast.preprocessing.useLog,
-      use_decomposition: forecast.preprocessing.useDecompose,
-      forecast_horizon: forecast.forecastHorizon,
-      params: JSON.stringify(forecast.params),
-      results_filename: 'forecast_results.csv'
-    })
-    .then((response) => response.data)
-    .then(setCreatedForecasting)
+    return forecastApi
+      .post(`${urlPartForecast}/${projectId}/?column=${columnName}`, {
+        model: model,
+        status: 'Ready',
+        split_ratio: splitRatio,
+        auto_tune: forecast.autoTune,
+        tune_brute_force: forecast.autoTuneParams.bruteForce,
+        tune_level: forecast.autoTuneParams.tuneLevel,
+        use_log_transform: forecast.preprocessing.useLog,
+        use_decomposition: forecast.preprocessing.useDecompose,
+        forecast_horizon: forecast.forecastHorizon,
+        params: JSON.stringify(forecast.params),
+        results_filename: 'forecast_results.csv',
+      })
+      .then((response) => response.data)
+      .then(setCreatedForecasting)
   }
 
   function getAllModels() {
@@ -116,5 +128,59 @@ function useForecastService() {
     return forecastApi
       .get(urlPartForecast + '/status/' + id)
       .then((response) => response.data)
+  }
+
+  function downloadTestDataset(forecast) {
+    return forecastApi({
+      url: `${urlPartForecast}/${forecast.id}/test-results/download/`,
+      method: 'GET',
+      responseType: 'blob', // important
+    }).then((response) => {
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      let filename =
+        'test_results_' +
+        forecast.datasetcolumns.datasets.project.title +
+        '_' +
+        forecast.datasetcolumns.name +
+        '_' +
+        forecast.model +
+        '_' +
+        forecast.split_ratio +
+        '_' +
+        (100 - forecast.split_ratio) +
+        '.csv'
+      link.setAttribute('download', filename)
+      document.body.appendChild(link)
+      link.click()
+    })
+  }
+
+  function downloadForecastedDataset(forecast) {
+    return forecastApi({
+      url: `${urlPartForecast}/${forecast.id}/results/download/`,
+      method: 'GET',
+      responseType: 'blob', // important
+    }).then((response) => {
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      let filename =
+        'forecast_results_' +
+        forecast.datasetcolumns.datasets.project.title +
+        '_' +
+        forecast.datasetcolumns.name +
+        '_' +
+        forecast.model +
+        '_' +
+        forecast.split_ratio +
+        '_' +
+        (100 - forecast.split_ratio) +
+        '.csv'
+      link.setAttribute('download', filename)
+      document.body.appendChild(link)
+      link.click()
+    })
   }
 }

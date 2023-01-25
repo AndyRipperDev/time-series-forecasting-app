@@ -66,9 +66,7 @@ function useProjectService() {
     resetDatasetTimePeriodOptions: useResetRecoilState(
       projectDatasetTimePeriodOptionsAtom
     ),
-    resetProjectTimePeriod: useResetRecoilState(
-      projectTimePeriodAtom
-    ),
+    resetProjectTimePeriod: useResetRecoilState(projectTimePeriodAtom),
   }
 
   function getAll() {
@@ -146,8 +144,6 @@ function useProjectService() {
       .then(setProjectTimePeriod)
   }
 
-
-
   function create(project) {
     return forecastApi.post(urlPartProjects, {
       title: project.title,
@@ -191,7 +187,7 @@ function useProjectService() {
     )
   }
 
-  function downloadDataset(project) {
+  function downloadDataset(project, filename) {
     return forecastApi({
       url: `${urlPartProjects}/download-dataset/${project.id}`,
       method: 'GET',
@@ -200,7 +196,7 @@ function useProjectService() {
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement('a')
       link.href = url
-      link.setAttribute('download', project.dataset.filename)
+      link.setAttribute('download', filename)
       document.body.appendChild(link)
       link.click()
     })

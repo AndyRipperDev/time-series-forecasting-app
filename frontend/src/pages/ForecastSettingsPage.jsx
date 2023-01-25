@@ -8,7 +8,7 @@ import {
   forecastingModelAtom,
   modelParamsAtom,
   projectTimePeriodAtom,
-  createdForecastingAtom
+  createdForecastingAtom,
 } from '../state'
 import { useEffect, useState } from 'react'
 import { useProjectService } from '../services/project.service'
@@ -35,7 +35,9 @@ const ForecastSettingsPage = () => {
   const projectDatasetColumns = useRecoilValue(projectDatasetColumnsAtom)
   const forecastingModels = useRecoilValue(forecastingModelsAtom)
   const createdForecasting = useRecoilValue(createdForecastingAtom)
-  const projectDatasetColumnsView = useRecoilValue(projectDatasetColumnsViewAtom)
+  const projectDatasetColumnsView = useRecoilValue(
+    projectDatasetColumnsViewAtom
+  )
 
   const [splitValueRange, setSplitValueRange] = useState(80)
   const [splitDataValue, setSplitDataValue] = useState(0)
@@ -64,7 +66,7 @@ const ForecastSettingsPage = () => {
   }, [projectDatasetColumnsView])
 
   useEffect(() => {
-    if(createdForecasting !== null) {
+    if (createdForecasting !== null) {
       history.navigate(`/forecasting/${createdForecasting.id}`)
     }
   }, [createdForecasting])
@@ -178,7 +180,7 @@ const ForecastSettingsPage = () => {
   const handleAutoTuneMethodChange = (event) => {
     let model = { ...modelParams }
     let autoTuneParams = { ...model.autoTuneParams }
-    autoTuneParams.bruteForce = (event.target.value === 'true')
+    autoTuneParams.bruteForce = event.target.value === 'true'
     model.autoTuneParams = autoTuneParams
     setModelParams(model)
   }
@@ -201,11 +203,15 @@ const ForecastSettingsPage = () => {
     return 'Fast - May not give the best parameters'
   }
 
-
   const handleForecastStart = (event) => {
-    forecastService.create(id, selectedColumnName, forecastingModel, splitValueRange, modelParams)
+    forecastService.create(
+      id,
+      selectedColumnName,
+      forecastingModel,
+      splitValueRange,
+      modelParams
+    )
   }
-
 
   const loading = !projectDatasetColumns
   // const loadingColView = !projectDatasetColumnsView
@@ -314,6 +320,9 @@ const ForecastSettingsPage = () => {
                                 'base-200'
                               ],
                             autosize: true,
+                            legend: {
+                              orientation: 'h',
+                            },
                           }}
                           useResizeHandler={true}
                           style={{ width: '100%', height: '100%' }}
@@ -512,8 +521,24 @@ const ForecastSettingsPage = () => {
                       )}
 
                       <div className={'w-full flex justify-center mt-24'}>
-                        <button className="btn btn-primary btn-wide gap-3" onClick={handleForecastStart}>
-                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                        <button
+                          className="btn btn-primary btn-wide gap-3"
+                          onClick={handleForecastStart}
+                        >
+                          <svg
+                            className="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                            />
+                          </svg>
                           Forecast
                         </button>
                       </div>

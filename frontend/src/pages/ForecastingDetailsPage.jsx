@@ -79,6 +79,21 @@ const ForecastingDetailsPage = () => {
     forecastService.getForecastingResult(id)
   }
 
+  const handleDownloadTest = (e) => {
+    forecastService.downloadTestDataset(forecastingResult)
+  }
+
+  const handleDownloadForecast = (e) => {
+    forecastService.downloadForecastedDataset(forecastingResult)
+  }
+
+  const handleDownloadReal = (e) => {
+    projectService.downloadDataset(
+      forecastingResult.datasetcolumns.datasets.project,
+      forecastingResult.datasetcolumns.datasets.filename
+    )
+  }
+
   const getBadge = (status) => {
     if (status === 'Ready') {
       return 'badge-info'
@@ -221,7 +236,7 @@ const ForecastingDetailsPage = () => {
                 {/*</div>*/}
               </div>
 
-              <div className="flex flex-col mt-12 mx-auto w-full text-center">
+              <div className="flex flex-col mx-auto w-full text-center">
                 {loadingPlotView ? (
                   <div className="place-items-center text-center py-24">
                     <h1 className="text-2xl font-bold text-center mb-12">
@@ -230,7 +245,72 @@ const ForecastingDetailsPage = () => {
                     <Loading />
                   </div>
                 ) : (
-                  <div className={'w-full'}>
+                  <div className={'w-full mt-12'}>
+                    <div className={'flex justify-end'}>
+                      <div className="btn-group">
+                        <button
+                          className="btn gap-4 hover:text-info"
+                          onClick={handleDownloadReal}
+                        >
+                          <svg
+                            className="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                            />
+                          </svg>
+                          Real Data
+                        </button>
+                        <button
+                          className="btn gap-4 hover:text-info"
+                          onClick={handleDownloadTest}
+                        >
+                          <svg
+                            className="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                            />
+                          </svg>
+                          Test Data
+                        </button>
+                        <button
+                          className="btn gap-4 hover:text-info"
+                          onClick={handleDownloadForecast}
+                        >
+                          <svg
+                            className="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                            />
+                          </svg>
+                          Forecast
+                        </button>
+                      </div>
+                    </div>
+
                     {projectDatasetColumnsView &&
                       forecastingPredictedResults &&
                       forecastingPredictedTestResults && (
@@ -310,6 +390,9 @@ const ForecastingDetailsPage = () => {
                                   'base-200'
                                 ],
                               autosize: true,
+                              legend: {
+                                orientation: 'h',
+                              },
                             }}
                             useResizeHandler={true}
                             style={{ width: '100%', height: '100%' }}

@@ -1,6 +1,7 @@
 import json
 import copy
 
+from starlette.responses import FileResponse
 from fastapi import APIRouter, Depends, status, HTTPException, Body, BackgroundTasks
 
 from sqlalchemy.orm import Session
@@ -200,3 +201,39 @@ def read_forecasting_test_results(forecast_id: int, db: Session = Depends(depend
         dataset['timestamp'] = dataset.pop(dataset_keys[0])
 
     return {'results': dataset}
+
+
+@router.get("/{forecast_id}/results/download/", status_code=status.HTTP_200_OK)
+def download_forecast_test(forecast_id: int, db: Session = Depends(dependencies.get_db),
+                 current_user: user_model.User = Depends(dependencies.get_current_active_user)):
+    db_forecasting = forecasting_crud.get(db, forecasting_id=forecast_id)
+    if db_forecasting is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Forecasting not found")
+
+    if db_forecasting.datasetcolumns.datasets.project.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
+
+    file_path = file_processing.get_filename_with_path(settings.FILE_PREDICTED_RESULTS_FILENAME,
+                                                               db_forecasting.datasetcolumns.datasets.project.user_id,
+                                                               db_forecasting.datasetcolumns.datasets.project.id,
+                                                               db_forecasting.id)
+
+    return FileResponse(file_path, media_type='application/octet-stream', filename=settings.FILE_PREDICTED_RESULTS_FILENAME)
+
+
+@router.get("/{forecast_id}/test-results/download/", status_code=status.HTTP_200_OK)
+def download_forecast_test(forecast_id: int, db: Session = Depends(dependencies.get_db),
+                 current_user: user_model.User = Depends(dependencies.get_current_active_user)):
+    db_forecasting = forecasting_crud.get(db, forecasting_id=forecast_id)
+    if db_forecasting is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Forecasting not found")
+
+    if db_forecasting.datasetcolumns.datasets.project.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
+
+    file_path = file_processing.get_filename_with_path(settings.FILE_PREDICTED_TEST_RESULTS_FILENAME,
+                                                               db_forecasting.datasetcolumns.datasets.project.user_id,
+                                                               db_forecasting.datasetcolumns.datasets.project.id,
+                                                               db_forecasting.id)
+
+    return FileResponse(file_path, media_type='application/octet-stream', filename=settings.FILE_PREDICTED_TEST_RESULTS_FILENAME)

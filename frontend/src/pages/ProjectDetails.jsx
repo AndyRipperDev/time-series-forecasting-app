@@ -31,7 +31,7 @@ const ProjectDetailsPage = () => {
   }, [])
 
   function handleDownload(event) {
-    projectService.downloadDataset(project)
+    projectService.downloadDataset(project, project.dataset.filename)
   }
 
   function handleDelete(event) {
