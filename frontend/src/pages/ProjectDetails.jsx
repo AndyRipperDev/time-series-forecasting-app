@@ -142,7 +142,7 @@ const ProjectDetailsPage = () => {
                     View Columns
                   </Link>
                   <Link
-                    to={`/projects/forecast-settings/${project.id}`}
+                    to={`/projects/${project.id}/forecast-settings`}
                     className={'btn gap-4 hover:text-info'}
                   >
                     <svg

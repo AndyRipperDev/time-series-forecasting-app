@@ -166,7 +166,7 @@ function App() {
             }
           />
           <Route
-            path="/projects/forecast-settings/:id"
+            path="/projects/:id/forecast-settings"
             element={
               <PrivateRoute>
                 <ForecastSettingsPage />
