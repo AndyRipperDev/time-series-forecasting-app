@@ -1,6 +1,7 @@
 import json
 import copy
-
+from fastapi.responses import StreamingResponse
+import io
 from starlette.responses import FileResponse
 from fastapi import APIRouter, Depends, status, HTTPException, Body, BackgroundTasks
 
@@ -204,7 +205,7 @@ def read_forecasting_test_results(forecast_id: int, db: Session = Depends(depend
 
 
 @router.get("/{forecast_id}/results/download/", status_code=status.HTTP_200_OK)
-def download_forecast_test(forecast_id: int, db: Session = Depends(dependencies.get_db),
+def download_forecast(forecast_id: int, db: Session = Depends(dependencies.get_db),
                  current_user: user_model.User = Depends(dependencies.get_current_active_user)):
     db_forecasting = forecasting_crud.get(db, forecasting_id=forecast_id)
     if db_forecasting is None:
@@ -237,3 +238,36 @@ def download_forecast_test(forecast_id: int, db: Session = Depends(dependencies.
                                                                db_forecasting.id)
 
     return FileResponse(file_path, media_type='application/octet-stream', filename=settings.FILE_PREDICTED_TEST_RESULTS_FILENAME)
+
+
+@router.get("/{forecast_id}/combined-test-results/download/", status_code=status.HTTP_200_OK)
+def download_forecast_combined_test(forecast_id: int, db: Session = Depends(dependencies.get_db),
+                 current_user: user_model.User = Depends(dependencies.get_current_active_user)):
+    db_forecasting = forecasting_crud.get(db, forecasting_id=forecast_id)
+    if db_forecasting is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Forecasting not found")
+
+    if db_forecasting.datasetcolumns.datasets.project.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
+
+    file_path_test = file_processing.get_filename_with_path(settings.FILE_PREDICTED_TEST_RESULTS_FILENAME,
+                                                               db_forecasting.datasetcolumns.datasets.project.user_id,
+                                                               db_forecasting.datasetcolumns.datasets.project.id,
+                                                               db_forecasting.id)
+    df, df_train, df_test = file_processing.get_forecast_df_train_test(db_forecasting)
+    df_test_results = pd.read_csv(file_path_test, sep=db_forecasting.datasetcolumns.datasets.delimiter)
+
+    df_res = pd.DataFrame()
+    df_res['timestamp'] = df_test_results.iloc[:, 0]
+    df_test_col = pd.DataFrame(df_test)
+    df_test_col = df_test_col.set_index(df_res.index)
+    df_res['y_test'] = df_test_col.iloc[:, 0].values
+    df_res['y_pred'] = df_test_results.iloc[:, 1]
+
+    stream = io.StringIO()
+    df_res.to_csv(stream, index=False)
+    response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
+    response.headers["Content-Disposition"] = "attachment; filename=export.csv"
+
+    return response
+

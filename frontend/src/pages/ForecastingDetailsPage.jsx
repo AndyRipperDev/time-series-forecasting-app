@@ -83,6 +83,10 @@ const ForecastingDetailsPage = () => {
     forecastService.downloadTestDataset(forecastingResult)
   }
 
+  const handleDownloadCombinedTest = (e) => {
+    forecastService.downloadCombinedTestDataset(forecastingResult)
+  }
+
   const handleDownloadForecast = (e) => {
     forecastService.downloadForecastedDataset(forecastingResult)
   }
@@ -247,18 +251,15 @@ const ForecastingDetailsPage = () => {
                 ) : (
                   <div className={'w-full mt-12'}>
                     <div className={'flex justify-end'}>
-                      <div className="btn-group">
-                        <button
-                          className="btn gap-4 hover:text-info"
-                          onClick={handleDownloadReal}
-                        >
+                      <div className="dropdown dropdown-hover dropdown-top dropdown-end">
+                        <label tabIndex={0} className="btn m-1 gap-4">
                           <svg
                             className="w-6 h-6"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
                             xmlns="http://www.w3.org/2000/svg"
-                          >
+                            >
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
@@ -266,48 +267,42 @@ const ForecastingDetailsPage = () => {
                               d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                             />
                           </svg>
-                          Real Data
-                        </button>
-                        <button
-                          className="btn gap-4 hover:text-info"
-                          onClick={handleDownloadTest}
-                        >
-                          <svg
-                            className="w-6 h-6"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                            />
-                          </svg>
-                          Test Data
-                        </button>
-                        <button
-                          className="btn gap-4 hover:text-info"
-                          onClick={handleDownloadForecast}
-                        >
-                          <svg
-                            className="w-6 h-6"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                            />
-                          </svg>
-                          Forecast
-                        </button>
+                          Download Dataset
+                        </label>
+                        <ul tabIndex={0} className="dropdown-content menu p-2 shadow-lg bg-base-200 rounded-box w-60">
+                          <li>
+                            <button onClick={handleDownloadReal}>
+                              <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                              </svg>
+                              Real
+                            </button>
+                          </li>
+                          <li>
+                            <button onClick={handleDownloadTest}>
+                              <svg className="h-5 w-5"  fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z" />
+                              </svg>
+                              Forecasted Test
+                            </button>
+                          </li>
+                          <li>
+                            <button onClick={handleDownloadCombinedTest}>
+                              <svg className="h-5 w-5"  fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              Combined Test
+                            </button>
+                          </li>
+                          <li>
+                            <button onClick={handleDownloadForecast}>
+                              <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              Forecast
+                            </button>
+                          </li>
+                        </ul>
                       </div>
                     </div>
 

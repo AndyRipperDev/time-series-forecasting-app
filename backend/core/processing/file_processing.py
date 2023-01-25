@@ -42,6 +42,14 @@ def get_forecast_ready_dataset(df, split_ratio, dataset_columns, target_column_n
     return df, df_train, df_test
 
 
+def get_forecast_df_train_test(db_forecasting):
+    file = get_filename_with_path(db_forecasting.datasetcolumns.datasets.filename_processed,
+                                                  db_forecasting.datasetcolumns.datasets.project.user_id,
+                                                  db_forecasting.datasetcolumns.datasets.project.id)
+    df = get_processed_dataset(file, db_forecasting.datasetcolumns.datasets.delimiter)
+    return get_forecast_ready_dataset(df, db_forecasting.split_ratio, db_forecasting.datasetcolumns.datasets.columns, db_forecasting.datasetcolumns.name)
+
+
 def get_filename_with_path(filename, user_id, project_id, forecast_id=None):
     return settings.FILE_STORAGE_DIR + '/' + str(user_id) + '/projects/' + str(
         project_id) + ('/' if forecast_id is None else '/forecasting/' + str(forecast_id) + '/') + filename

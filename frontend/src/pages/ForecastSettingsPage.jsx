@@ -391,7 +391,7 @@ const ForecastSettingsPage = () => {
                               Preprocessing
                             </ParamSubheading>
                             <ParamSettingItem
-                              title="Logarithmize"
+                              title="Log Transform"
                               inGroup={true}
                             >
                               <input

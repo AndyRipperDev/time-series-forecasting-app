@@ -44,6 +44,7 @@ function useForecastService() {
     getQuickForecastingStatus,
     downloadForecastedDataset,
     downloadTestDataset,
+    downloadCombinedTestDataset,
     resetForecastingModels: useResetRecoilState(forecastingModelsAtom),
     resetForecastingModel: useResetRecoilState(forecastingModelAtom),
     resetModelParams: useResetRecoilState(modelParamsAtom),
@@ -141,6 +142,33 @@ function useForecastService() {
       link.href = url
       let filename =
         'test_results_' +
+        forecast.datasetcolumns.datasets.project.title +
+        '_' +
+        forecast.datasetcolumns.name +
+        '_' +
+        forecast.model +
+        '_' +
+        forecast.split_ratio +
+        '_' +
+        (100 - forecast.split_ratio) +
+        '.csv'
+      link.setAttribute('download', filename)
+      document.body.appendChild(link)
+      link.click()
+    })
+  }
+
+  function downloadCombinedTestDataset(forecast) {
+    return forecastApi({
+      url: `${urlPartForecast}/${forecast.id}/combined-test-results/download/`,
+      method: 'GET',
+      responseType: 'blob', // important
+    }).then((response) => {
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      let filename =
+        'combined_test_results_' +
         forecast.datasetcolumns.datasets.project.title +
         '_' +
         forecast.datasetcolumns.name +
