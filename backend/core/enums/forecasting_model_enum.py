@@ -15,6 +15,7 @@ class ForecastingStatus(Enum):
     Preprocessing = 'Preprocessing'
     Training = 'Training'
     Forecasting = 'Forecasting'
+    Evaluating = 'Evaluating'
     Finished = 'Finished'
     Failed = 'Failed'
 

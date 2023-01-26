@@ -40,7 +40,6 @@ const ForecastingDetailsPage = () => {
   useEffect(() => {
     forecastService.getForecastingResult(id)
     const newIntervalId = setInterval(handleForecastCheck, 30000)
-    // const newIntervalId = setInterval(handleForecastCheck, 1000)
     setIntervalId(newIntervalId)
 
     return () => {
@@ -48,9 +47,8 @@ const ForecastingDetailsPage = () => {
       projectService.resetDatasetColumnsView()
       forecastService.resetForecastingPredictedResults()
       forecastService.resetForecastingPredictedTestResults()
+
       handleClearInterval(newIntervalId)
-      // clearInterval(newIntervalId)
-      // setIntervalId(0)
     }
   }, [])
 
@@ -131,8 +129,6 @@ const ForecastingDetailsPage = () => {
     if (intervalId) {
       handleClearInterval(intervalId)
       handleSetPlotView()
-      // clearInterval(intervalId)
-      // setIntervalId(0)
     }
   }
 
@@ -163,8 +159,7 @@ const ForecastingDetailsPage = () => {
                 'flex flex-col items-center mx-auto w-5/6 md:w-2/3 max-w-6xl space-y-4 mb-6'
               }
             >
-              {/*<div className="flex flex-col mt-12 mx-auto max-w-screen-lg text-center">*/}
-              <h1 className="text-3xl font-bold md:text-4xl mb-8">
+              <h1 className="text-3xl font-bold md:text-4xl mb-2">
                 {forecastingResult.datasetcolumns.name}
               </h1>
               <div
@@ -198,20 +193,6 @@ const ForecastingDetailsPage = () => {
                 </div>
               </div>
 
-              {/*<div className="stats stats-vertical lg:stats-horizontal shadow-lg bg-base-200">*/}
-              {/*  <div className="stat">*/}
-              {/*    <div className="stat-title">Started</div>*/}
-              {/*    <div className="stat-value text-3xl">{new Date(forecastingResult.created_at).toLocaleDateString()}</div>*/}
-              {/*    <div className="stat-title text-xl mt-1">{new Date(forecastingResult.created_at).toLocaleTimeString()}</div>*/}
-              {/*  </div>*/}
-              {/*  <div className="stat">*/}
-              {/*    <div className="stat-title">Finished</div>*/}
-              {/*    <div className="stat-value text-3xl">{new Date(forecastingResult.updated_at).toLocaleDateString()}</div>*/}
-              {/*    <div className="stat-title text-xl mt-1">{new Date(forecastingResult.updated_at).toLocaleTimeString()}</div>*/}
-              {/*  </div>*/}
-              {/*</div>*/}
-
-              {/*<h2 className={'text-2xl font-bold self-start mb-4 mt-16'}>Info</h2>*/}
               <div className="stats stats-vertical lg:stats-horizontal shadow-lg bg-base-200">
                 <div className="stat">
                   <div className="stat-title">Model</div>
@@ -234,10 +215,6 @@ const ForecastingDetailsPage = () => {
                     {forecastingResult.forecast_horizon > 1 && 's'}
                   </div>
                 </div>
-                {/*<div className="stat">*/}
-                {/*  <div className="stat-title">Elapsed Time</div>*/}
-                {/*  <div className="stat-value">{dateUtils.getDateDiff(forecastingResult.created_at, forecastingResult.updated_at)}</div>*/}
-                {/*</div>*/}
               </div>
 
               <div className="flex flex-col mx-auto w-full text-center">
@@ -252,14 +229,14 @@ const ForecastingDetailsPage = () => {
                   <div className={'w-full mt-12'}>
                     <div className={'flex justify-end'}>
                       <div className="dropdown dropdown-hover dropdown-top dropdown-end">
-                        <label tabIndex={0} className="btn m-1 gap-4">
+                        <label tabIndex={0} className="btn mt-2 gap-4">
                           <svg
                             className="w-6 h-6"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
                             xmlns="http://www.w3.org/2000/svg"
-                            >
+                          >
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
@@ -269,39 +246,94 @@ const ForecastingDetailsPage = () => {
                           </svg>
                           Download Dataset
                         </label>
-                        <ul tabIndex={0} className="dropdown-content menu p-2 shadow-lg bg-base-200 rounded-box w-60">
+                        <ul
+                          tabIndex={0}
+                          className="dropdown-content menu p-2 shadow-lg bg-base-200 rounded-box w-60"
+                        >
                           <li>
                             <button onClick={handleDownloadReal}>
-                              <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                              <svg
+                                className="h-5 w-5"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                                aria-hidden="true"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                                />
                               </svg>
                               Real
                             </button>
                           </li>
-                          <li>
-                            <button onClick={handleDownloadTest}>
-                              <svg className="h-5 w-5"  fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z" />
-                              </svg>
-                              Forecasted Test
-                            </button>
-                          </li>
-                          <li>
-                            <button onClick={handleDownloadCombinedTest}>
-                              <svg className="h-5 w-5"  fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                              </svg>
-                              Combined Test
-                            </button>
-                          </li>
-                          <li>
-                            <button onClick={handleDownloadForecast}>
-                              <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                              </svg>
-                              Forecast
-                            </button>
-                          </li>
+                          {forecastingResult.status === 'Finished' && (
+                            <>
+                              <li>
+                                <button onClick={handleDownloadTest}>
+                                  <svg
+                                    className="h-5 w-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth={2}
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    aria-hidden="true"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z"
+                                    />
+                                  </svg>
+                                  Forecasted Test
+                                </button>
+                              </li>
+                              <li>
+                                <button onClick={handleDownloadCombinedTest}>
+                                  <svg
+                                    className="h-5 w-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth={2}
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    aria-hidden="true"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                    />
+                                  </svg>
+                                  Combined Test
+                                </button>
+                              </li>
+                              <li>
+                                <button onClick={handleDownloadForecast}>
+                                  <svg
+                                    className="h-5 w-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth={2}
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    aria-hidden="true"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                    />
+                                  </svg>
+                                  Forecast
+                                </button>
+                              </li>
+                            </>
+                          )}
                         </ul>
                       </div>
                     </div>
@@ -396,6 +428,48 @@ const ForecastingDetailsPage = () => {
                       )}
                   </div>
                 )}
+
+                {forecastingResult.status === 'Finished' &&
+                  forecastingResult?.evaluationmetrics && (
+                    <div className="stats stats-vertical lg:stats-horizontal text-left shadow-lg bg-base-200">
+                      <div className="stat">
+                        <div className="stat-title">MAE</div>
+                        <div className="stat-value text-2xl">
+                          {forecastingResult.evaluationmetrics.MAE}
+                        </div>
+                      </div>
+                      <div className="stat">
+                        <div className="stat-title">MSE</div>
+                        <div className="stat-value text-2xl">
+                          {forecastingResult.evaluationmetrics.MSE}
+                        </div>
+                      </div>
+                      <div className="stat">
+                        <div className="stat-title">MAPE</div>
+                        <div className="stat-value text-2xl">
+                          {forecastingResult.evaluationmetrics.MAPE}
+                        </div>
+                      </div>
+                      <div className="stat">
+                        <div className="stat-title">SMAPE</div>
+                        <div className="stat-value text-2xl">
+                          {forecastingResult.evaluationmetrics.SMAPE}
+                        </div>
+                      </div>
+                      <div className="stat">
+                        <div className="stat-title">R2</div>
+                        <div className="stat-value text-2xl">
+                          {forecastingResult.evaluationmetrics.R2}
+                        </div>
+                      </div>
+                      <div className="stat">
+                        <div className="stat-title">WAPE</div>
+                        <div className="stat-value text-2xl">
+                          {forecastingResult.evaluationmetrics.WAPE}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                 <h2 className={'text-2xl font-bold self-start mb-4 mt-16'}>
                   Settings

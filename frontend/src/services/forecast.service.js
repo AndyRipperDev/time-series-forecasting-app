@@ -45,6 +45,7 @@ function useForecastService() {
     downloadForecastedDataset,
     downloadTestDataset,
     downloadCombinedTestDataset,
+    getEvalMetrics,
     resetForecastingModels: useResetRecoilState(forecastingModelsAtom),
     resetForecastingModel: useResetRecoilState(forecastingModelAtom),
     resetModelParams: useResetRecoilState(modelParamsAtom),
@@ -210,5 +211,14 @@ function useForecastService() {
       document.body.appendChild(link)
       link.click()
     })
+  }
+
+  function getEvalMetrics(id) {
+    return forecastApi
+      .get(urlPartForecast + '/' + id + '/evaluation_metrics/')
+      .then((response) => response.data)
+      .then((data) => {
+        console.log(data)
+      })
   }
 }

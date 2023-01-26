@@ -8,8 +8,22 @@ from core.config import settings
 from core.processing import file_processing
 from api import dependencies
 import time
-from core.forecasting import forecasting_ARIMA, forecasting_SARIMA
+from core.forecasting import forecasting_ARIMA, forecasting_SARIMA, evaluation_metrics
 import json
+
+from core.schemas import evaluation_metrics as evaluation_metrics_schema
+from core.crud import evaluation_metrics as evaluation_metrics_crud
+
+
+def create_eval_metrics(db: Session, df_test, df_pred, db_forecasting):
+    df_metrics = evaluation_metrics.compute_metrics_raw(df_test, df_pred)
+    db_eval_metrics = evaluation_metrics_schema.EvaluationMetricsCreate(MAE=df_metrics.iloc[0, 0],
+                                                                        MSE=df_metrics.iloc[0, 1],
+                                                                        MAPE=df_metrics.iloc[0, 2],
+                                                                        SMAPE=df_metrics.iloc[0, 3],
+                                                                        R2=df_metrics.iloc[0, 4],
+                                                                        WAPE=df_metrics.iloc[0, 5])
+    return evaluation_metrics_crud.create(db=db, evaluation_metrics=db_eval_metrics, forecasting_id=db_forecasting.id)
 
 
 def set_params_ARIMA(db_forecasting, params):
@@ -52,7 +66,6 @@ def start_forecasting(db: Session, db_forecasting: forecasting_schema.Forecastin
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Preprocessing)
     try:
         df, df_train, df_test = file_processing.get_forecast_df_train_test(db_forecasting)
-
         db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Training)
 
         params = ()
@@ -70,8 +83,8 @@ def start_forecasting(db: Session, db_forecasting: forecasting_schema.Forecastin
                 params = (db_forecasting.params['p'], db_forecasting.params['d'], db_forecasting.params['q'])
             elif db_forecasting.model == ForecastingModel.SARIMA:
                 params = ((db_forecasting.params['p'], db_forecasting.params['d'], db_forecasting.params['q']), (
-                db_forecasting.params['P'], db_forecasting.params['D'], db_forecasting.params['Q'],
-                db_forecasting.params['m']))
+                    db_forecasting.params['P'], db_forecasting.params['D'], db_forecasting.params['Q'],
+                    db_forecasting.params['m']))
 
         db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Forecasting)
 
@@ -100,6 +113,8 @@ def start_forecasting(db: Session, db_forecasting: forecasting_schema.Forecastin
                                            db_forecasting.datasetcolumns.datasets.delimiter,
                                            predicted_results)
 
+        db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Evaluating)
+        create_eval_metrics(db, df_test, predicted_test_results, db_forecasting)
         db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Finished)
     except:
         db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Failed)
