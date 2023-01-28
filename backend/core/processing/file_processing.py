@@ -1,9 +1,24 @@
 import pandas as pd
+import numpy as np
 from pathlib import Path
 from core.enums.dataset_column_enum import ColumnMissingValuesMethod, ColumnScalingMethod
 from sklearn.preprocessing import MinMaxScaler, PowerTransformer, StandardScaler
 
 from core.config import settings
+
+
+def log_transform(df, df_train, df_test):
+    df = np.log(df)
+    df_train = np.log(df_train)
+    df_test = np.log(df_test)
+    return df, df_train, df_test
+
+
+def exp_transform(df, df_train, df_test):
+    df = np.exp(df)
+    df_train = np.exp(df_train)
+    df_test = np.exp(df_test)
+    return df, df_train, df_test
 
 
 def save_forecast_file(user_id, project_id, forecast_id, forecast_filename, delimiter, df):
@@ -22,7 +37,7 @@ def split_dataset(df, split_ratio):
     return df_train, df_test
 
 
-def get_forecast_ready_dataset(df, split_ratio, dataset_columns, target_column_name):
+def get_forecast_ready_dataset(df, split_ratio, dataset_columns, target_column_name, use_log_transform: bool = False):
     index_col_name = None
     for column in dataset_columns:
         if column.is_date:
@@ -37,6 +52,11 @@ def get_forecast_ready_dataset(df, split_ratio, dataset_columns, target_column_n
 
     df.set_index(index_col_name, inplace=True)
     df = df[target_column_name]
+    df = df.sort_index()
+
+    if use_log_transform:
+        df = np.log(df)
+
     df_train, df_test = split_dataset(df, split_ratio)
 
     return df, df_train, df_test
@@ -47,7 +67,7 @@ def get_forecast_df_train_test(db_forecasting):
                                                   db_forecasting.datasetcolumns.datasets.project.user_id,
                                                   db_forecasting.datasetcolumns.datasets.project.id)
     df = get_processed_dataset(file, db_forecasting.datasetcolumns.datasets.delimiter)
-    return get_forecast_ready_dataset(df, db_forecasting.split_ratio, db_forecasting.datasetcolumns.datasets.columns, db_forecasting.datasetcolumns.name)
+    return get_forecast_ready_dataset(df, db_forecasting.split_ratio, db_forecasting.datasetcolumns.datasets.columns, db_forecasting.datasetcolumns.name, db_forecasting.use_log_transform)
 
 
 def get_filename_with_path(filename, user_id, project_id, forecast_id=None):

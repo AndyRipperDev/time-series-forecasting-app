@@ -88,6 +88,9 @@ def start_forecasting(db: Session, db_forecasting: forecasting_schema.Forecastin
 
         db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Forecasting)
 
+        if db_forecasting.use_log_transform:
+            df, df_train, df_test = file_processing.exp_transform(df, df_train, df_test)
+
         predicted_test_results = predicted_results = None
         if db_forecasting.model == ForecastingModel.ARIMA:
             predicted_test_results = forecasting_ARIMA.get_predicted_test_results(df, df_train, params)
