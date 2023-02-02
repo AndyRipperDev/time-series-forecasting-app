@@ -710,18 +710,21 @@ const ForecastSettingsPage = () => {
                                 onChange={(e) => handleUseLogChange(e)}
                               />
                             </ParamSettingItem>
-                            <ParamSettingItem
-                              title="Use Decomposition"
-                              inGroup={true}
-                            >
-                              <input
-                                type={'checkbox'}
-                                className={'checkbox checkbox-primary'}
-                                checked={modelParams.preprocessing.useDecompose}
-                                onChange={(e) => handleDecompositionChange(e)}
-                              />
-                            </ParamSettingItem>
-
+                            {forecastingModel !== 'MLP' && (
+                              <ParamSettingItem
+                                title="Use Decomposition"
+                                inGroup={true}
+                              >
+                                <input
+                                  type={'checkbox'}
+                                  className={'checkbox checkbox-primary'}
+                                  checked={
+                                    modelParams.preprocessing.useDecompose
+                                  }
+                                  onChange={(e) => handleDecompositionChange(e)}
+                                />
+                              </ParamSettingItem>
+                            )}
                             {forecastingModel?.toUpperCase() !== 'ARIMA' &&
                               forecastingModel?.toUpperCase() !== 'SARIMA' && (
                                 <>
