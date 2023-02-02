@@ -11,8 +11,10 @@ class ForecastingBase(BaseModel):
     tune_brute_force: bool
     tune_level: int
     use_log_transform: bool
-    use_decomposition: bool
+    use_decomposition: bool | None = None
     forecast_horizon: int
+    lag_window: int | None = None
+    lagged_features: str | None = None
     params: Json | None = None
 
 
@@ -42,5 +44,7 @@ class ForecastingUpdateSchema(BaseModel):
     use_log_transform: bool | None = None
     use_decomposition: bool | None = None
     forecast_horizon: int | None = None
+    lag_window: int | None = None
+    lagged_features: str | None = None
     params: Json | None = None
 

@@ -122,6 +122,18 @@ const ForecastingDetailsPage = () => {
     return value ? 'Yes' : 'No'
   }
 
+  const getParamValue = (value) => {
+    if (value === null) {
+      return 'None'
+    } else if ('boolean' === typeof value && value) {
+      return 'Yes'
+    } else if ('boolean' === typeof value && !value) {
+      return 'No'
+    }
+
+    return value
+  }
+
   if (
     forecastingResult?.status === 'Finished' ||
     forecastingResult?.status === 'Failed'
@@ -558,7 +570,7 @@ const ForecastingDetailsPage = () => {
                             >
                               <td className="py-5 px-6 md:px-8">{key}</td>
                               <td className="py-5 px-6 md:px-8">
-                                {forecastingResult.params[key]}
+                                {getParamValue(forecastingResult.params[key])}
                               </td>
                             </tr>
                           )

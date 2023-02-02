@@ -89,6 +89,18 @@ const ForecastSettingsPage = () => {
     let model = e.target.value
     setForecastingModel(model)
 
+    let newLaggedFeatures = []
+
+    projectDatasetColumns.map((column) => {
+      if (!column.is_date && column.name !== selectedColumnName) {
+        let feature = {
+          name: column.name,
+          value: false,
+        }
+        newLaggedFeatures.push(feature)
+      }
+    })
+
     let newModelParams = {
       autoTune: false,
       autoTuneParams: {
@@ -101,6 +113,8 @@ const ForecastSettingsPage = () => {
       },
       params: {},
       forecastHorizon: 1,
+      lagWindow: 3,
+      laggedFeatures: newLaggedFeatures,
     }
 
     if (model.toUpperCase() === 'ARIMA') {
@@ -119,8 +133,100 @@ const ForecastSettingsPage = () => {
         Q: 1,
         m: 12,
       }
+    } else if (model === 'LinearRegression') {
+      newModelParams.params = {
+        fit_intercept: true,
+        copy_X: true,
+        positive: false,
+      }
+    } else if (model === 'DecisionTree') {
+      newModelParams.params = {
+        criterion: 'squared_error',
+        splitter: 'best',
+        max_depth: -1,
+        min_samples_split: 2,
+        min_samples_leaf: 1,
+        min_weight_fraction_leaf: 0.0,
+        max_features: 'None',
+        max_leaf_nodes: -1,
+        min_impurity_decrease: 0.0,
+        ccp_alpha: 0.0,
+      }
+    } else if (model === 'RandomForest') {
+      newModelParams.params = {
+        n_estimators: 100,
+        criterion: 'squared_error',
+        max_depth: -1,
+        min_samples_split: 2,
+        min_samples_leaf: 1,
+        min_weight_fraction_leaf: 0.0,
+        max_features: 'None',
+        max_leaf_nodes: -1,
+        min_impurity_decrease: 0.0,
+        bootstrap: true,
+        oob_score: false,
+        verbose: 0,
+        warm_start: false,
+        ccp_alpha: 0.0,
+        max_samples: -1,
+      }
+    } else if (model === 'XGBoost') {
+      newModelParams.params = {
+        n_estimators: 100,
+        booster: 'gbtree',
+        tree_method: 'auto',
+        silent: 0,
+        learning_rate: 0.3,
+        min_child_weight: 1,
+        max_depth: 6,
+        gamma: 0,
+        eval_metric: 'rmse',
+        max_delta_step: 0,
+        subsample: 1,
+        colsample_bytree: 1,
+        colsample_bylevel: 1,
+        reg_lambda: 1,
+        reg_alpha: 1,
+        scale_pos_weight: 1,
+        seed: 0,
+      }
+    } else if (model === 'LightGBM') {
+      newModelParams.params = {
+        boosting_type: 'gbdt',
+        n_estimators: 100,
+        reg_alpha: 0.0,
+        reg_lambda: 0.0,
+        colsample_bytree: 1.0,
+        subsample: 200000,
+        learning_rate: 0.1,
+        max_depth: -1,
+        num_leaves: 31,
+        min_child_samples: 20,
+        min_data_per_group: 100,
+        cat_smooth: 10.0,
+      }
+    } else if (model === 'MLP') {
+      newModelParams.params = {
+        hidden_layer_sizes: '100',
+        activation: 'relu',
+        solver: 'adam',
+        learning_rate: 'constant',
+        alpha: 0.0001,
+        learning_rate_init: 0.001,
+        power_t: 0.5,
+        max_iter: 200,
+        shuffle: true,
+        warm_start: false,
+        momentum: 0.9,
+        nesterovs_momentum: true,
+        early_stopping: false,
+        validation_fraction: 0.1,
+        beta_1: 0.9,
+        beta_2: 0.999,
+        n_iter_no_change: 10,
+        max_fun: 15000,
+      }
     }
-
     setModelParams(newModelParams)
   }
 
@@ -171,6 +277,12 @@ const ForecastSettingsPage = () => {
     setModelParams(model)
   }
 
+  const handleLagWindowChange = (event) => {
+    let model = { ...modelParams }
+    model.lagWindow = Number(event.target.value)
+    setModelParams(model)
+  }
+
   const handleForecastHorizonChange = (event) => {
     let model = { ...modelParams }
     model.forecastHorizon = Number(event.target.value)
@@ -193,6 +305,26 @@ const ForecastSettingsPage = () => {
     setModelParams(model)
   }
 
+  const handleSelectParamChange = (event, paramName) => {
+    let model = { ...modelParams }
+    let params = { ...model.params }
+
+    params[paramName] = event.target.value
+
+    model.params = params
+    setModelParams(model)
+  }
+
+  const handleBoolParamChange = (event, paramName) => {
+    let model = { ...modelParams }
+    let params = { ...model.params }
+
+    params[paramName] = !params[paramName]
+
+    model.params = params
+    setModelParams(model)
+  }
+
   const getTuneLevelInfo = () => {
     if (modelParams.autoTuneParams.tuneLevel == 2) {
       return 'Slower - Sometimes may or may not give the best parameters'
@@ -203,14 +335,191 @@ const ForecastSettingsPage = () => {
     return 'Fast - May not give the best parameters'
   }
 
+  const getParamInfo = (param) => {
+    if (param === 'hidden_layer_sizes') {
+      return 'E.g. 100...or...100,4...or...20,8,3'
+    }
+
+    return null
+  }
+
+  const getLaggedFeaturesStr = () => {
+    let features = ''
+    modelParams.laggedFeatures.map((feature) => {
+      if (feature.value) {
+        features += feature.name + ';'
+      }
+    })
+
+    if (features.slice(-1) === ';') {
+      features = features.slice(0, -1)
+    }
+
+    return features.trim() === '' ? null : features
+  }
+
+  const getParamsForPost = () => {
+    let model = { ...modelParams }
+    let params = { ...model.params }
+
+    Object.keys(params).map((key, index, { length }) => {
+      if (isInt(params[key]) && params[key] === -1) {
+        params[key] = null
+      } else if (isString(params[key]) && params[key] === 'None') {
+        params[key] = null
+      }
+    })
+
+    return params
+  }
+
   const handleForecastStart = (event) => {
     forecastService.create(
       id,
       selectedColumnName,
       forecastingModel,
       splitValueRange,
-      modelParams
+      modelParams,
+      getParamsForPost(),
+      getLaggedFeaturesStr()
     )
+  }
+
+  const handleLaggedFeatureChange = (event, featureName) => {
+    let model = { ...modelParams }
+
+    model.laggedFeatures = [...model.laggedFeatures].map((feature) => {
+      if (feature.name === featureName)
+        return { ...feature, value: !feature.value }
+      else return feature
+    })
+
+    setModelParams(model)
+  }
+
+  const isInt = (val) => Number(val) === val && val % 1 === 0
+  const isFloat = (val) => Number(val) === val && val % 1 !== 0
+  const isBoolean = (val) => 'boolean' === typeof val
+  const isString = (val) => typeof val === 'string' || val instanceof String
+
+  function getSelectOptions(param) {
+    if (forecastingModel === 'DecisionTree') {
+      if (param === 'criterion') {
+        return (
+          <>
+            <option value={'squared_error'}>squared_error</option>
+            <option value={'friedman_mse'}>friedman_mse</option>
+            <option value={'absolute_error'}>absolute_error</option>
+            <option value={'poisson'}>poisson</option>
+          </>
+        )
+      } else if (param === 'splitter') {
+        return (
+          <>
+            <option value={'best'}>best</option>
+            <option value={'random'}>random</option>
+          </>
+        )
+      } else if (param === 'max_features') {
+        return (
+          <>
+            <option value={'None'}>None</option>
+            <option value={'sqrt'}>sqrt</option>
+            <option value={'log2'}>log2</option>
+          </>
+        )
+      }
+    } else if (forecastingModel === 'RandomForest') {
+      if (param === 'criterion') {
+        return (
+          <>
+            <option value={'squared_error'}>squared_error</option>
+            <option value={'friedman_mse'}>friedman_mse</option>
+            <option value={'absolute_error'}>absolute_error</option>
+            <option value={'poisson'}>poisson</option>
+          </>
+        )
+      } else if (param === 'max_features') {
+        return (
+          <>
+            <option value={'None'}>None</option>
+            <option value={'sqrt'}>sqrt</option>
+            <option value={'log2'}>log2</option>
+          </>
+        )
+      }
+    } else if (forecastingModel === 'XGBoost') {
+      if (param === 'booster') {
+        return (
+          <>
+            <option value={'gbtree'}>gbtree</option>
+            <option value={'gblinear'}>gblinear</option>
+            <option value={'dart'}>dart</option>
+          </>
+        )
+      } else if (param === 'tree_method') {
+        return (
+          <>
+            <option value={'auto'}>auto</option>
+            <option value={'exact'}>exact</option>
+            <option value={'approx'}>approx</option>
+            <option value={'hist'}>hist</option>
+            <option value={'gpu_hist'}>gpu_hist</option>
+          </>
+        )
+      } else if (param === 'eval_metric') {
+        return (
+          <>
+            <option value={'rmse'}>rmse</option>
+            <option value={'mae'}>mae</option>
+            <option value={'logloss'}>logloss</option>
+            <option value={'error'}>error</option>
+            <option value={'merror'}>merror</option>
+            <option value={'mlogloss'}>mlogloss</option>
+            <option value={'auc'}>auc</option>
+          </>
+        )
+      }
+    } else if (forecastingModel === 'LightGBM') {
+      if (param === 'boosting_type') {
+        return (
+          <>
+            <option value={'gbdt'}>gbdt</option>
+            <option value={'dart'}>dart</option>
+            <option value={'rf'}>rf</option>
+          </>
+        )
+      }
+    } else if (forecastingModel === 'MLP') {
+      if (param === 'activation') {
+        return (
+          <>
+            <option value={'relu'}>relu</option>
+            <option value={'tanh'}>tanh</option>
+            <option value={'logistic'}>logistic</option>
+            <option value={'identity'}>identity</option>
+          </>
+        )
+      } else if (param === 'solver') {
+        return (
+          <>
+            <option value={'adam'}>adam</option>
+            <option value={'sgd'}>sgd</option>
+            <option value={'lbfgs'}>lbfgs</option>
+          </>
+        )
+      } else if (param === 'learning_rate') {
+        return (
+          <>
+            <option value={'constant'}>constant</option>
+            <option value={'adaptive'}>adaptive</option>
+            <option value={'invscaling'}>invscaling</option>
+          </>
+        )
+      }
+    }
+
+    return null
   }
 
   const loading = !projectDatasetColumns
@@ -413,6 +722,122 @@ const ForecastSettingsPage = () => {
                               />
                             </ParamSettingItem>
 
+                            {forecastingModel?.toUpperCase() !== 'ARIMA' &&
+                              forecastingModel?.toUpperCase() !== 'SARIMA' && (
+                                <>
+                                  <ParamSubheading>
+                                    Feature Engineering
+                                  </ParamSubheading>
+                                  <ParamSettingItem
+                                    title="Lag Window"
+                                    inGroup={true}
+                                  >
+                                    <div
+                                      className={'flex space-x-4 items-center'}
+                                    >
+                                      <input
+                                        type={'number'}
+                                        min={1}
+                                        className={
+                                          'input input-bordered w-full max-w-xs'
+                                        }
+                                        value={modelParams.lagWindow}
+                                        onChange={(e) =>
+                                          handleLagWindowChange(e)
+                                        }
+                                      />
+                                      <p className={'font-bold'}>
+                                        {
+                                          projectTimePeriod?.project_time_period
+                                            ?.unit
+                                        }
+                                        {modelParams.lagWindow > 1 && 's'}
+                                      </p>
+                                    </div>
+                                  </ParamSettingItem>
+
+                                  {modelParams?.laggedFeatures?.length !==
+                                    0 && (
+                                    <>
+                                      <ParamSettingItem
+                                        title="Lagged Features"
+                                        inGroup={true}
+                                      >
+                                        <div className="dropdown dropdown-hover dropdown-bottom dropdown-end">
+                                          <label
+                                            tabIndex={0}
+                                            className="btn m-1"
+                                          >
+                                            Select
+                                          </label>
+                                          <ul
+                                            tabIndex={0}
+                                            className="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52"
+                                          >
+                                            {modelParams.laggedFeatures?.map(
+                                              (feature) =>
+                                                !feature.value && (
+                                                  <li key={feature.name}>
+                                                    <button
+                                                      onClick={(e) =>
+                                                        handleLaggedFeatureChange(
+                                                          e,
+                                                          feature.name
+                                                        )
+                                                      }
+                                                    >
+                                                      {feature.name}
+                                                    </button>
+                                                  </li>
+                                                )
+                                            )}
+                                          </ul>
+                                        </div>
+                                      </ParamSettingItem>
+                                      <div
+                                        className={'flex space-x-6 flex-wrap'}
+                                      >
+                                        {modelParams.laggedFeatures?.map(
+                                          (feature) =>
+                                            feature.value && (
+                                              <div
+                                                key={feature.name}
+                                                className="badge badge-primary gap-4 rounded-xl py-6 my-2"
+                                              >
+                                                {feature.name}
+                                                <button
+                                                  className="btn btn-square btn-sm"
+                                                  onClick={(e) =>
+                                                    handleLaggedFeatureChange(
+                                                      e,
+                                                      feature.name
+                                                    )
+                                                  }
+                                                >
+                                                  <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="h-5 w-5"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor"
+                                                  >
+                                                    <path
+                                                      strokeLinecap="round"
+                                                      strokeLinejoin="round"
+                                                      strokeWidth="2"
+                                                      d="M6 18L18 6M6 6l12 12"
+                                                    />
+                                                  </svg>
+                                                </button>
+                                              </div>
+                                            )
+                                        )}
+                                      </div>
+                                    </>
+                                  )}
+                                </>
+                              )}
+
                             <ParamSubheading>General Settings</ParamSubheading>
                             <ParamSettingItem
                               title="Forecast horizon"
@@ -432,6 +857,7 @@ const ForecastSettingsPage = () => {
                                 />
                                 <p className={'font-bold'}>
                                   {projectTimePeriod?.project_time_period?.unit}
+                                  {modelParams.forecastHorizon > 1 && 's'}
                                 </p>
                               </div>
                             </ParamSettingItem>
@@ -449,22 +875,29 @@ const ForecastSettingsPage = () => {
                                 <ParamSubheading>
                                   Auto Tune Settings
                                 </ParamSubheading>
-                                <ParamSettingItem title="Method" inGroup={true}>
-                                  <select
-                                    className="select select-bordered w-full"
-                                    value={
-                                      modelParams.autoTuneParams.bruteForce
-                                    }
-                                    onChange={(e) =>
-                                      handleAutoTuneMethodChange(e)
-                                    }
+                                {(forecastingModel.toUpperCase() === 'ARIMA' ||
+                                  forecastingModel.toUpperCase() ===
+                                    'SARIMA') && (
+                                  <ParamSettingItem
+                                    title="Method"
+                                    inGroup={true}
                                   >
-                                    <option value={true}>Brute Force</option>
-                                    <option value={false}>
-                                      Hyperparameter Optimization
-                                    </option>
-                                  </select>
-                                </ParamSettingItem>
+                                    <select
+                                      className="select select-bordered w-full"
+                                      value={
+                                        modelParams.autoTuneParams.bruteForce
+                                      }
+                                      onChange={(e) =>
+                                        handleAutoTuneMethodChange(e)
+                                      }
+                                    >
+                                      <option value={true}>Brute Force</option>
+                                      <option value={false}>
+                                        Hyperparameter Optimization
+                                      </option>
+                                    </select>
+                                  </ParamSettingItem>
+                                )}
                                 <ParamSettingItem
                                   title="Level"
                                   info={getTuneLevelInfo()}
@@ -495,21 +928,69 @@ const ForecastSettingsPage = () => {
                                         key={key}
                                         title={key}
                                         inGroup={length - 1 !== index}
+                                        info={getParamInfo(key)}
                                       >
-                                        <input
-                                          type={'number'}
-                                          min={0}
-                                          max={
-                                            key.toUpperCase() === 'D' ? 2 : null
-                                          }
-                                          className={
-                                            'input input-bordered w-full max-w-xs'
-                                          }
-                                          value={modelParams.params[key]}
-                                          onChange={(e) =>
-                                            handleNumberParamChange(e, key)
-                                          }
-                                        />
+                                        {isBoolean(modelParams.params[key]) && (
+                                          <input
+                                            type={'checkbox'}
+                                            className={
+                                              'checkbox checkbox-primary'
+                                            }
+                                            checked={modelParams.params[key]}
+                                            onChange={(e) =>
+                                              handleBoolParamChange(e, key)
+                                            }
+                                          />
+                                        )}
+                                        {isString(modelParams.params[key]) &&
+                                          key !== 'hidden_layer_sizes' && (
+                                            <select
+                                              className="select select-bordered w-full"
+                                              value={modelParams.params[key]}
+                                              onChange={(e) =>
+                                                handleSelectParamChange(e, key)
+                                              }
+                                            >
+                                              {getSelectOptions(key)}
+                                            </select>
+                                          )}
+
+                                        {(isInt(modelParams.params[key]) ||
+                                          isFloat(modelParams.params[key])) && (
+                                          <input
+                                            type={'number'}
+                                            min={-1}
+                                            step={
+                                              isInt(modelParams.params[key])
+                                                ? 1
+                                                : 0.01
+                                            }
+                                            max={
+                                              key.toUpperCase() === 'D'
+                                                ? 2
+                                                : null
+                                            }
+                                            className={
+                                              'input input-bordered w-full max-w-xs'
+                                            }
+                                            value={modelParams.params[key]}
+                                            onChange={(e) =>
+                                              handleNumberParamChange(e, key)
+                                            }
+                                          />
+                                        )}
+                                        {key === 'hidden_layer_sizes' && (
+                                          <input
+                                            type={'text'}
+                                            className={
+                                              'input input-bordered w-full max-w-xs'
+                                            }
+                                            value={modelParams.params[key]}
+                                            onChange={(e) =>
+                                              handleSelectParamChange(e, key)
+                                            }
+                                          />
+                                        )}
                                       </ParamSettingItem>
                                     )
                                   }

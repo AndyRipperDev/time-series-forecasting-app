@@ -65,7 +65,15 @@ function useForecastService() {
     return forecastApi.post(urlPartForecast, forecast)
   }
 
-  function create(projectId, columnName, model, splitRatio, forecast) {
+  function create(
+    projectId,
+    columnName,
+    model,
+    splitRatio,
+    forecast,
+    params,
+    laggedFeatures
+  ) {
     return forecastApi
       .post(`${urlPartForecast}/${projectId}/?column=${columnName}`, {
         model: model,
@@ -76,8 +84,10 @@ function useForecastService() {
         tune_level: forecast.autoTuneParams.tuneLevel,
         use_log_transform: forecast.preprocessing.useLog,
         use_decomposition: forecast.preprocessing.useDecompose,
+        lag_window: forecast.lagWindow,
+        lagged_features: laggedFeatures,
         forecast_horizon: forecast.forecastHorizon,
-        params: JSON.stringify(forecast.params),
+        params: JSON.stringify(params),
         results_filename: 'forecast_results.csv',
       })
       .then((response) => response.data)

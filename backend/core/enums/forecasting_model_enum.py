@@ -5,8 +5,12 @@ from enum import Enum, unique
 class ForecastingModel(Enum):
     ARIMA = 'ARIMA'
     SARIMA = 'SARIMA'
-    DecisionTreeRegressor = 'DecisionTreeRegressor'
-    LGBMRegressor = 'LGBMRegressor'
+    LinearRegression = 'LinearRegression'
+    DecisionTree = 'DecisionTree'
+    RandomForest = 'RandomForest'
+    XGBoost = 'XGBoost'
+    LightGBM = 'LightGBM'
+    MLP = 'MLP'
 
 
 @unique
