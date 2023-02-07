@@ -2,12 +2,12 @@ from pydantic import BaseModel
 
 
 class EvaluationMetricsBase(BaseModel):
-    MAE: float
-    MSE: float
-    MAPE: float
-    SMAPE: float
-    R2: float
-    WAPE: float
+    MAE: float | None = None
+    MSE: float | None = None
+    MAPE: float | None = None
+    SMAPE: float | None = None
+    R2: float | None = None
+    WAPE: float | None = None
 
 
 class EvaluationMetricsCreate(EvaluationMetricsBase):

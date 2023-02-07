@@ -104,13 +104,14 @@ function useProjectService() {
     skip = 0,
     limit = 1000,
     column = null,
-    allValues = false
+    allValues = false,
+    useScaledValues = true
   ) {
     return forecastApi
       .get(
         `${urlPartProjects}/get-dataset-columns-with-values/${projectId}/?skip=${skip}&limit=${limit}${
           column ? '&column=' + column : ''
-        }${allValues ? '&all_values=' + allValues : ''}`
+        }${allValues ? '&all_values=' + allValues : ''}${!useScaledValues ? '&use_scaled_values=' + useScaledValues : ''}`
       )
       .then((response) => response.data)
       .then(setProjectDatasetColumnsView)

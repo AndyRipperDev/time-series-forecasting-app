@@ -156,7 +156,7 @@ def read_project_with_dataset_values(project_id: int, skip: int = 0, limit: int 
 
 
 @router.get("/get-dataset-columns-with-values/{project_id}", status_code=status.HTTP_200_OK)
-def read_project_with_dataset_columns_with_values(project_id: int, skip: int = 0, limit: int = 100, column: str = None, all_values: bool = False, db: Session = Depends(dependencies.get_db),
+def read_project_with_dataset_columns_with_values(project_id: int, skip: int = 0, limit: int = 100, column: str = None, all_values: bool = False, use_scaled_values: bool = True, db: Session = Depends(dependencies.get_db),
                  current_user: user_model.User = Depends(dependencies.get_current_active_user)):
     db_project = project_crud.get(db, project_id=project_id)
     if db_project is None:
@@ -165,10 +165,14 @@ def read_project_with_dataset_columns_with_values(project_id: int, skip: int = 0
     if db_project.user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
 
-    file_path_processed = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(
-        db_project.id) + '/' + db_project.dataset.filename_processed
-
-    df = file_processing.get_processed_dataset(file_path_processed, db_project.dataset.delimiter)
+    if use_scaled_values:
+        file_path_processed = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(
+            db_project.id) + '/' + db_project.dataset.filename_processed
+        df = file_processing.get_processed_dataset(file_path_processed, db_project.dataset.delimiter)
+    else:
+        file_path_processed = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(
+            db_project.id) + '/' + db_project.dataset.filename
+        df = file_processing.get_processed_dataset(file_path_processed, db_project.dataset.delimiter, db_project.dataset.columns)
 
     dataset = df.to_dict('list')
     dataset_col = {}

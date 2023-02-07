@@ -30,11 +30,12 @@ def compute_metrics(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def compute_metrics_raw(y_true: pd.Series, y_pred: pd.Series) -> pd.DataFrame:
-    mae, mse, mape, smape, r2, wape = mean_absolute_error(y_true=y_true, y_pred=y_pred), mean_squared_error(
-        y_true=y_true, y_pred=y_pred), mean_absolute_percentage_error(y_true=y_true,
-                                                                      y_pred=y_pred), symetric_mean_absolute_percentage_error(
-        y_true=y_true, y_pred=y_pred), r2_score(y_true=y_true, y_pred=y_pred), weighted_mean_absolute_percentage_error(
-        y_true=y_true, y_pred=y_pred)
+    mae, mse, mape, smape, r2, wape = mean_absolute_error(y_true=y_true, y_pred=y_pred), \
+                                      mean_squared_error(y_true=y_true, y_pred=y_pred), \
+                                      mean_absolute_percentage_error(y_true=y_true, y_pred=y_pred), \
+                                      symetric_mean_absolute_percentage_error(y_true=y_true, y_pred=y_pred), \
+                                      r2_score(y_true=y_true, y_pred=y_pred), \
+                                      weighted_mean_absolute_percentage_error(y_true=y_true, y_pred=y_pred)
     return pd.DataFrame.from_records([{'MAE': mae, 'MSE': mse, 'MAPE': mape, 'SMAPE': smape, 'R2': r2, 'WAPE': wape}],
                                      index=[0])
 

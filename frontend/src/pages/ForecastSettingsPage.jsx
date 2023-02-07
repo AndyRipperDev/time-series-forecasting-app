@@ -139,19 +139,6 @@ const ForecastSettingsPage = () => {
         copy_X: true,
         positive: false,
       }
-    } else if (model === 'DecisionTree') {
-      newModelParams.params = {
-        criterion: 'squared_error',
-        splitter: 'best',
-        max_depth: -1,
-        min_samples_split: 2,
-        min_samples_leaf: 1,
-        min_weight_fraction_leaf: 0.0,
-        max_features: 'None',
-        max_leaf_nodes: -1,
-        min_impurity_decrease: 0.0,
-        ccp_alpha: 0.0,
-      }
     } else if (model === 'RandomForest') {
       newModelParams.params = {
         n_estimators: 100,
@@ -403,33 +390,7 @@ const ForecastSettingsPage = () => {
   const isString = (val) => typeof val === 'string' || val instanceof String
 
   function getSelectOptions(param) {
-    if (forecastingModel === 'DecisionTree') {
-      if (param === 'criterion') {
-        return (
-          <>
-            <option value={'squared_error'}>squared_error</option>
-            <option value={'friedman_mse'}>friedman_mse</option>
-            <option value={'absolute_error'}>absolute_error</option>
-            <option value={'poisson'}>poisson</option>
-          </>
-        )
-      } else if (param === 'splitter') {
-        return (
-          <>
-            <option value={'best'}>best</option>
-            <option value={'random'}>random</option>
-          </>
-        )
-      } else if (param === 'max_features') {
-        return (
-          <>
-            <option value={'None'}>None</option>
-            <option value={'sqrt'}>sqrt</option>
-            <option value={'log2'}>log2</option>
-          </>
-        )
-      }
-    } else if (forecastingModel === 'RandomForest') {
+    if (forecastingModel === 'RandomForest') {
       if (param === 'criterion') {
         return (
           <>
@@ -486,7 +447,6 @@ const ForecastSettingsPage = () => {
           <>
             <option value={'gbdt'}>gbdt</option>
             <option value={'dart'}>dart</option>
-            <option value={'rf'}>rf</option>
           </>
         )
       }
@@ -696,34 +656,36 @@ const ForecastSettingsPage = () => {
                           <ParamHeading>Set Parameters</ParamHeading>
 
                           <div className={'w-full'}>
-                            <ParamSubheading firstParam={true}>
-                              Preprocessing
-                            </ParamSubheading>
-                            <ParamSettingItem
-                              title="Log Transform"
-                              inGroup={true}
-                            >
-                              <input
-                                type={'checkbox'}
-                                className={'checkbox checkbox-primary'}
-                                checked={modelParams.preprocessing.useLog}
-                                onChange={(e) => handleUseLogChange(e)}
-                              />
-                            </ParamSettingItem>
                             {forecastingModel !== 'MLP' && (
-                              <ParamSettingItem
-                                title="Use Decomposition"
-                                inGroup={true}
-                              >
-                                <input
-                                  type={'checkbox'}
-                                  className={'checkbox checkbox-primary'}
-                                  checked={
-                                    modelParams.preprocessing.useDecompose
-                                  }
-                                  onChange={(e) => handleDecompositionChange(e)}
-                                />
-                              </ParamSettingItem>
+                              <>
+                                <ParamSubheading firstParam={true}>
+                                  Preprocessing
+                                </ParamSubheading>
+                                <ParamSettingItem
+                                  title="Log Transform"
+                                  inGroup={true}
+                                >
+                                  <input
+                                    type={'checkbox'}
+                                    className={'checkbox checkbox-primary'}
+                                    checked={modelParams.preprocessing.useLog}
+                                    onChange={(e) => handleUseLogChange(e)}
+                                  />
+                                </ParamSettingItem>
+                                <ParamSettingItem
+                                  title="Use Decomposition"
+                                  inGroup={true}
+                                >
+                                  <input
+                                    type={'checkbox'}
+                                    className={'checkbox checkbox-primary'}
+                                    checked={
+                                      modelParams.preprocessing.useDecompose
+                                    }
+                                    onChange={(e) => handleDecompositionChange(e)}
+                                  />
+                                </ParamSettingItem>
+                              </>
                             )}
                             {forecastingModel?.toUpperCase() !== 'ARIMA' &&
                               forecastingModel?.toUpperCase() !== 'SARIMA' && (

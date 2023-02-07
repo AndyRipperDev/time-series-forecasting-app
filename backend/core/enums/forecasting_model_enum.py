@@ -6,7 +6,6 @@ class ForecastingModel(Enum):
     ARIMA = 'ARIMA'
     SARIMA = 'SARIMA'
     LinearRegression = 'LinearRegression'
-    DecisionTree = 'DecisionTree'
     RandomForest = 'RandomForest'
     XGBoost = 'XGBoost'
     LightGBM = 'LightGBM'

@@ -61,7 +61,8 @@ const ForecastingDetailsPage = () => {
         0,
         0,
         forecastingResult.datasetcolumns.name,
-        true
+        true,
+        forecastingResult.model === 'ARIMA' || forecastingResult.model === 'SARIMA'
       )
       .then(() => {
         window.dispatchEvent(new Event('resize'))
@@ -132,6 +133,13 @@ const ForecastingDetailsPage = () => {
     }
 
     return value
+  }
+
+  const getEvalMetricValue = (value) => {
+    if (value) {
+      return value
+    }
+    return 'None'
   }
 
   if (
@@ -447,37 +455,37 @@ const ForecastingDetailsPage = () => {
                       <div className="stat">
                         <div className="stat-title">MAE</div>
                         <div className="stat-value text-2xl">
-                          {forecastingResult.evaluationmetrics.MAE}
+                          {getEvalMetricValue(forecastingResult.evaluationmetrics.MAE)}
                         </div>
                       </div>
                       <div className="stat">
                         <div className="stat-title">MSE</div>
                         <div className="stat-value text-2xl">
-                          {forecastingResult.evaluationmetrics.MSE}
+                          {getEvalMetricValue(forecastingResult.evaluationmetrics.MSE)}
                         </div>
                       </div>
                       <div className="stat">
                         <div className="stat-title">MAPE</div>
                         <div className="stat-value text-2xl">
-                          {forecastingResult.evaluationmetrics.MAPE}
+                          {getEvalMetricValue(forecastingResult.evaluationmetrics.MAPE)}
                         </div>
                       </div>
                       <div className="stat">
                         <div className="stat-title">SMAPE</div>
                         <div className="stat-value text-2xl">
-                          {forecastingResult.evaluationmetrics.SMAPE}
+                          {getEvalMetricValue(forecastingResult.evaluationmetrics.SMAPE)}
                         </div>
                       </div>
                       <div className="stat">
                         <div className="stat-title">R2</div>
                         <div className="stat-value text-2xl">
-                          {forecastingResult.evaluationmetrics.R2}
+                          {getEvalMetricValue(forecastingResult.evaluationmetrics.R2)}
                         </div>
                       </div>
                       <div className="stat">
                         <div className="stat-title">WAPE</div>
                         <div className="stat-value text-2xl">
-                          {forecastingResult.evaluationmetrics.WAPE}
+                          {getEvalMetricValue(forecastingResult.evaluationmetrics.WAPE)}
                         </div>
                       </div>
                     </div>

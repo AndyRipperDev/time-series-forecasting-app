@@ -88,7 +88,6 @@ function useForecastService() {
         lagged_features: laggedFeatures,
         forecast_horizon: forecast.forecastHorizon,
         params: JSON.stringify(params),
-        results_filename: 'forecast_results.csv',
       })
       .then((response) => response.data)
       .then(setCreatedForecasting)

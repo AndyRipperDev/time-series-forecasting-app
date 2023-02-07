@@ -17,6 +17,8 @@ pandas = "*"
 scikit-learn = "*"
 statsmodels = "*"
 optuna = "*"
+lightgbm = "*"
+xgboost = "*"
 
 [dev-packages]
 
