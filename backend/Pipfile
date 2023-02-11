@@ -19,6 +19,7 @@ statsmodels = "*"
 optuna = "*"
 lightgbm = "*"
 xgboost = "*"
+rstl = "*"
 
 [dev-packages]
 

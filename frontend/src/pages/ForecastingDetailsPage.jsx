@@ -62,7 +62,7 @@ const ForecastingDetailsPage = () => {
         0,
         forecastingResult.datasetcolumns.name,
         true,
-        forecastingResult.model === 'ARIMA' || forecastingResult.model === 'SARIMA'
+        false
       )
       .then(() => {
         window.dispatchEvent(new Event('resize'))

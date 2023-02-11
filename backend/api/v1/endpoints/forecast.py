@@ -18,7 +18,7 @@ from api import dependencies
 from core.background_tasks.forecasting import start_forecasting
 from core.forecasting import evaluation_metrics
 from core.config import settings
-from core.processing import file_processing
+from core.processing import file_processing, forecast_preprocessing
 from collections import defaultdict
 import pandas as pd
 
@@ -233,14 +233,15 @@ def download_forecast_combined_test(forecast_id: int, db: Session = Depends(depe
     df_res['timestamp'] = df_test_results.iloc[:, 0]
 
     if db_forecasting.model == ForecastingModel.ARIMA or db_forecasting.model == ForecastingModel.SARIMA:
-        df, df_train, df_test = file_processing.get_forecast_df_train_test(db_forecasting, use_log_transform=False)
+        # df, df_train, df_test = file_processing.get_forecast_df_train_test(db_forecasting, use_log_transform=False)
+        df, df_train, df_test, df_seasonal = forecast_preprocessing.get_forecast_ready_dataset(db_forecasting, False)
 
         df_test_col = pd.DataFrame(df_test)
         df_test_col = df_test_col.set_index(df_res.index)
         df_res['y_test'] = df_test_col.iloc[:, 0].values
         df_res['y_pred'] = df_test_results.iloc[:, 1]
     else:
-        df, X, y, X_train, X_test, y_train, y_test = file_processing.get_forecast_df_train_test_ML(db_forecasting, use_scaling=False, use_log_transform=False)
+        df, X, y, X_train, X_test, y_train, y_test, df_seasonal = forecast_preprocessing.get_forecast_ready_dataset_ML(db_forecasting, False)
         if len(y_test) > len(df_res):
             y_test.drop(y_test.tail(1).index, inplace=True)
         df_res['y_test'] = y_test.iloc[:, 0].values
@@ -271,7 +272,7 @@ def read_forecasting_evaluation_metrics(forecast_id: int, db: Session = Depends(
                                                             db_forecasting.datasetcolumns.datasets.project.user_id,
                                                             db_forecasting.datasetcolumns.datasets.project.id,
                                                             db_forecasting.id)
-    df, df_train, df_test = file_processing.get_forecast_df_train_test(db_forecasting)
+    df, df_train, df_test, df_seasonal = forecast_preprocessing.get_forecast_ready_dataset(db_forecasting, False)
     df_test_results = pd.read_csv(file_path_test, sep=db_forecasting.datasetcolumns.datasets.delimiter)
 
     df_res = pd.DataFrame()

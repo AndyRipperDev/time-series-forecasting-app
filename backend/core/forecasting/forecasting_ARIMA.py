@@ -107,6 +107,6 @@ def get_predicted_test_results(df, df_train, params):
 
 def get_predicted_results(df, params, forecast_horizon):
     model = ARIMA(df, order=params, trend="t").fit()
-    return model.predict(start=len(df), end=(len(df) + forecast_horizon))
+    return model.predict(start=len(df), end=(len(df) + forecast_horizon - 1))
 
 

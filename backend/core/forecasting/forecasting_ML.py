@@ -9,12 +9,12 @@ from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 from core.enums.forecasting_model_enum import ForecastingModel
-from core.processing.file_processing import get_time_period_frequency
+from core.processing.forecast_preprocessing import get_time_period_frequency
 
 
 
-def get_best_params_optimize_tuning_LinearRegression(forecast_horizon, df, X, y, X_train, X_test, y_train, y_test, trials=100):
-    def objective(trial, _forecast_horizon, _df, _X, _y, _X_train, _X_test, _y_train, _y_test):
+def get_best_params_optimize_tuning_LinearRegression(forecast_horizon, X, y, X_train, X_test, y_train, y_test, trials=100):
+    def objective(trial, _forecast_horizon, _X, _y, _X_train, _X_test, _y_train, _y_test):
         param = {
             'copy_X': trial.suggest_categorical("copy_X", [True, False]),
             'fit_intercept': trial.suggest_categorical('fit_intercept', [True, False]),
@@ -32,7 +32,7 @@ def get_best_params_optimize_tuning_LinearRegression(forecast_horizon, df, X, y,
 
         return error
 
-    optimize_func = lambda trial: objective(trial, forecast_horizon, df, X, y, X_train, X_test, y_train, y_test)
+    optimize_func = lambda trial: objective(trial, forecast_horizon, X, y, X_train, X_test, y_train, y_test)
 
     study = optuna.create_study()
     study.optimize(optimize_func, n_trials=trials)
@@ -40,8 +40,8 @@ def get_best_params_optimize_tuning_LinearRegression(forecast_horizon, df, X, y,
     return study.best_params
 
 
-def get_best_params_optimize_tuning_RandomForest(forecast_horizon, df, X, y, X_train, X_test, y_train, y_test, trials=100):
-    def objective(trial, _forecast_horizon, _df, _X, _y, _X_train, _X_test, _y_train, _y_test):
+def get_best_params_optimize_tuning_RandomForest(forecast_horizon, X, y, X_train, X_test, y_train, y_test, trials=100):
+    def objective(trial, _forecast_horizon, _X, _y, _X_train, _X_test, _y_train, _y_test):
         param = {
             'n_estimators': trial.suggest_int('n_estimators', 10, 300),
             'max_depth': trial.suggest_categorical('max_depth', [None, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]),
@@ -62,7 +62,7 @@ def get_best_params_optimize_tuning_RandomForest(forecast_horizon, df, X, y, X_t
 
         return error
 
-    optimize_func = lambda trial: objective(trial, forecast_horizon, df, X, y, X_train, X_test, y_train, y_test)
+    optimize_func = lambda trial: objective(trial, forecast_horizon, X, y, X_train, X_test, y_train, y_test)
 
     study = optuna.create_study()
     study.optimize(optimize_func, n_trials=trials)
@@ -70,8 +70,8 @@ def get_best_params_optimize_tuning_RandomForest(forecast_horizon, df, X, y, X_t
     return study.best_params
 
 
-def get_best_params_optimize_tuning_XGBoost(forecast_horizon, df, X, y, X_train, X_test, y_train, y_test, trials=100):
-    def objective(trial, _forecast_horizon, _df, _X, _y, _X_train, _X_test, _y_train, _y_test):
+def get_best_params_optimize_tuning_XGBoost(forecast_horizon, X, y, X_train, X_test, y_train, y_test, trials=100):
+    def objective(trial, _forecast_horizon, _X, _y, _X_train, _X_test, _y_train, _y_test):
         param = {
             'booster': trial.suggest_categorical('booster', ['gbtree', 'gblinear', 'dart']),
             'n_estimators': trial.suggest_int('n_estimators', 10, 300),
@@ -99,7 +99,7 @@ def get_best_params_optimize_tuning_XGBoost(forecast_horizon, df, X, y, X_train,
 
         return error
 
-    optimize_func = lambda trial: objective(trial, forecast_horizon, df, X, y, X_train, X_test, y_train, y_test)
+    optimize_func = lambda trial: objective(trial, forecast_horizon, X, y, X_train, X_test, y_train, y_test)
 
     study = optuna.create_study()
     study.optimize(optimize_func, n_trials=trials)
@@ -107,8 +107,8 @@ def get_best_params_optimize_tuning_XGBoost(forecast_horizon, df, X, y, X_train,
     return study.best_params
 
 
-def get_best_params_optimize_tuning_LightGBM(forecast_horizon, df, X, y, X_train, X_test, y_train, y_test, trials=100):
-    def objective(trial, _forecast_horizon, _df, _X, _y, _X_train, _X_test, _y_train, _y_test):
+def get_best_params_optimize_tuning_LightGBM(forecast_horizon, X, y, X_train, X_test, y_train, y_test, trials=100):
+    def objective(trial, _forecast_horizon, _X, _y, _X_train, _X_test, _y_train, _y_test):
         param = {
             'metric': 'rmse',
             'boosting_type': trial.suggest_categorical('boosting_type', ['gbdt', 'dart']),
@@ -138,7 +138,7 @@ def get_best_params_optimize_tuning_LightGBM(forecast_horizon, df, X, y, X_train
 
         return error
 
-    optimize_func = lambda trial: objective(trial, forecast_horizon, df, X, y, X_train, X_test, y_train, y_test)
+    optimize_func = lambda trial: objective(trial, forecast_horizon, X, y, X_train, X_test, y_train, y_test)
 
     study = optuna.create_study()
     study.optimize(optimize_func, n_trials=trials)
@@ -158,23 +158,23 @@ def get_trials(model, level=1):
             return 25 if model == ForecastingModel.LinearRegression else 150
 
 
-def get_best_params(model, forecast_horizon, df, X, y, X_train, X_test, y_train, y_test, level=1):
+def get_best_params(model, forecast_horizon, X, y, X_train, X_test, y_train, y_test, level=1):
     trials = get_trials(model, level)
 
     match model:
         case ForecastingModel.LinearRegression:
-            return get_best_params_optimize_tuning_LinearRegression(forecast_horizon, df, X, y, X_train, X_test, y_train, y_test, trials=trials)
+            return get_best_params_optimize_tuning_LinearRegression(forecast_horizon, X, y, X_train, X_test, y_train, y_test, trials=trials)
         case ForecastingModel.RandomForest:
-            return get_best_params_optimize_tuning_RandomForest(forecast_horizon, df, X, y, X_train, X_test, y_train, y_test, trials=trials)
+            return get_best_params_optimize_tuning_RandomForest(forecast_horizon, X, y, X_train, X_test, y_train, y_test, trials=trials)
         case ForecastingModel.XGBoost:
-            return get_best_params_optimize_tuning_XGBoost(forecast_horizon, df, X, y, X_train, X_test, y_train, y_test, trials=trials)
+            return get_best_params_optimize_tuning_XGBoost(forecast_horizon, X, y, X_train, X_test, y_train, y_test, trials=trials)
         case ForecastingModel.LightGBM:
-            return get_best_params_optimize_tuning_LightGBM(forecast_horizon, df, X, y, X_train, X_test, y_train, y_test, trials=trials)
+            return get_best_params_optimize_tuning_LightGBM(forecast_horizon, X, y, X_train, X_test, y_train, y_test, trials=trials)
         case _:
             return {}
 
 
-def get_predicted_test_results(model, forecast_horizon, df, X, y, X_train, X_test, y_train, y_test, params):
+def get_predicted_test_results(model, forecast_horizon, X, y, X_train, X_test, y_train, y_test, params):
     model_pred = get_model_fit(model, forecast_horizon, X_train, y_train, params)
     if model_pred is None:
         return None
@@ -183,9 +183,9 @@ def get_predicted_test_results(model, forecast_horizon, df, X, y, X_train, X_tes
 
 def get_forecasted_data(df_pred, forecast_horizon, time_freq='H'):
     df = df_pred.copy()
-    for i in range(2, forecast_horizon + 1):
+    for i in range(2, forecast_horizon + (1 if forecast_horizon == 1 else 2)):
         df = df.drop(f'y_step_{i}', axis=1)
-    for i in range(2, forecast_horizon + 1):
+    for i in range(2, forecast_horizon + (1 if forecast_horizon == 1 else 2)):
         df = df.append(pd.DataFrame(index=[pd.date_range(df.index[-1], periods=2, freq=time_freq)[1]]))
         df['y_step_1'][-1] = df_pred[f'y_step_{i}'][-1]
     return df
@@ -212,7 +212,7 @@ def get_predicted_results_to_forecast_data(time_period_unit, forecast_horizon, y
     return data.tail(forecast_horizon).copy()
 
 
-def get_predicted_results(model, time_period_unit, forecast_horizon, df, X, y, X_train, X_test, y_train, y_test, params):
+def get_predicted_results(model, forecast_horizon, X, y, params):
     model_pred = get_model_fit(model, forecast_horizon, X, y, params)
     if model_pred is None:
         return None

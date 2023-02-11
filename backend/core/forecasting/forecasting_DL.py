@@ -6,10 +6,11 @@ from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error,
 from sklearn.multioutput import MultiOutputRegressor
 from sklearn.neural_network import MLPRegressor
 from core.enums.forecasting_model_enum import ForecastingModel
-from core.processing.file_processing import get_time_period_frequency
+from core.processing.forecast_preprocessing import get_time_period_frequency
 
-def get_best_params_optimize_tuning_MLP(forecast_horizon, df, X, y, X_train, X_test, y_train, y_test, trials=100):
-    def objective(trial, _forecast_horizon, _df, _X, _y, _X_train, _X_test, _y_train, _y_test):
+
+def get_best_params_optimize_tuning_MLP(forecast_horizon, X, y, X_train, X_test, y_train, y_test, trials=100):
+    def objective(trial, _forecast_horizon, _X, _y, _X_train, _X_test, _y_train, _y_test):
 
         n_layers = trial.suggest_int('n_layers', 1, 6)
         layers = []
@@ -35,7 +36,7 @@ def get_best_params_optimize_tuning_MLP(forecast_horizon, df, X, y, X_train, X_t
 
         return error
 
-    optimize_func = lambda trial: objective(trial, forecast_horizon, df, X, y, X_train, X_test, y_train, y_test)
+    optimize_func = lambda trial: objective(trial, forecast_horizon, X, y, X_train, X_test, y_train, y_test)
 
     study = optuna.create_study()
     study.optimize(optimize_func, n_trials=trials)
@@ -63,17 +64,17 @@ def get_trials(level=1):
             return 150
 
 
-def get_best_params(model, forecast_horizon, df, X, y, X_train, X_test, y_train, y_test, level=1):
+def get_best_params(model, forecast_horizon, X, y, X_train, X_test, y_train, y_test, level=1):
     trials = get_trials(level)
 
     match model:
         case ForecastingModel.MLP:
-            return get_best_params_optimize_tuning_MLP(forecast_horizon, df, X, y, X_train, X_test, y_train, y_test, trials=trials)
+            return get_best_params_optimize_tuning_MLP(forecast_horizon, X, y, X_train, X_test, y_train, y_test, trials=trials)
         case _:
             return {}
 
 
-def get_predicted_test_results(model, forecast_horizon, df, X, y, X_train, X_test, y_train, y_test, params):
+def get_predicted_test_results(model, forecast_horizon, X, y, X_train, X_test, y_train, y_test, params):
     model_pred = get_model_fit(model, forecast_horizon, X_train, y_train, params)
     if model_pred is None:
         return None
@@ -82,9 +83,9 @@ def get_predicted_test_results(model, forecast_horizon, df, X, y, X_train, X_tes
 
 def get_forecasted_data(df_pred, forecast_horizon, time_freq='H'):
     df = df_pred.copy()
-    for i in range(2, forecast_horizon + 1):
+    for i in range(2, forecast_horizon + (1 if forecast_horizon == 1 else 2)):
         df = df.drop(f'y_step_{i}', axis=1)
-    for i in range(2, forecast_horizon + 1):
+    for i in range(2, forecast_horizon + (1 if forecast_horizon == 1 else 2)):
         df = df.append(pd.DataFrame(index=[pd.date_range(df.index[-1], periods=2, freq=time_freq)[1]]))
         df['y_step_1'][-1] = df_pred[f'y_step_{i}'][-1]
     return df
@@ -93,7 +94,7 @@ def get_forecasted_data(df_pred, forecast_horizon, time_freq='H'):
 def get_model_fit(model, forecast_horizon, X, y, params):
     match model:
         case ForecastingModel.MLP:
-            reg = MLPRegressor(**params, random_state=13, max_iter=100)
+            reg = MLPRegressor(**params, random_state=13)
         case _:
             return None
 
@@ -105,7 +106,7 @@ def get_predicted_results_to_forecast_data(time_period_unit, forecast_horizon, y
     return data.tail(forecast_horizon).copy()
 
 
-def get_predicted_results(model, time_period_unit, forecast_horizon, df, X, y, X_train, X_test, y_train, y_test, params):
+def get_predicted_results(model, forecast_horizon, X, y, params):
     model_pred = get_model_fit(model, forecast_horizon, X, y, params)
     if model_pred is None:
         return None

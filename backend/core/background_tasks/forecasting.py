@@ -1,14 +1,10 @@
 from core.crud import forecasting as forecasting_crud
 from core.schemas import forecasting as forecasting_schema
-import pandas as pd
-import numpy as np
-from core.enums.dataset_column_enum import ColumnScalingMethod
-from sklearn.preprocessing import MinMaxScaler, PowerTransformer, StandardScaler
 from sqlalchemy.orm import Session
 from core.enums.forecasting_model_enum import ForecastingModel, ForecastingStatus
 
 from core.config import settings
-from core.processing import file_processing
+from core.processing import file_processing, forecast_preprocessing, forecast_postprocessing
 from api import dependencies
 import time
 from core.forecasting import forecasting_ARIMA, forecasting_SARIMA, evaluation_metrics, forecasting_ML, forecasting_DL
@@ -77,11 +73,11 @@ def update_forecast_log(db: Session, forecasting_id: int, use_log: bool = False)
 
 def start_statsmodels_pipeline(db: Session, db_forecasting: forecasting_schema.ForecastingSchema):
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Preprocessing)
-    df, df_train, df_test = file_processing.get_forecast_df_train_test(db_forecasting)
+    xy, log_transform_used, scalers, df_seasonal = forecast_preprocessing.get_forecast_ready_dataset(db_forecasting, True)
+    df, df_train, df_test = xy
 
-    if db_forecasting.use_log_transform:
-        if file_processing.has_dataset_negative_values(df):
-            db_forecasting = update_forecast_log(db, db_forecasting.id)
+    if db_forecasting.use_log_transform and not log_transform_used:
+        db_forecasting = update_forecast_log(db, db_forecasting.id)
 
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Training)
     params = ()
@@ -103,7 +99,6 @@ def start_statsmodels_pipeline(db: Session, db_forecasting: forecasting_schema.F
                 db_forecasting.params['m']))
 
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Forecasting)
-    # df, df_train, df_test = file_processing.get_original_processed_dataset(df, df_train, df_test, db_forecasting)
 
     predicted_test_results = predicted_results = None
     if db_forecasting.model == ForecastingModel.ARIMA:
@@ -117,10 +112,8 @@ def start_statsmodels_pipeline(db: Session, db_forecasting: forecasting_schema.F
     if predicted_test_results is None or predicted_results is None:
         raise Exception()
 
-    if db_forecasting.use_log_transform:
-        df_test = file_processing.get_exp_transform(df_test)
-        predicted_test_results = file_processing.get_exp_transform(predicted_test_results)
-        predicted_results = file_processing.get_exp_transform(predicted_results)
+    df, df_train, df_test, predicted_test_results, predicted_results = forecast_postprocessing.apply_back_transformations(df, df_train, df_test, predicted_test_results, predicted_results, log_transform_used, scalers)
+    df_test, predicted_test_results, predicted_results = forecast_postprocessing.get_normalized_forecasted_outputs(db_forecasting, df_test, predicted_test_results, predicted_results, df_seasonal)
 
     file_processing.save_forecast_file(db_forecasting.datasetcolumns.datasets.project.user_id,
                                        db_forecasting.datasetcolumns.datasets.project.id,
@@ -144,36 +137,13 @@ def start_statsmodels_pipeline(db: Session, db_forecasting: forecasting_schema.F
 
 def start_DL_pipeline(db: Session, db_forecasting: forecasting_schema.ForecastingSchema):
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Preprocessing)
-    df, X, y, X_train, X_test, y_train, y_test = file_processing.get_forecast_df_train_test_ML(db_forecasting)
-
-    scaler_y = scaler_ytrain = scaler_ytest = None
-    if db_forecasting.datasetcolumns.scaling is not None:
-        df_base, X_base, y_base, X_train_base, X_test_base, y_train_base, y_test_base = file_processing.get_forecast_df_train_test_ML(
-            db_forecasting, use_scaling=False)
-        if db_forecasting.datasetcolumns.scaling == ColumnScalingMethod.MinMax:
-            scaler_y = MinMaxScaler()
-            scaler_ytrain = MinMaxScaler()
-            scaler_ytest = MinMaxScaler()
-        elif db_forecasting.datasetcolumns.scaling == ColumnScalingMethod.PowerTransformer:
-            scaler_y = PowerTransformer()
-            scaler_ytrain = PowerTransformer()
-            scaler_ytest = PowerTransformer()
-        else:
-            scaler_y = StandardScaler()
-            scaler_ytrain = StandardScaler()
-            scaler_ytest = StandardScaler()
-
-        y = scaler_y.fit_transform(y_base.to_numpy())
-        y = pd.DataFrame(y, index=y_base.index, columns=y_base.columns)
-        y_train = scaler_ytrain.fit_transform(y_train_base.to_numpy())
-        y_train = pd.DataFrame(y_train, index=y_train_base.index, columns=y_train_base.columns)
-        y_test = scaler_ytest.fit_transform(y_test_base.to_numpy())
-        y_test = pd.DataFrame(y_test, index=y_test_base.index, columns=y_test_base.columns)
+    xy, log_transform_used, scalers, df_seasonal = forecast_preprocessing.get_forecast_ready_dataset_ML(db_forecasting, True)
+    X, y, X_train, X_test, y_train, y_test = xy
 
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Training)
     params = {}
     if db_forecasting.auto_tune:
-        params = forecasting_DL.get_best_params(db_forecasting.model, db_forecasting.forecast_horizon, df, X, y,
+        params = forecasting_DL.get_best_params(db_forecasting.model, db_forecasting.forecast_horizon, X, y,
                                                 X_train, X_test, y_train, y_test, level=db_forecasting.tune_level)
         if db_forecasting.model == ForecastingModel.MLP:
             params['hidden_layer_sizes'] = ','.join(map(str, params['hidden_layer_sizes']))
@@ -188,26 +158,14 @@ def start_DL_pipeline(db: Session, db_forecasting: forecasting_schema.Forecastin
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Forecasting)
     predicted_test_results = predicted_results = None
     predicted_test_results = forecasting_DL.get_predicted_test_results(db_forecasting.model,
-                                                                       db_forecasting.forecast_horizon, df, X, y,
+                                                                       db_forecasting.forecast_horizon, X, y,
                                                                        X_train, X_test, y_train, y_test, params)
-    predicted_results = forecasting_DL.get_predicted_results(db_forecasting.model,
-                                                             db_forecasting.datasetcolumns.datasets.time_period.unit,
-                                                             db_forecasting.forecast_horizon, df, X, y, X_train, X_test,
-                                                             y_train, y_test, params)
+    predicted_results = forecasting_DL.get_predicted_results(db_forecasting.model, db_forecasting.forecast_horizon, X, y, params)
 
     if predicted_test_results is None or predicted_results is None:
         raise Exception()
 
-    if scaler_ytest is not None and scaler_y is not None:
-        y_test_orig = scaler_ytest.inverse_transform(y_test.to_numpy())
-        y_test = pd.DataFrame(y_test_orig, index=y_test.index, columns=y_test.columns)
-
-        predicted_test_results_orig = scaler_ytest.inverse_transform(predicted_test_results.to_numpy())
-        predicted_test_results = pd.DataFrame(predicted_test_results_orig, index=predicted_test_results.index, columns=predicted_test_results.columns)
-
-        predicted_results_orig = scaler_y.inverse_transform(predicted_results.to_numpy())
-        predicted_results = pd.DataFrame(predicted_results_orig, index=predicted_results.index, columns=predicted_results.columns)
-
+    y, y_train, y_test, predicted_test_results, predicted_results = forecast_postprocessing.apply_back_transformations_ML(y, y_train, y_test, predicted_test_results, predicted_results, log_transform_used, scalers)
     predicted_results = forecasting_DL.get_predicted_results_to_forecast_data(db_forecasting.datasetcolumns.datasets.time_period.unit, db_forecasting.forecast_horizon, predicted_results)
 
     if db_forecasting.forecast_horizon == 1:
@@ -218,6 +176,8 @@ def start_DL_pipeline(db: Session, db_forecasting: forecasting_schema.Forecastin
         predicted_test_results = predicted_test_results['predicted_mean']
         predicted_results.rename(columns={'y_step_1': 'predicted_mean'}, inplace=True)
         y_test = y_test['y_step_1']
+
+    y_test, predicted_test_results, predicted_results = forecast_postprocessing.get_normalized_forecasted_outputs(db_forecasting, y_test, predicted_test_results, predicted_results, df_seasonal)
 
     file_processing.save_forecast_file(db_forecasting.datasetcolumns.datasets.project.user_id,
                                        db_forecasting.datasetcolumns.datasets.project.id,
@@ -241,72 +201,29 @@ def start_DL_pipeline(db: Session, db_forecasting: forecasting_schema.Forecastin
 
 def start_ML_pipeline(db: Session, db_forecasting: forecasting_schema.ForecastingSchema):
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Preprocessing)
-    df, X, y, X_train, X_test, y_train, y_test = file_processing.get_forecast_df_train_test_ML(db_forecasting)
+    xy, log_transform_used, scalers, df_seasonal = forecast_preprocessing.get_forecast_ready_dataset_ML(db_forecasting, True)
+    X, y, X_train, X_test, y_train, y_test = xy
 
-    if db_forecasting.use_log_transform:
-        if file_processing.has_dataset_negative_values(df):
-            db_forecasting = update_forecast_log(db, db_forecasting.id)
-
-    scaler_y = scaler_ytrain = scaler_ytest = None
-    if db_forecasting.datasetcolumns.scaling is not None:
-        df_base, X_base, y_base, X_train_base, X_test_base, y_train_base, y_test_base = file_processing.get_forecast_df_train_test_ML(
-            db_forecasting, use_scaling=False)
-        if db_forecasting.datasetcolumns.scaling == ColumnScalingMethod.MinMax:
-            scaler_y = MinMaxScaler()
-            scaler_ytrain = MinMaxScaler()
-            scaler_ytest = MinMaxScaler()
-        elif db_forecasting.datasetcolumns.scaling == ColumnScalingMethod.PowerTransformer:
-            scaler_y = PowerTransformer()
-            scaler_ytrain = PowerTransformer()
-            scaler_ytest = PowerTransformer()
-        else:
-            scaler_y = StandardScaler()
-            scaler_ytrain = StandardScaler()
-            scaler_ytest = StandardScaler()
-
-        y = scaler_y.fit_transform(y_base.to_numpy())
-        y = pd.DataFrame(y, index=y_base.index, columns=y_base.columns)
-        y_train = scaler_ytrain.fit_transform(y_train_base.to_numpy())
-        y_train = pd.DataFrame(y_train, index=y_train_base.index, columns=y_train_base.columns)
-        y_test = scaler_ytest.fit_transform(y_test_base.to_numpy())
-        y_test = pd.DataFrame(y_test, index=y_test_base.index, columns=y_test_base.columns)
-
-        if db_forecasting.use_log_transform:
-            y = file_processing.get_log_transform(y)
-            y_train = file_processing.get_log_transform(y_train)
-            y_test = file_processing.get_log_transform(y_test)
+    if db_forecasting.use_log_transform and not log_transform_used:
+        db_forecasting = update_forecast_log(db, db_forecasting.id)
 
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Training)
     params = {}
     if db_forecasting.auto_tune:
-        params = forecasting_ML.get_best_params(db_forecasting.model, db_forecasting.forecast_horizon, df, X, y, X_train, X_test, y_train, y_test, level=db_forecasting.tune_level)
+        params = forecasting_ML.get_best_params(db_forecasting.model, db_forecasting.forecast_horizon, X, y, X_train, X_test, y_train, y_test, level=db_forecasting.tune_level)
         db_forecasting = update_forecast_params(db, db_forecasting, params, db_forecasting.model)
     else:
         params = db_forecasting.params
 
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Forecasting)
     predicted_test_results = predicted_results = None
-    predicted_test_results = forecasting_ML.get_predicted_test_results(db_forecasting.model, db_forecasting.forecast_horizon, df, X, y, X_train, X_test, y_train, y_test, params)
-    predicted_results = forecasting_ML.get_predicted_results(db_forecasting.model, db_forecasting.datasetcolumns.datasets.time_period.unit, db_forecasting.forecast_horizon, df, X, y, X_train, X_test, y_train, y_test, params)
+    predicted_test_results = forecasting_ML.get_predicted_test_results(db_forecasting.model, db_forecasting.forecast_horizon, X, y, X_train, X_test, y_train, y_test, params)
+    predicted_results = forecasting_ML.get_predicted_results(db_forecasting.model, db_forecasting.forecast_horizon, X, y, params)
 
     if predicted_test_results is None or predicted_results is None:
         raise Exception()
 
-    if db_forecasting.use_log_transform:
-        y_test = file_processing.get_exp_transform(y_test)
-        predicted_test_results = file_processing.get_exp_transform(predicted_test_results)
-        predicted_results = file_processing.get_exp_transform(predicted_results)
-
-    if scaler_ytest is not None and scaler_y is not None:
-        y_test_orig = scaler_ytest.inverse_transform(y_test.to_numpy())
-        y_test = pd.DataFrame(y_test_orig, index=y_test.index, columns=y_test.columns)
-
-        predicted_test_results_orig = scaler_ytest.inverse_transform(predicted_test_results.to_numpy())
-        predicted_test_results = pd.DataFrame(predicted_test_results_orig, index=predicted_test_results.index, columns=predicted_test_results.columns)
-
-        predicted_results_orig = scaler_y.inverse_transform(predicted_results.to_numpy())
-        predicted_results = pd.DataFrame(predicted_results_orig, index=predicted_results.index, columns=predicted_results.columns)
-
+    y, y_train, y_test, predicted_test_results, predicted_results = forecast_postprocessing.apply_back_transformations_ML(y, y_train, y_test, predicted_test_results, predicted_results, log_transform_used, scalers)
     predicted_results = forecasting_ML.get_predicted_results_to_forecast_data(db_forecasting.datasetcolumns.datasets.time_period.unit, db_forecasting.forecast_horizon, predicted_results)
 
     if db_forecasting.forecast_horizon == 1:
@@ -317,6 +234,8 @@ def start_ML_pipeline(db: Session, db_forecasting: forecasting_schema.Forecastin
         predicted_test_results = predicted_test_results['predicted_mean']
         predicted_results.rename(columns={'y_step_1': 'predicted_mean'}, inplace=True)
         y_test = y_test['y_step_1']
+
+    y_test, predicted_test_results, predicted_results = forecast_postprocessing.get_normalized_forecasted_outputs(db_forecasting, y_test, predicted_test_results, predicted_results, df_seasonal)
 
     file_processing.save_forecast_file(db_forecasting.datasetcolumns.datasets.project.user_id,
                                        db_forecasting.datasetcolumns.datasets.project.id,
