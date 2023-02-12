@@ -100,17 +100,17 @@ def create_project(project: project_schema.ProjectCreate, db: Session = Depends(
 
 
 @router.get("/", response_model=list[project_schema.ProjectSchema], status_code=status.HTTP_200_OK)
-def read_projects(skip: int = 0, limit: int = 100, db: Session = Depends(dependencies.get_db),
+def read_projects(db: Session = Depends(dependencies.get_db),
                   current_user: user_model.User = Depends(dependencies.get_current_active_user)):
-    projects = project_crud.get_all(db, skip=skip, limit=limit)
+    projects = project_crud.get_all(db)
 
     return projects
 
 
 @router.get("/user", response_model=list[project_schema.ProjectSchema], status_code=status.HTTP_200_OK)
-def read_user_projects(skip: int = 0, limit: int = 100, db: Session = Depends(dependencies.get_db),
+def read_user_projects(db: Session = Depends(dependencies.get_db),
                        current_user: user_model.User = Depends(dependencies.get_current_active_user)):
-    projects = project_crud.get_by_user_id(db, user_id=current_user.id, skip=skip, limit=limit)
+    projects = project_crud.get_by_user_id(db, user_id=current_user.id)
 
     return projects
 

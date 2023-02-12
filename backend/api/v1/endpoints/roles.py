@@ -20,8 +20,8 @@ def create_role(role: role_schema.RoleCreate, db: Session = Depends(dependencies
 
 
 @router.get("/", response_model=list[role_schema.RoleSchema], status_code=status.HTTP_200_OK)
-def read_roles(skip: int = 0, limit: int = 100, db: Session = Depends(dependencies.get_db), current_user: user_model.User = Depends(dependencies.get_current_active_user)):
-    roles = role_crud.get_all(db, skip=skip, limit=limit)
+def read_roles(db: Session = Depends(dependencies.get_db), current_user: user_model.User = Depends(dependencies.get_current_active_user)):
+    roles = role_crud.get_all(db)
     return roles
 
 

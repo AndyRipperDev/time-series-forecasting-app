@@ -39,7 +39,7 @@ const ForecastingPage = () => {
         <LoadingPage />
       ) : (
         <div className="my-2 md:my-4 mx-4 md:mx-10">
-          <h1 className="text-2xl font-bold md:text-3xl mt-6 mb-4">
+          <h1 className="text-2xl font-bold md:text-3xl mt-10 mb-4">
             Forecasts
           </h1>
           {forecastingResults && (
