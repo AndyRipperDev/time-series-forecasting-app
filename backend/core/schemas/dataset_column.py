@@ -7,6 +7,7 @@ class DatasetColumnBase(BaseModel):
     name: str
     data_type: str
     is_date: bool
+    is_removed: bool
     scaling: ColumnScalingMethod | None = None
     missing_values_handler: ColumnMissingValuesMethod | None = None
 
@@ -34,5 +35,6 @@ class DatasetColumnUpdateSchema(BaseModel):
     name: str | None = None
     data_type: str | None = None
     is_date: bool | None = None
+    is_removed: bool | None = None
     scaling: ColumnScalingMethod | None = None
     missing_values_handler: ColumnMissingValuesMethod | None = None

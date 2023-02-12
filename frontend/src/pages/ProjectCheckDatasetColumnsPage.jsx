@@ -82,6 +82,24 @@ const ProjectCheckDatasetColumnsPage = () => {
     handleProjectUpdate(newCols)
   }
 
+  const handleIsRemovedChange = (event, id) => {
+    let newCols = [...project.dataset.columns].map((column) => {
+      if (column.id === id) return { ...column, is_removed: true }
+      else return column
+    })
+
+    handleProjectUpdate(newCols)
+  }
+
+  const handleIsRestoredChange = (event, id) => {
+    let newCols = [...project.dataset.columns].map((column) => {
+      if (column.id === id) return { ...column, is_removed: false }
+      else return column
+    })
+
+    handleProjectUpdate(newCols)
+  }
+
   function handleSubmit(event) {
     event.preventDefault()
     projectService
@@ -107,6 +125,7 @@ const ProjectCheckDatasetColumnsPage = () => {
             </li>
           </ul>
           {project && (
+            <div>
             <form onSubmit={handleSubmit}>
               <h1 className={'text-center text-2xl font-bold mb-6'}>
                 Check Dataset Columns
@@ -130,10 +149,13 @@ const ProjectCheckDatasetColumnsPage = () => {
                       <th scope="col" className="py-5 px-6 md:px-8">
                         Is Date
                       </th>
+                      <th scope="col" className="py-5 px-6 md:px-8">
+                        Remove
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {project.dataset.columns.map((column) => (
+                    {project.dataset.columns.map((column) => !column?.is_removed && (
                       <tr
                         className="bg-base-200 hover:bg-base-100"
                         key={column.id}
@@ -213,6 +235,26 @@ const ProjectCheckDatasetColumnsPage = () => {
                             onChange={(e) => handleIsDateChange(e, column.id)}
                           />
                         </td>
+                        <td className="py-5 px-6 md:px-8">
+                          {!column.is_date && (
+                            <button className="btn hover:text-error" onClick={(e) => handleIsRemovedChange(e, column.id)}>
+                              <svg
+                                className="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                />
+                              </svg>
+                            </button>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -224,6 +266,26 @@ const ProjectCheckDatasetColumnsPage = () => {
                 />
               </div>
             </form>
+
+              <div>
+                {/*{project.dataset.columns.map((column) => column?.is_removed).length === 0 && (*/}
+                {/*  <div>*/}
+                {/*    ahoj*/}
+                {/*  </div>*/}
+                {/*)}*/}
+              <h1 className={'text-center text-2xl font-bold mb-6'}>
+                Removed Dataset Columns
+              </h1>
+              {project.dataset.columns.map((column) => column?.is_removed && (
+                <div key={column.id} className={'flex items-center justify-between bg-base-200 rounded-2xl shadow-xl px-6 py-3 mb-6'}>
+                  <p className={'font-semibold'}>{column.name}</p>
+                  <button className="btn hover:text-info" onClick={(e) => handleIsRestoredChange(e, column.id)}>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                  </button>
+                </div>
+              ))}
+              </div>
+            </div>
           )}
         </div>
       )}

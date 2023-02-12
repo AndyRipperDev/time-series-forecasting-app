@@ -76,11 +76,11 @@ async def create_project_with_dataset(
 
     i = 0
     for k, v in columns.items():
-        col_sch = dataset_column_schema.DatasetColumnCreate(name=k, data_type=v, is_date=i == 0, scaling=None, missing_values_handler=ColumnMissingValuesMethod.FillZeros)
+        col_sch = dataset_column_schema.DatasetColumnCreate(name=k, data_type=v, is_date=i == 0, scaling=None, is_removed=False, missing_values_handler=ColumnMissingValuesMethod.FillZeros)
         dataset_column_crud.create(db=db, dataset_column=col_sch, dataset_id=db_dataset.id)
         i += 1
 
-    db_columns = dataset_column_crud.get_by_dataset_id(db, dataset_id=db_dataset.id)
+    db_columns = dataset_column_crud.get_active_by_dataset_id(db, dataset_id=db_dataset.id)
 
     file_path = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(
         db_dataset.project_id) + '/' + db_dataset.filename
@@ -100,17 +100,17 @@ def create_project(project: project_schema.ProjectCreate, db: Session = Depends(
 
 
 @router.get("/", response_model=list[project_schema.ProjectSchema], status_code=status.HTTP_200_OK)
-def read_projects(skip: int = 0, limit: int = 100, db: Session = Depends(dependencies.get_db),
+def read_projects(db: Session = Depends(dependencies.get_db),
                   current_user: user_model.User = Depends(dependencies.get_current_active_user)):
-    projects = project_crud.get_all(db, skip=skip, limit=limit)
+    projects = project_crud.get_all(db)
 
     return projects
 
 
 @router.get("/user", response_model=list[project_schema.ProjectSchema], status_code=status.HTTP_200_OK)
-def read_user_projects(skip: int = 0, limit: int = 100, db: Session = Depends(dependencies.get_db),
+def read_user_projects(db: Session = Depends(dependencies.get_db),
                        current_user: user_model.User = Depends(dependencies.get_current_active_user)):
-    projects = project_crud.get_by_user_id(db, user_id=current_user.id, skip=skip, limit=limit)
+    projects = project_crud.get_by_user_id(db, user_id=current_user.id)
 
     return projects
 
@@ -156,7 +156,7 @@ def read_project_with_dataset_values(project_id: int, skip: int = 0, limit: int 
 
 
 @router.get("/get-dataset-columns-with-values/{project_id}", status_code=status.HTTP_200_OK)
-def read_project_with_dataset_columns_with_values(project_id: int, skip: int = 0, limit: int = 100, column: str = None, db: Session = Depends(dependencies.get_db),
+def read_project_with_dataset_columns_with_values(project_id: int, skip: int = 0, limit: int = 100, column: str = None, all_values: bool = False, use_scaled_values: bool = True, db: Session = Depends(dependencies.get_db),
                  current_user: user_model.User = Depends(dependencies.get_current_active_user)):
     db_project = project_crud.get(db, project_id=project_id)
     if db_project is None:
@@ -165,10 +165,14 @@ def read_project_with_dataset_columns_with_values(project_id: int, skip: int = 0
     if db_project.user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
 
-    file_path_processed = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(
-        db_project.id) + '/' + db_project.dataset.filename_processed
-
-    df = file_processing.get_processed_dataset(file_path_processed, db_project.dataset.delimiter)
+    if use_scaled_values:
+        file_path_processed = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(
+            db_project.id) + '/' + db_project.dataset.filename_processed
+        df = file_processing.get_processed_dataset(file_path_processed, db_project.dataset.delimiter)
+    else:
+        file_path_processed = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(
+            db_project.id) + '/' + db_project.dataset.filename
+        df = file_processing.get_processed_dataset(file_path_processed, db_project.dataset.delimiter, db_project.dataset.columns)
 
     dataset = df.to_dict('list')
     dataset_col = {}
@@ -179,7 +183,7 @@ def read_project_with_dataset_columns_with_values(project_id: int, skip: int = 0
     for k, v in dataset.items():
         for col in db_project.dataset.columns:
             if col.name == k:
-                dataset_cols[k] = {'is_date': col.is_date, 'values': v[skip:limit]}
+                dataset_cols[k] = {'is_date': col.is_date, 'values': v if all_values else v[skip:limit]}
                 if col.is_date:
                     date_col = k
                     dataset_len = len(v)
@@ -263,14 +267,14 @@ def update_project_with_dataset(project_id: int, project: project_schema.Project
 
         i = 0
         for k, v in columns.items():
-            col_sch = dataset_column_schema.DatasetColumnCreate(name=k, data_type=v, is_date=i == 0, scaling=None, missing_values_handler=ColumnMissingValuesMethod.FillZeros)
+            col_sch = dataset_column_schema.DatasetColumnCreate(name=k, data_type=v, is_date=i == 0, scaling=None, is_removed=False, missing_values_handler=ColumnMissingValuesMethod.FillZeros)
             dataset_column_crud.create(db=db, dataset_column=col_sch, dataset_id=db_dataset.id)
             i += 1
 
     updates_dataset = dataset_schema.DatasetUpdateSchema(delimiter=project.delimiter)
     db_dataset = dataset_crud.update(db=db, dataset=db_dataset, updates=updates_dataset)
 
-    db_columns = dataset_column_crud.get_by_dataset_id(db, dataset_id=db_dataset.id)
+    db_columns = dataset_column_crud.get_active_by_dataset_id(db, dataset_id=db_dataset.id)
 
     file_path = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(
         db_dataset.project_id) + '/' + db_dataset.filename
@@ -294,25 +298,10 @@ def delete_project(project_id: int, db: Session = Depends(dependencies.get_db),
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
 
     file_dir = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(db_project.id) + '/'
-    file_path = file_dir + db_project.dataset.filename
-    file_path_processed = file_dir + db_project.dataset.filename_processed
-
-    db_dataset = dataset_crud.get_by_project_id(db=db, project_id=db_project.id)
-
-    db_time_period = time_period_crud.get_by_dataset_id(db=db, dataset_id=db_dataset.id)
-    time_period_crud.delete(db, db_time_period)
-
-    db_columns = dataset_column_crud.get_by_dataset_id(db, dataset_id=db_dataset.id)
-    for col in db_columns:
-        dataset_column_crud.delete(db, col)
-    dataset_crud.delete(db=db, dataset=db_dataset)
-
 
     if not project_crud.delete(db, project=db_project):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Project not deleted")
 
-    Path(file_path).unlink()
-    Path(file_path_processed).unlink()
-    Path(file_dir).rmdir()
+    file_processing.rmdir(Path(file_dir))
 
     return {"message": "Project successfully deleted"}

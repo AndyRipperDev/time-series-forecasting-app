@@ -15,6 +15,11 @@ python-multipart = "*"
 sqlalchemy-utils = "*"
 pandas = "*"
 scikit-learn = "*"
+statsmodels = "*"
+optuna = "*"
+lightgbm = "*"
+xgboost = "*"
+rstl = "*"
 
 [dev-packages]
 

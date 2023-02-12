@@ -10,6 +10,8 @@ import {
   projectDatasetColumnsViewAtom,
   projectDatasetColumnOptionsAtom,
   projectDatasetTimePeriodOptionsAtom,
+  projectDatasetColumnsAtom,
+  projectTimePeriodAtom,
 } from '../state'
 
 export { useProjectService }
@@ -20,6 +22,7 @@ function useProjectService() {
   const urlPartTimePeriod = '/time-period'
   const setProjects = useSetRecoilState(projectsAtom)
   const setProject = useSetRecoilState(projectAtom)
+  const setProjectTimePeriod = useSetRecoilState(projectTimePeriodAtom)
   const setProjectDatasetColumnOptions = useSetRecoilState(
     projectDatasetColumnOptionsAtom
   )
@@ -27,6 +30,7 @@ function useProjectService() {
     projectDatasetTimePeriodOptionsAtom
   )
   const setProjectDatasetView = useSetRecoilState(projectDatasetViewAtom)
+  const setProjectDatasetColumns = useSetRecoilState(projectDatasetColumnsAtom)
   const setProjectDatasetColumnsView = useSetRecoilState(
     projectDatasetColumnsViewAtom
   )
@@ -37,9 +41,11 @@ function useProjectService() {
     getByAuthUser,
     getById,
     getDatasetValues,
+    getDatasetColumns,
     getDatasetColumnValues,
     getDatasetColumnOptions,
     getDatasetTimePeriodOptions,
+    getProjectTimePeriod,
     update,
     updateWithDataset,
     updateDatasetColumns,
@@ -53,12 +59,14 @@ function useProjectService() {
     resetProject: useResetRecoilState(projectAtom),
     resetDatasetView: useResetRecoilState(projectDatasetViewAtom),
     resetDatasetColumnsView: useResetRecoilState(projectDatasetColumnsViewAtom),
+    resetDatasetColumns: useResetRecoilState(projectDatasetColumnsAtom),
     resetDatasetColumnOptions: useResetRecoilState(
       projectDatasetColumnOptionsAtom
     ),
     resetDatasetTimePeriodOptions: useResetRecoilState(
       projectDatasetTimePeriodOptionsAtom
     ),
+    resetProjectTimePeriod: useResetRecoilState(projectTimePeriodAtom),
   }
 
   function getAll() {
@@ -91,10 +99,19 @@ function useProjectService() {
       .then(setProjectDatasetView)
   }
 
-  function getDatasetColumnValues(projectId, skip = 0, limit = 1000) {
+  function getDatasetColumnValues(
+    projectId,
+    skip = 0,
+    limit = 1000,
+    column = null,
+    allValues = false,
+    useScaledValues = true
+  ) {
     return forecastApi
       .get(
-        `${urlPartProjects}/get-dataset-columns-with-values/${projectId}/?skip=${skip}&limit=${limit}`
+        `${urlPartProjects}/get-dataset-columns-with-values/${projectId}/?skip=${skip}&limit=${limit}${
+          column ? '&column=' + column : ''
+        }${allValues ? '&all_values=' + allValues : ''}${!useScaledValues ? '&use_scaled_values=' + useScaledValues : ''}`
       )
       .then((response) => response.data)
       .then(setProjectDatasetColumnsView)
@@ -107,11 +124,25 @@ function useProjectService() {
       .then(setProjectDatasetColumnOptions)
   }
 
+  function getDatasetColumns(projectId) {
+    return forecastApi
+      .get(`${urlPartColumns}/get-with-project-id/${projectId}`)
+      .then((response) => response.data)
+      .then(setProjectDatasetColumns)
+  }
+
   function getDatasetTimePeriodOptions() {
     return forecastApi
       .get(urlPartTimePeriod)
       .then((response) => response.data)
       .then(setProjectDatasetTimePeriodOptions)
+  }
+
+  function getProjectTimePeriod(projectId) {
+    return forecastApi
+      .get(`${urlPartTimePeriod}/project/${projectId}`)
+      .then((response) => response.data)
+      .then(setProjectTimePeriod)
   }
 
   function create(project) {
@@ -157,7 +188,7 @@ function useProjectService() {
     )
   }
 
-  function downloadDataset(project) {
+  function downloadDataset(project, filename) {
     return forecastApi({
       url: `${urlPartProjects}/download-dataset/${project.id}`,
       method: 'GET',
@@ -166,7 +197,7 @@ function useProjectService() {
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement('a')
       link.href = url
-      link.setAttribute('download', project.dataset.filename)
+      link.setAttribute('download', filename)
       document.body.appendChild(link)
       link.click()
     })

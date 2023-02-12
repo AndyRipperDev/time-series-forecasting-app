@@ -1,7 +1,49 @@
 import pandas as pd
+import numpy as np
 from pathlib import Path
 from core.enums.dataset_column_enum import ColumnMissingValuesMethod, ColumnScalingMethod
+from core.enums.forecasting_model_enum import ForecastingModel
+from core.enums.time_period_enum import TimePeriodUnit
 from sklearn.preprocessing import MinMaxScaler, PowerTransformer, StandardScaler
+
+from sklearn.model_selection import train_test_split
+from core.config import settings
+
+
+def get_log_transform(df):
+    return np.log(df)
+
+
+def log_transform(df, df_train, df_test):
+    df = np.log(df)
+    df_train = np.log(df_train)
+    df_test = np.log(df_test)
+    return df, df_train, df_test
+
+
+def get_exp_transform(df):
+    return np.exp(df)
+
+
+def exp_transform(df, df_train, df_test):
+    df = np.exp(df)
+    df_train = np.exp(df_train)
+    df_test = np.exp(df_test)
+    return df, df_train, df_test
+
+
+def save_forecast_file(user_id, project_id, forecast_id, forecast_filename, delimiter, df):
+    file_path_base = settings.FILE_STORAGE_DIR + '/' + str(user_id) + '/projects/' + str(project_id) + '/forecasting/' + str(forecast_id) + '/'
+    file_path = Path(file_path_base)
+    file_path.mkdir(parents=True, exist_ok=True)
+
+    df.to_csv(file_path_base + '/' + forecast_filename, sep=delimiter, index=True)
+    return file_path_base + '/' + forecast_filename
+
+
+def get_filename_with_path(filename, user_id, project_id, forecast_id=None):
+    return settings.FILE_STORAGE_DIR + '/' + str(user_id) + '/projects/' + str(
+        project_id) + ('/' if forecast_id is None else '/forecasting/' + str(forecast_id) + '/') + filename
 
 
 def add_text_to_filename(filename, text):
@@ -37,6 +79,23 @@ def retype_columns(df, db_columns):
     return df
 
 
+def get_db_column_names(db_columns):
+    col_names = []
+    for column in db_columns:
+        col_names.append(column.name)
+
+    return col_names
+
+
+def handle_dropping_columns(df, db_columns):
+    col_names = get_db_column_names(db_columns)
+    for i, column in enumerate(df):
+        if column not in col_names:
+            df = df.drop(column, axis=1)
+
+    return df
+
+
 def handle_missing_values(df, db_columns):
     for db_column in db_columns:
         if db_column.missing_values_handler is None:
@@ -52,11 +111,12 @@ def handle_missing_values(df, db_columns):
                         df[column] = df[column].fillna(df[column].median())
                     elif db_column.missing_values_handler == ColumnMissingValuesMethod.FillMostFrequent:
                         df[column] = df[column].fillna(df[column].value_counts().index[0])
-                    elif db_column.missing_values_handler == ColumnMissingValuesMethod.Drop:
+                    elif db_column.missing_values_handler == ColumnMissingValuesMethod.Drop and len(db_columns) <= 2:
                         df[column] = df[column].dropna()
                 except:
                     continue
     return df
+
 
 def scale_columns(df, db_columns):
     for db_column in db_columns:
@@ -100,13 +160,18 @@ def df_from_csv(path, delimiter):
     return pd.read_csv(path, sep=delimiter, dtype=dtypes, parse_dates=parse_dates, skiprows=[1])
 
 
-def process_dataset(file_name, file_name_processed, delimiter, db_columns):
-    df = pd.read_csv(file_name, sep=delimiter)
-
+def apply_processing_to_dataset(df, db_columns, use_scaling: bool = True):
+    df = handle_dropping_columns(df, db_columns)
     df = retype_columns(df, db_columns)
     df = handle_missing_values(df, db_columns)
-    df = scale_columns(df, db_columns)
+    if use_scaling:
+        df = scale_columns(df, db_columns)
+    return df
 
+
+def process_dataset(file_name, file_name_processed, delimiter, db_columns):
+    df = pd.read_csv(file_name, sep=delimiter)
+    df = apply_processing_to_dataset(df, db_columns)
     df_to_csv(df, file_name_processed, delimiter)
 
 
@@ -114,5 +179,20 @@ def load_processed_dataset(file_name_processed, delimiter):
     df2 = df_from_csv(file_name_processed, delimiter)
 
 
-def get_processed_dataset(file_name_processed, delimiter):
-    return df_from_csv(file_name_processed, delimiter)
+def get_processed_dataset(file_name_processed, delimiter, db_columns=None):
+    if db_columns is None:
+        return df_from_csv(file_name_processed, delimiter)
+    else:
+        df = pd.read_csv(file_name_processed, sep=delimiter)
+        return apply_processing_to_dataset(df, db_columns, False)
+
+
+def rmdir(directory):
+    directory = Path(directory)
+    for item in directory.iterdir():
+        if item.is_dir():
+            rmdir(item)
+        else:
+            item.unlink()
+    directory.rmdir()
+

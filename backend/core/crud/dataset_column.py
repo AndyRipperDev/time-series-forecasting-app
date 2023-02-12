@@ -12,8 +12,12 @@ def get_by_dataset_id(db: Session, dataset_id: int):
     return db.query(dataset_column_model.DatasetColumn).filter(dataset_column_model.DatasetColumn.dataset_id == dataset_id).all()
 
 
+def get_active_by_dataset_id(db: Session, dataset_id: int):
+    return db.query(dataset_column_model.DatasetColumn).filter(dataset_column_model.DatasetColumn.dataset_id == dataset_id, dataset_column_model.DatasetColumn.is_removed == False).all()
+
+
 def get_by_dataset_id_column_name(db: Session, dataset_id: int, column_name: str):
-    return db.query(dataset_column_model.DatasetColumn).filter(dataset_column_model.DatasetColumn.dataset_id == dataset_id and dataset_column_model.DatasetColumn.name == column_name ).first()
+    return db.query(dataset_column_model.DatasetColumn).filter(dataset_column_model.DatasetColumn.dataset_id == dataset_id and dataset_column_model.DatasetColumn.name == column_name).first()
 
 
 def get(db: Session, column_id: int):

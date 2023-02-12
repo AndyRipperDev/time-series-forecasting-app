@@ -27,6 +27,9 @@ import { ProjectAddEditPage } from './pages/ProjectAddEditPage'
 import ProjectDetailsPage from './pages/ProjectDetails'
 import ProjectCheckDatasetColumnsPage from './pages/ProjectCheckDatasetColumnsPage'
 import { ProjectDetailsColumnPlotsPage } from './pages/ProjectDetailsColumnPlotsPage'
+import ForecastSettingsPage from './pages/ForecastSettingsPage'
+import ForecastingPage from './pages/ForecastingPage'
+import ForecastingDetailsPage from './pages/ForecastingDetailsPage'
 
 function App() {
   history.navigate = useNavigate()
@@ -163,13 +166,37 @@ function App() {
             }
           />
           <Route
-            path="/dashboard"
+            path="/projects/:id/forecast-settings"
             element={
               <PrivateRoute>
-                <DashboardPage />
+                <ForecastSettingsPage />
               </PrivateRoute>
             }
           />
+          <Route
+            path="/forecasting"
+            element={
+              <PrivateRoute>
+                <ForecastingPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/forecasting/:id"
+            element={
+              <PrivateRoute>
+                <ForecastingDetailsPage />
+              </PrivateRoute>
+            }
+          />
+          {/*<Route*/}
+          {/*  path="/dashboard"*/}
+          {/*  element={*/}
+          {/*    <PrivateRoute>*/}
+          {/*      <DashboardPage />*/}
+          {/*    </PrivateRoute>*/}
+          {/*  }*/}
+          {/*/>*/}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="*" element={<Navigate to="/" />} />

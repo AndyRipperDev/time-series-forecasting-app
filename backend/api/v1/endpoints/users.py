@@ -27,8 +27,8 @@ def create_user(user: user_schema.UserCreate, db: Session = Depends(dependencies
 
 
 @router.get("/", response_model=list[user_schema.UserSchema], status_code=status.HTTP_200_OK)
-def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(dependencies.get_db), current_user: user_model.User = Depends(dependencies.get_current_active_user)):
-    users = user_crud.get_all(db, skip=skip, limit=limit)
+def read_users(db: Session = Depends(dependencies.get_db), current_user: user_model.User = Depends(dependencies.get_current_active_user)):
+    users = user_crud.get_all(db)
     return users
 
 
