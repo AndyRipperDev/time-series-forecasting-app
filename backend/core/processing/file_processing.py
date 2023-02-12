@@ -111,7 +111,7 @@ def handle_missing_values(df, db_columns):
                         df[column] = df[column].fillna(df[column].median())
                     elif db_column.missing_values_handler == ColumnMissingValuesMethod.FillMostFrequent:
                         df[column] = df[column].fillna(df[column].value_counts().index[0])
-                    elif db_column.missing_values_handler == ColumnMissingValuesMethod.Drop:
+                    elif db_column.missing_values_handler == ColumnMissingValuesMethod.Drop and len(db_columns) <= 2:
                         df[column] = df[column].dropna()
                 except:
                     continue
