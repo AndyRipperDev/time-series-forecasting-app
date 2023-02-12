@@ -17,5 +17,5 @@ class DatasetColumn(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    dataset_id = Column(Integer, ForeignKey("dataset.id"))
-    forecasting_predictions = relationship("Forecasting", backref="datasetcolumns")
+    dataset_id = Column(Integer, ForeignKey("dataset.id", ondelete='CASCADE'))
+    forecasting_predictions = relationship("Forecasting", backref="datasetcolumns", passive_deletes='all')

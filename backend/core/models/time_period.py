@@ -12,5 +12,5 @@ class TimePeriod(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    dataset_id = Column(Integer, ForeignKey("dataset.id"))
-    dataset = relationship("Dataset", backref=backref("time_period", uselist=False))
+    dataset_id = Column(Integer, ForeignKey("dataset.id", ondelete='CASCADE'))
+    dataset = relationship("Dataset", backref=backref("time_period", uselist=False, passive_deletes='all'))

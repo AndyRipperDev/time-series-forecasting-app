@@ -185,3 +185,14 @@ def get_processed_dataset(file_name_processed, delimiter, db_columns=None):
     else:
         df = pd.read_csv(file_name_processed, sep=delimiter)
         return apply_processing_to_dataset(df, db_columns, False)
+
+
+def rmdir(directory):
+    directory = Path(directory)
+    for item in directory.iterdir():
+        if item.is_dir():
+            rmdir(item)
+        else:
+            item.unlink()
+    directory.rmdir()
+

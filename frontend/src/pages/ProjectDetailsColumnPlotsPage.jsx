@@ -23,6 +23,7 @@ function ProjectDetailsColumnPlotsPage() {
     projectDatasetColumnsViewAtom
   )
 
+  const [rangeLoading, setRangeLoading] = useState(false)
   const [minValueRange, setMinValueRange] = useState(0)
   const [maxValueRange, setMaxValueRange] = useState(1000)
 
@@ -58,8 +59,10 @@ function ProjectDetailsColumnPlotsPage() {
   // }, [minValueRange, maxValueRange])
 
   function getColumnData(skip = minValueRange, limit = maxValueRange) {
+    setRangeLoading(true)
     projectService.getDatasetColumnValues(id, skip, limit).then(() => {
       window.dispatchEvent(new Event('resize'))
+      setRangeLoading(false)
     })
   }
 
@@ -98,7 +101,7 @@ function ProjectDetailsColumnPlotsPage() {
           {projectDatasetColumnsView && (
             <div className={'flex flex-col items-center'}>
               <h1 className="text-3xl font-bold md:text-4xl mb-16">
-                {project.title}
+                {project?.title}
               </h1>
               <h1 className="text-2xl font-bold mb-12">
                 Dataset Columns Visualization
@@ -159,7 +162,7 @@ function ProjectDetailsColumnPlotsPage() {
                       </div>
                     </div>
                     <div className="divider">OR</div>
-                    <button className="btn btn-primary" onClick={handleShowAll}>
+                    <button className={`btn btn-primary ${rangeLoading ? 'loading' : ''}`} onClick={handleShowAll}>
                       Show All
                     </button>
                   </div>

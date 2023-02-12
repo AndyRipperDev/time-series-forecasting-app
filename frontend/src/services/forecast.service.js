@@ -22,7 +22,9 @@ function useForecastService() {
   const setForecastingModel = useSetRecoilState(forecastingModelAtom)
   const setForecastingStatus = useSetRecoilState(forecastingStatusAtom)
   const setForecastingResult = useSetRecoilState(forecastingResultAtom)
-  const setForecastingResults = useSetRecoilState(forecastingResultsAtom)
+
+  const [forecastingResults, setForecastingResults] = useRecoilState(forecastingResultsAtom)
+  // const setForecastingResults = useSetRecoilState(forecastingResultsAtom)
   const setForecastingBaselineResults = useSetRecoilState(forecastingBaselineResultsAtom)
   const setForecastingPredictedResults = useSetRecoilState(
     forecastingPredictedResultsAtom
@@ -49,6 +51,7 @@ function useForecastService() {
     downloadTestDataset,
     downloadCombinedTestDataset,
     getEvalMetrics,
+    delete: _delete,
     resetForecastingModels: useResetRecoilState(forecastingModelsAtom),
     resetForecastingModel: useResetRecoilState(forecastingModelAtom),
     resetModelParams: useResetRecoilState(modelParamsAtom),
@@ -99,7 +102,7 @@ function useForecastService() {
 
   function getAllModels() {
     return forecastApi
-      .get(urlPartForecast + '/models')
+      .get(urlPartForecast + '/models/')
       .then((response) => response.data)
       .then(setForecastingModels)
   }
@@ -240,5 +243,42 @@ function useForecastService() {
       .then((data) => {
         console.log(data)
       })
+  }
+
+  function _delete(id, projectId, columnId) {
+    let res = {...forecastingResults}
+    let resForecasting = {...res.forecasting}
+    let resForecastingProject = {...resForecasting[projectId]}
+    let resForecastingProjectColumn = {...resForecastingProject[columnId]}
+
+    resForecastingProjectColumn = [...resForecastingProject[columnId]].map((x) => {
+      if (x.id === id) return { ...x, isDeleting: true }
+
+      return x
+    })
+
+    resForecastingProject[columnId] = resForecastingProjectColumn
+    resForecasting[projectId] = resForecastingProject
+    res.forecasting = resForecasting
+
+    setForecastingResults(res)
+
+    return forecastApi.delete(`${urlPartForecast}/${id}`).then(() => {
+      let res = {...forecastingResults}
+      let resForecasting = {...res.forecasting}
+      let resForecastingProject = {...resForecasting[projectId]}
+      let resForecastingProjectColumn = {...resForecastingProject[columnId]}
+
+      resForecastingProjectColumn = resForecastingProject[columnId].filter((x) => x.id !== id)
+
+      if(resForecastingProjectColumn.length === 0) {
+        getForecastingResults()
+      } else {
+        resForecastingProject[columnId] = resForecastingProjectColumn
+        resForecasting[projectId] = resForecastingProject
+        res.forecasting = resForecasting
+        setForecastingResults(res)
+      }
+    })
   }
 }

@@ -298,25 +298,10 @@ def delete_project(project_id: int, db: Session = Depends(dependencies.get_db),
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
 
     file_dir = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(db_project.id) + '/'
-    file_path = file_dir + db_project.dataset.filename
-    file_path_processed = file_dir + db_project.dataset.filename_processed
-
-    db_dataset = dataset_crud.get_by_project_id(db=db, project_id=db_project.id)
-
-    db_time_period = time_period_crud.get_by_dataset_id(db=db, dataset_id=db_dataset.id)
-    time_period_crud.delete(db, db_time_period)
-
-    db_columns = dataset_column_crud.get_by_dataset_id(db, dataset_id=db_dataset.id)
-    for col in db_columns:
-        dataset_column_crud.delete(db, col)
-    dataset_crud.delete(db=db, dataset=db_dataset)
-
 
     if not project_crud.delete(db, project=db_project):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Project not deleted")
 
-    Path(file_path).unlink()
-    Path(file_path_processed).unlink()
-    Path(file_dir).rmdir()
+    file_processing.rmdir(Path(file_dir))
 
     return {"message": "Project successfully deleted"}

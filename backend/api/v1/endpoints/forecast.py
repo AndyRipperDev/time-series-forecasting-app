@@ -2,6 +2,7 @@ import json
 import copy
 from fastapi.responses import StreamingResponse
 import io
+from pathlib import Path
 from starlette.responses import FileResponse
 from fastapi import APIRouter, Depends, status, HTTPException, Body, BackgroundTasks
 
@@ -52,6 +53,26 @@ def create_forecast(project_id: int, forecast: forecasting_schema.ForecastingCre
         res_forecasting.params = json.dumps(res_forecasting.params)
 
     return res_forecasting
+
+
+@router.delete("/{forecast_id}", status_code=status.HTTP_200_OK)
+def delete_forecast(forecast_id: int, db: Session = Depends(dependencies.get_db),
+                   current_user: user_model.User = Depends(dependencies.get_current_active_user)):
+    db_forecasting = forecasting_crud.get(db, forecasting_id=forecast_id)
+    if db_forecasting is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Forecasting not found")
+
+    if db_forecasting.datasetcolumns.datasets.project.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
+
+    file_dir = file_processing.get_filename_with_path('', current_user.id, db_forecasting.datasetcolumns.datasets.project.id, forecast_id)
+
+    if not forecasting_crud.delete(db, forecasting=db_forecasting):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Forecast not deleted")
+
+    file_processing.rmdir(Path(file_dir))
+
+    return {"message": "Forecast successfully deleted"}
 
 
 @router.get("/models/", status_code=status.HTTP_200_OK)
