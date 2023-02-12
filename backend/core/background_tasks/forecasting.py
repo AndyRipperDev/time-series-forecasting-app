@@ -109,6 +109,8 @@ def start_statsmodels_pipeline(db: Session, db_forecasting: forecasting_schema.F
         predicted_results = forecasting_SARIMA.get_predicted_results(df, params[0], params[1],
                                                                      db_forecasting.forecast_horizon)
 
+    baseline_results = forecast_preprocessing.get_baseline_dataset(db_forecasting, len(df_test))
+
     if predicted_test_results is None or predicted_results is None:
         raise Exception()
 
@@ -127,6 +129,12 @@ def start_statsmodels_pipeline(db: Session, db_forecasting: forecasting_schema.F
                                        settings.FILE_PREDICTED_RESULTS_FILENAME,
                                        db_forecasting.datasetcolumns.datasets.delimiter,
                                        predicted_results)
+    file_processing.save_forecast_file(db_forecasting.datasetcolumns.datasets.project.user_id,
+                                       db_forecasting.datasetcolumns.datasets.project.id,
+                                       db_forecasting.id,
+                                       settings.FILE_BASELINE_RESULTS_FILENAME,
+                                       db_forecasting.datasetcolumns.datasets.delimiter,
+                                       baseline_results)
 
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Evaluating)
     create_eval_metrics(db, df_test, predicted_test_results, db_forecasting)
@@ -162,6 +170,8 @@ def start_DL_pipeline(db: Session, db_forecasting: forecasting_schema.Forecastin
                                                                        X_train, X_test, y_train, y_test, params)
     predicted_results = forecasting_DL.get_predicted_results(db_forecasting.model, db_forecasting.forecast_horizon, X, y, params)
 
+    baseline_results = forecast_preprocessing.get_baseline_dataset(db_forecasting, len(y_test) - 1)
+
     if predicted_test_results is None or predicted_results is None:
         raise Exception()
 
@@ -191,6 +201,12 @@ def start_DL_pipeline(db: Session, db_forecasting: forecasting_schema.Forecastin
                                        settings.FILE_PREDICTED_RESULTS_FILENAME,
                                        db_forecasting.datasetcolumns.datasets.delimiter,
                                        predicted_results)
+    file_processing.save_forecast_file(db_forecasting.datasetcolumns.datasets.project.user_id,
+                                       db_forecasting.datasetcolumns.datasets.project.id,
+                                       db_forecasting.id,
+                                       settings.FILE_BASELINE_RESULTS_FILENAME,
+                                       db_forecasting.datasetcolumns.datasets.delimiter,
+                                       baseline_results)
 
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Evaluating)
     create_eval_metrics(db, y_test.values, predicted_test_results.values, db_forecasting)
@@ -219,6 +235,7 @@ def start_ML_pipeline(db: Session, db_forecasting: forecasting_schema.Forecastin
     predicted_test_results = predicted_results = None
     predicted_test_results = forecasting_ML.get_predicted_test_results(db_forecasting.model, db_forecasting.forecast_horizon, X, y, X_train, X_test, y_train, y_test, params)
     predicted_results = forecasting_ML.get_predicted_results(db_forecasting.model, db_forecasting.forecast_horizon, X, y, params)
+    baseline_results = forecast_preprocessing.get_baseline_dataset(db_forecasting, len(y_test) - 1)
 
     if predicted_test_results is None or predicted_results is None:
         raise Exception()
@@ -249,6 +266,12 @@ def start_ML_pipeline(db: Session, db_forecasting: forecasting_schema.Forecastin
                                        settings.FILE_PREDICTED_RESULTS_FILENAME,
                                        db_forecasting.datasetcolumns.datasets.delimiter,
                                        predicted_results)
+    file_processing.save_forecast_file(db_forecasting.datasetcolumns.datasets.project.user_id,
+                                       db_forecasting.datasetcolumns.datasets.project.id,
+                                       db_forecasting.id,
+                                       settings.FILE_BASELINE_RESULTS_FILENAME,
+                                       db_forecasting.datasetcolumns.datasets.delimiter,
+                                       baseline_results)
 
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Evaluating)
     create_eval_metrics(db, y_test.values, predicted_test_results.values, db_forecasting)

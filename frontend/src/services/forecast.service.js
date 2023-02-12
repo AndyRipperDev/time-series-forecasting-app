@@ -9,6 +9,7 @@ import {
   createdForecastingAtom,
   forecastingResultAtom,
   forecastingResultsAtom,
+  forecastingBaselineResultsAtom,
   forecastingPredictedResultsAtom,
   forecastingPredictedTestResultsAtom,
 } from '../state'
@@ -22,6 +23,7 @@ function useForecastService() {
   const setForecastingStatus = useSetRecoilState(forecastingStatusAtom)
   const setForecastingResult = useSetRecoilState(forecastingResultAtom)
   const setForecastingResults = useSetRecoilState(forecastingResultsAtom)
+  const setForecastingBaselineResults = useSetRecoilState(forecastingBaselineResultsAtom)
   const setForecastingPredictedResults = useSetRecoilState(
     forecastingPredictedResultsAtom
   )
@@ -39,6 +41,7 @@ function useForecastService() {
     getForecastingStatus,
     getForecastingResult,
     getForecastingResults,
+    getForecastingBaselineResults,
     getForecastingPredictedResults,
     getForecastingPredictedTestResults,
     getQuickForecastingStatus,
@@ -53,6 +56,7 @@ function useForecastService() {
     resetCreatedForecasting: useResetRecoilState(createdForecastingAtom),
     resetForecastingResult: useResetRecoilState(forecastingResultAtom),
     resetForecastingResults: useResetRecoilState(forecastingResultsAtom),
+    resetForecastingBaselineResults: useResetRecoilState(forecastingBaselineResultsAtom),
     resetForecastingPredictedResults: useResetRecoilState(
       forecastingPredictedResultsAtom
     ),
@@ -119,6 +123,13 @@ function useForecastService() {
       .get(`${urlPartForecast}/user/`)
       .then((response) => response.data)
       .then(setForecastingResults)
+  }
+
+  function getForecastingBaselineResults(id) {
+    return forecastApi
+      .get(`${urlPartForecast}/${id}/baseline-results/`)
+      .then((response) => response.data)
+      .then(setForecastingBaselineResults)
   }
 
   function getForecastingPredictedResults(id) {

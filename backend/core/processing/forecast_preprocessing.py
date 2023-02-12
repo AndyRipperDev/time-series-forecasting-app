@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import math
 from core.enums.dataset_column_enum import ColumnScalingMethod
 from core.enums.time_period_enum import TimePeriodUnit
 from sklearn.preprocessing import MinMaxScaler, PowerTransformer, StandardScaler
@@ -333,3 +334,44 @@ def get_forecast_ready_dataset_ML(db_forecasting, use_transformations: bool = Tr
 
     return df, X, y, X_train, X_test, y_train, y_test, df_seasonal
 
+
+def get_forecast_prev_values_test(df, season_period, test_len):
+    df_ts = df.copy()
+    df_ts = df_ts.shift(season_period).fillna(0)
+    return df_ts[-test_len:]
+
+
+def get_forecast_prev_values_future(df, forecast_horizon, season_period, time_period_unit):
+    df_ts = df.copy()
+
+    iterations = math.floor(forecast_horizon/season_period)
+    df_forecast = pd.DataFrame()
+    for i in range(0, iterations):
+        df_forecast = pd.concat([df_forecast, df.tail(season_period)])
+    df_forecast = pd.concat([df_forecast, df.tail(season_period).head(forecast_horizon - iterations * season_period)])
+
+    dti = pd.date_range(df_ts.index[-1], periods=forecast_horizon + 1, freq=time_period_unit)
+    df_forecast.index = dti[1:]
+    return df_forecast
+
+
+def get_forecast_prev_values(df, forecast_horizon, season_period, time_period_unit, test_len):
+    df_test = get_forecast_prev_values_test(df, season_period, test_len)
+    df_forecast = get_forecast_prev_values_future(df, forecast_horizon, season_period, time_period_unit)
+    return pd.concat([df_test, df_forecast])
+
+
+def get_baseline_dataset(db_forecasting, test_len):
+    file = file_processing.get_filename_with_path(db_forecasting.datasetcolumns.datasets.filename,
+                                  db_forecasting.datasetcolumns.datasets.project.user_id,
+                                  db_forecasting.datasetcolumns.datasets.project.id)
+
+    df = file_processing.get_processed_dataset(file, db_forecasting.datasetcolumns.datasets.delimiter, db_forecasting.datasetcolumns.datasets.columns)
+    df = init_df(df, db_forecasting.datasetcolumns.datasets.columns, db_forecasting.datasetcolumns.name)
+    df_res = get_forecast_prev_values(df,
+                                                 db_forecasting.forecast_horizon,
+                                                 db_forecasting.datasetcolumns.datasets.time_period.value,
+                                                 get_time_period_frequency(db_forecasting.datasetcolumns.datasets.time_period.unit),
+                                                 test_len)
+    df_res.rename(columns={df_res.columns[0]: db_forecasting.datasetcolumns.name}, inplace=True)
+    return df_res

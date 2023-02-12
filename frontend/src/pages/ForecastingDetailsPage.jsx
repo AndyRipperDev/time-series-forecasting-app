@@ -8,7 +8,7 @@ import {
   forecastingPredictedResultsAtom,
   forecastingPredictedTestResultsAtom,
   projectDatasetColumnsViewAtom,
-  themeAtom,
+  themeAtom, forecastingBaselineResultsAtom,
 } from '../state'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import Loading from '../components/Loadings/Loading'
@@ -25,6 +25,7 @@ const ForecastingDetailsPage = () => {
   const dateUtils = useDateUtils()
   const theme = useRecoilValue(themeAtom)
   const forecastingResult = useRecoilValue(forecastingResultAtom)
+  const forecastingBaselineResults = useRecoilValue(forecastingBaselineResultsAtom)
   const forecastingPredictedResults = useRecoilValue(
     forecastingPredictedResultsAtom
   )
@@ -45,6 +46,7 @@ const ForecastingDetailsPage = () => {
     return () => {
       forecastService.resetForecastingResult()
       projectService.resetDatasetColumnsView()
+      forecastService.resetForecastingBaselineResults()
       forecastService.resetForecastingPredictedResults()
       forecastService.resetForecastingPredictedTestResults()
 
@@ -53,6 +55,7 @@ const ForecastingDetailsPage = () => {
   }, [])
 
   function handleSetPlotView() {
+    forecastService.getForecastingBaselineResults(id)
     forecastService.getForecastingPredictedResults(id)
     forecastService.getForecastingPredictedTestResults(id)
     projectService
@@ -416,6 +419,21 @@ const ForecastingDetailsPage = () => {
                                     ],
                                 },
                               },
+                              {
+                                y: Object.values(
+                                  forecastingBaselineResults?.results
+                                )[0],
+                                x: Object.values(
+                                  forecastingBaselineResults?.results
+                                )[1],
+                                visible: 'legendonly',
+                                type: 'scatter',
+                                mode: 'lines',
+                                name: 'Baseline Forecast',
+                                marker: {
+                                  color: '#3abff8'
+                                },
+                              },
                             ]}
                             layout={{
                               // width: '100%',
@@ -507,18 +525,22 @@ const ForecastingDetailsPage = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr className="bg-base-200 hover:bg-base-100">
-                        <td className="py-5 px-6 md:px-8">Log Transform</td>
-                        <td className="py-5 px-6 md:px-8">
-                          {getYesNo(forecastingResult.use_log_transform)}
-                        </td>
-                      </tr>
-                      <tr className="bg-base-200 hover:bg-base-100">
-                        <td className="py-5 px-6 md:px-8">Decomposition</td>
-                        <td className="py-5 px-6 md:px-8">
-                          {getYesNo(forecastingResult.use_decomposition)}
-                        </td>
-                      </tr>
+                      {forecastingResult.model !== 'MLP' && (
+                        <>
+                          <tr className="bg-base-200 hover:bg-base-100">
+                            <td className="py-5 px-6 md:px-8">Log Transform</td>
+                            <td className="py-5 px-6 md:px-8">
+                              {getYesNo(forecastingResult.use_log_transform)}
+                            </td>
+                          </tr>
+                          <tr className="bg-base-200 hover:bg-base-100">
+                            <td className="py-5 px-6 md:px-8">Decomposition</td>
+                            <td className="py-5 px-6 md:px-8">
+                              {getYesNo(forecastingResult.use_decomposition)}
+                            </td>
+                          </tr>
+                        </>
+                      )}
                       <tr className="bg-base-200 hover:bg-base-100">
                         <td className="py-5 px-6 md:px-8">Auto Tune</td>
                         <td className="py-5 px-6 md:px-8">

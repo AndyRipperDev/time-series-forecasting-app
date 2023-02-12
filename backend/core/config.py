@@ -26,6 +26,7 @@ class Settings(BaseSettings):
 
     FILE_PREDICTED_RESULTS_FILENAME = 'predicted_results.csv'
     FILE_PREDICTED_TEST_RESULTS_FILENAME = 'predicted_test_results.csv'
+    FILE_BASELINE_RESULTS_FILENAME = 'baseline_results.csv'
 
     FIRST_SUPERUSER_EMAIL: str = "test@test.com"
     FIRST_SUPERUSER_PASSWORD: str = "Test"

@@ -35,6 +35,11 @@ const forecastingResultsAtom = atom({
   default: null
 });
 
+const forecastingBaselineResultsAtom = atom({
+  key: 'forecastingBaselineResults',
+  default: null
+});
+
 const forecastingPredictedResultsAtom = atom({
   key: 'forecastingPredictedResults',
   default: null
@@ -53,6 +58,7 @@ export {
   createdForecastingAtom,
   forecastingResultsAtom,
   forecastingResultAtom,
+  forecastingBaselineResultsAtom,
   forecastingPredictedResultsAtom,
   forecastingPredictedTestResultsAtom
 };
