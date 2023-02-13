@@ -5,14 +5,14 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as Yup from 'yup'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { projectAtom, projectDatasetTimePeriodOptionsAtom } from '../state'
-import { useAlertActions } from '../actions'
-import FormInput from '../components/FormInput'
-import BasicForm from '../components/Forms/BasicForm'
-import LoadingPage from '../components/Loadings/LoadingPage'
-import { history } from '../helpers'
-import FormTextArea from '../components/FormTextArea'
-import { useProjectService } from '../services/project.service'
+import { projectAtom, projectDatasetTimePeriodOptionsAtom } from '../../state'
+import { useAlertActions } from '../../actions'
+import FormInput from '../../components/FormInput'
+import BasicForm from '../../components/Forms/BasicForm'
+import LoadingPage from '../../components/Loadings/LoadingPage'
+import { history } from '../../helpers'
+import FormTextArea from '../../components/FormTextArea'
+import { useProjectService } from '../../services/project.service'
 
 export { ProjectAddEditPage }
 

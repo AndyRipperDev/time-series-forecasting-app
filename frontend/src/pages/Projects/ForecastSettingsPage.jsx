@@ -9,18 +9,18 @@ import {
   modelParamsAtom,
   projectTimePeriodAtom,
   createdForecastingAtom,
-} from '../state'
+} from '../../state'
 import { useEffect, useState } from 'react'
-import { useProjectService } from '../services/project.service'
-import LoadingPage from '../components/Loadings/LoadingPage'
-import Plot from 'react-plotly.js'
+import { useProjectService } from '../../services/project.service'
+import LoadingPage from '../../components/Loadings/LoadingPage'
+import Plot from '../../../node_modules/react-plotly.js/react-plotly'
 import daisyuiColors from 'daisyui/src/colors/themes'
-import { useForecastService } from '../services/forecast.service'
-import ParamSettingItem from '../components/ParamSettingItem'
-import ParamHeading from '../components/ParamHeading'
-import ParamSubheading from '../components/ParamSubheading'
-import FormInput from '../components/FormInput'
-import { history } from '../helpers'
+import { useForecastService } from '../../services/forecast.service'
+import ParamSettingItem from '../../components/ParamSettingItem'
+import ParamHeading from '../../components/ParamHeading'
+import ParamSubheading from '../../components/ParamSubheading'
+import FormInput from '../../components/FormInput'
+import { history } from '../../helpers'
 
 const ForecastSettingsPage = () => {
   const { id } = useParams()

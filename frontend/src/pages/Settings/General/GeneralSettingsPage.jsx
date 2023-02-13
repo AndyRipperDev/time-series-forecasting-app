@@ -1,8 +1,8 @@
-import CenteredList from '../components/CenteredList'
-import { useUserService } from '../services'
+import CenteredList from '../../../components/CenteredList'
+import { useUserService } from '../../../services'
 import { useRecoilValue } from 'recoil'
-import { authAtom } from '../state'
-import GeneralSettingsItem from '../components/GeneralSettingsItem'
+import { authAtom } from '../../../state'
+import GeneralSettingsItem from '../../../components/GeneralSettingsItem'
 
 const GeneralSettingsPage = () => {
   const userService = useUserService()

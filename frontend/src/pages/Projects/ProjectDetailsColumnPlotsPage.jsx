@@ -5,11 +5,11 @@ import { useRecoilValue } from 'recoil'
 
 import daisyuiColors from 'daisyui/src/colors/themes'
 
-import { projectAtom, projectDatasetColumnsViewAtom, themeAtom } from '../state'
-import { useProjectService } from '../services/project.service'
+import { projectAtom, projectDatasetColumnsViewAtom, themeAtom } from '../../state'
+import { useProjectService } from '../../services/project.service'
 
-import Plot from 'react-plotly.js'
-import LoadingPage from '../components/Loadings/LoadingPage'
+import Plot from '../../../node_modules/react-plotly.js/react-plotly'
+import LoadingPage from '../../components/Loadings/LoadingPage'
 
 export { ProjectDetailsColumnPlotsPage }
 

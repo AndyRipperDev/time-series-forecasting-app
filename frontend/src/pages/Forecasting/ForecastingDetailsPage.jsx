@@ -1,22 +1,22 @@
 import { useParams } from 'react-router-dom'
-import LoadingPage from '../components/Loadings/LoadingPage'
+import LoadingPage from '../../components/Loadings/LoadingPage'
 import { useEffect, useState } from 'react'
-import { history, useDateUtils } from '../helpers'
-import { useForecastService } from '../services/forecast.service'
+import { history, useDateUtils } from '../../helpers'
+import { useForecastService } from '../../services/forecast.service'
 import {
   forecastingResultAtom,
   forecastingPredictedResultsAtom,
   forecastingPredictedTestResultsAtom,
   projectDatasetColumnsViewAtom,
   themeAtom, forecastingBaselineResultsAtom,
-} from '../state'
+} from '../../state'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
-import Loading from '../components/Loadings/Loading'
-import ParamSettingItem from '../components/ParamSettingItem'
-import ParamSubheading from '../components/ParamSubheading'
-import Plot from 'react-plotly.js'
+import Loading from '../../components/Loadings/Loading'
+import ParamSettingItem from '../../components/ParamSettingItem'
+import ParamSubheading from '../../components/ParamSubheading'
+import Plot from '../../../node_modules/react-plotly.js/react-plotly'
 import daisyuiColors from 'daisyui/src/colors/themes'
-import { useProjectService } from '../services/project.service'
+import { useProjectService } from '../../services/project.service'
 
 const ForecastingDetailsPage = () => {
   const { id } = useParams()

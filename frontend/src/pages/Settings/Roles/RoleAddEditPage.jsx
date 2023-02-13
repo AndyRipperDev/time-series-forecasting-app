@@ -5,14 +5,14 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as Yup from 'yup'
 import { useRecoilValue } from 'recoil'
 
-import { roleAtom } from '../state'
-import { useAlertActions } from '../actions'
-import FormInput from '../components/FormInput'
-import BasicForm from '../components/Forms/BasicForm'
-import LoadingPage from '../components/Loadings/LoadingPage'
-import { history } from '../helpers'
-import { useRoleService } from '../services/role.service'
-import FormTextArea from '../components/FormTextArea'
+import { roleAtom } from '../../../state'
+import { useAlertActions } from '../../../actions'
+import FormInput from '../../../components/FormInput'
+import BasicForm from '../../../components/Forms/BasicForm'
+import LoadingPage from '../../../components/Loadings/LoadingPage'
+import { history } from '../../../helpers'
+import { useRoleService } from '../../../services/role.service'
+import FormTextArea from '../../../components/FormTextArea'
 
 export { RoleAddEditPage }
 

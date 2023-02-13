@@ -3,9 +3,9 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { projectAtom, projectDatasetColumnOptionsAtom } from 'state'
 import { useParams } from 'react-router-dom'
-import { useProjectService } from '../services/project.service'
-import LoadingPage from '../components/Loadings/LoadingPage'
-import { history } from '../helpers'
+import { useProjectService } from '../../services/project.service'
+import LoadingPage from '../../components/Loadings/LoadingPage'
+import { history } from '../../helpers'
 
 const ProjectCheckDatasetColumnsPage = () => {
   const { id } = useParams()

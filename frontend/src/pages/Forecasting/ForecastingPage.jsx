@@ -1,11 +1,11 @@
-import { useForecastService } from '../services/forecast.service'
+import { useForecastService } from '../../services/forecast.service'
 import { useRecoilValue } from 'recoil'
-import { forecastingResultsAtom } from '../state'
+import { forecastingResultsAtom } from '../../state'
 import { useEffect } from 'react'
-import Loading from '../components/Loadings/Loading'
-import LoadingPage from '../components/Loadings/LoadingPage'
+import Loading from '../../components/Loadings/Loading'
+import LoadingPage from '../../components/Loadings/LoadingPage'
 import { Link } from 'react-router-dom'
-import { useDateUtils } from '../helpers/dateUtils'
+import { useDateUtils } from '../../helpers/dateUtils'
 
 const ForecastingPage = () => {
   const forecastService = useForecastService()

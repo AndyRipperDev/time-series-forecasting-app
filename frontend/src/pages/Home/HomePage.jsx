@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useRecoilValue } from 'recoil'
 
 import { authAtom } from 'state'
-import { useUserService } from '../services'
+import { useUserService } from '../../services'
 import { Link } from 'react-router-dom'
 
 const HomePage = () => {

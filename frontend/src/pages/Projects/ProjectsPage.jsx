@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
-import { projectsAtom } from '../state'
+import { projectsAtom } from '../../state'
 import { Link } from 'react-router-dom'
-import LoadingPage from '../components/Loadings/LoadingPage'
-import TextHeading from '../components/TextHeading'
-import { useProjectService } from '../services/project.service'
+import LoadingPage from '../../components/Loadings/LoadingPage'
+import TextHeading from '../../components/TextHeading'
+import { useProjectService } from '../../services/project.service'
 
 const ProjectsPage = () => {
   const projectService = useProjectService()

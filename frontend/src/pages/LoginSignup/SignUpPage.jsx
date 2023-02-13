@@ -1,11 +1,11 @@
-import LoginForm from '../components/Forms/LoginForm'
+import SignUpForm from '../../components/Forms/SignUpForm'
 import { useEffect } from 'react'
 import { useRecoilValue } from 'recoil'
-import { authAtom } from '../state'
+import { authAtom } from '../../state'
 import { useNavigate } from 'react-router-dom'
-import CenteredPage from '../components/PageLayouts/CenteredPage'
+import CenteredPage from '../../components/PageLayouts/CenteredPage'
 
-const LoginPage = () => {
+const SignUpPage = () => {
   const auth = useRecoilValue(authAtom)
   const navigate = useNavigate()
   useEffect(() => {
@@ -14,9 +14,9 @@ const LoginPage = () => {
 
   return (
     <CenteredPage>
-      <LoginForm />
+      <SignUpForm />
     </CenteredPage>
   )
 }
 
-export default LoginPage
+export default SignUpPage

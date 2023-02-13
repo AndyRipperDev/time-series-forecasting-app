@@ -1,6 +1,6 @@
-import SettingsItem from '../components/SettingsItem'
-import CenteredList from '../components/CenteredList'
-import { useUserService } from '../services'
+import SettingsItem from '../../components/SettingsItem'
+import CenteredList from '../../components/CenteredList'
+import { useUserService } from '../../services'
 
 const SettingsPage = () => {
   const userService = useUserService()
