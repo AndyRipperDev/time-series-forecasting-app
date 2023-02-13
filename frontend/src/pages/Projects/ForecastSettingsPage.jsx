@@ -21,6 +21,15 @@ import ParamHeading from '../../components/ParamHeading'
 import ParamSubheading from '../../components/ParamSubheading'
 import FormInput from '../../components/FormInput'
 import { history } from '../../helpers'
+import SelectInput from '../../components/Inputs/SelectInput'
+import CheckBoxInput from '../../components/Inputs/CheckBoxInput'
+import Dropdown from '../../components/ActionUI/Dropdown/Dropdown'
+import DropdownItem from '../../components/ActionUI/Dropdown/DropdownItem'
+import SelectableBadgeArea from '../../components/ActionUI/SelectableBadge/SelectableBadgeArea'
+import SelectableBadge from '../../components/ActionUI/SelectableBadge/SelectableBadge'
+import NumberInput from '../../components/Inputs/NumberInput'
+import TextInput from '../../components/Inputs/TextInput'
+import ForecastIcon from '../../components/SVG/Path/General/ForecastIcon'
 
 const ForecastSettingsPage = () => {
   const { id } = useParams()
@@ -502,10 +511,7 @@ const ForecastSettingsPage = () => {
 
               <ParamHeading>Choose Data</ParamHeading>
               <ParamSettingItem title="Select Column">
-                <select
-                  className="select select-bordered w-full"
-                  onChange={(e) => handleSelectedColumnChange(e)}
-                >
+                <SelectInput onChange={(e) => handleSelectedColumnChange(e)}>
                   <option
                     value=""
                     disabled={projectDatasetColumnsView !== null}
@@ -520,7 +526,7 @@ const ForecastSettingsPage = () => {
                         </option>
                       )
                   )}
-                </select>
+                </SelectInput>
               </ParamSettingItem>
 
               {loadingColView ? (
@@ -629,12 +635,7 @@ const ForecastSettingsPage = () => {
                       <div className={'w-full'}>
                         {forecastingModels && (
                           <ParamSettingItem title="Select Forecasting Model">
-                            <select
-                              className="select select-bordered w-full"
-                              onChange={(e) =>
-                                handleSelectedForecastingModelChange(e)
-                              }
-                            >
+                            <SelectInput onChange={(e) => handleSelectedForecastingModelChange(e)}>
                               <option
                                 value=""
                                 disabled={forecastingModel !== null}
@@ -646,7 +647,7 @@ const ForecastSettingsPage = () => {
                                   {model}
                                 </option>
                               ))}
-                            </select>
+                            </SelectInput>
                           </ParamSettingItem>
                         )}
                       </div>
@@ -665,9 +666,7 @@ const ForecastSettingsPage = () => {
                                   title="Log Transform"
                                   inGroup={true}
                                 >
-                                  <input
-                                    type={'checkbox'}
-                                    className={'checkbox checkbox-primary'}
+                                  <CheckBoxInput
                                     checked={modelParams.preprocessing.useLog}
                                     onChange={(e) => handleUseLogChange(e)}
                                   />
@@ -676,12 +675,8 @@ const ForecastSettingsPage = () => {
                                   title="Use Decomposition"
                                   inGroup={true}
                                 >
-                                  <input
-                                    type={'checkbox'}
-                                    className={'checkbox checkbox-primary'}
-                                    checked={
-                                      modelParams.preprocessing.useDecompose
-                                    }
+                                  <CheckBoxInput
+                                    checked={modelParams.preprocessing.useDecompose}
                                     onChange={(e) => handleDecompositionChange(e)}
                                   />
                                 </ParamSettingItem>
@@ -700,16 +695,10 @@ const ForecastSettingsPage = () => {
                                     <div
                                       className={'flex space-x-4 items-center'}
                                     >
-                                      <input
-                                        type={'number'}
+                                      <NumberInput
                                         min={1}
-                                        className={
-                                          'input input-bordered w-full max-w-xs'
-                                        }
                                         value={modelParams.lagWindow}
-                                        onChange={(e) =>
-                                          handleLagWindowChange(e)
-                                        }
+                                        onChange={(e) => handleLagWindowChange(e)}
                                       />
                                       <p className={'font-bold'}>
                                         {
@@ -728,76 +717,29 @@ const ForecastSettingsPage = () => {
                                         title="Lagged Features"
                                         inGroup={true}
                                       >
-                                        <div className="dropdown dropdown-hover dropdown-bottom dropdown-end">
-                                          <label
-                                            tabIndex={0}
-                                            className="btn m-1"
-                                          >
-                                            Select
-                                          </label>
-                                          <ul
-                                            tabIndex={0}
-                                            className="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52"
-                                          >
+                                        <Dropdown title={'Select'}>
                                             {modelParams.laggedFeatures?.map(
                                               (feature) =>
                                                 !feature.value && (
-                                                  <li key={feature.name}>
-                                                    <button
-                                                      onClick={(e) =>
-                                                        handleLaggedFeatureChange(
-                                                          e,
-                                                          feature.name
-                                                        )
-                                                      }
-                                                    >
-                                                      {feature.name}
-                                                    </button>
-                                                  </li>
+                                                  <DropdownItem key={feature.name}  onClick={(e) => handleLaggedFeatureChange(e, feature.name)}>
+                                                    {feature.name}
+                                                  </DropdownItem>
                                                 )
                                             )}
-                                          </ul>
-                                        </div>
+                                        </Dropdown>
                                       </ParamSettingItem>
-                                      <div
-                                        className={'flex space-x-6 flex-wrap'}
-                                      >
+                                      <SelectableBadgeArea>
                                         {modelParams.laggedFeatures?.map(
                                           (feature) =>
                                             feature.value && (
-                                              <div
+                                              <SelectableBadge
                                                 key={feature.name}
-                                                className="badge badge-primary gap-4 rounded-xl py-6 my-2"
-                                              >
-                                                {feature.name}
-                                                <button
-                                                  className="btn btn-square btn-sm"
-                                                  onClick={(e) =>
-                                                    handleLaggedFeatureChange(
-                                                      e,
-                                                      feature.name
-                                                    )
-                                                  }
-                                                >
-                                                  <svg
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    className="h-5 w-5"
-                                                    fill="none"
-                                                    viewBox="0 0 24 24"
-                                                    stroke="currentColor"
-                                                  >
-                                                    <path
-                                                      strokeLinecap="round"
-                                                      strokeLinejoin="round"
-                                                      strokeWidth="2"
-                                                      d="M6 18L18 6M6 6l12 12"
-                                                    />
-                                                  </svg>
-                                                </button>
-                                              </div>
+                                                title={feature.name}
+                                                onClick={(e) => handleLaggedFeatureChange(e, feature.name)}
+                                              />
                                             )
                                         )}
-                                      </div>
+                                      </SelectableBadgeArea>
                                     </>
                                   )}
                                 </>
@@ -809,16 +751,10 @@ const ForecastSettingsPage = () => {
                               inGroup={true}
                             >
                               <div className={'flex space-x-4 items-center'}>
-                                <input
-                                  type={'number'}
+                                <NumberInput
                                   min={1}
-                                  className={
-                                    'input input-bordered w-full max-w-xs'
-                                  }
                                   value={modelParams.forecastHorizon}
-                                  onChange={(e) =>
-                                    handleForecastHorizonChange(e)
-                                  }
+                                  onChange={(e) => handleForecastHorizonChange(e)}
                                 />
                                 <p className={'font-bold'}>
                                   {projectTimePeriod?.project_time_period?.unit}
@@ -827,9 +763,7 @@ const ForecastSettingsPage = () => {
                               </div>
                             </ParamSettingItem>
                             <ParamSettingItem title="Auto tune model">
-                              <input
-                                type={'checkbox'}
-                                className={'checkbox checkbox-primary'}
+                              <CheckBoxInput
                                 checked={modelParams.autoTune}
                                 onChange={(e) => handleAutoTuneChange(e)}
                               />
@@ -847,37 +781,27 @@ const ForecastSettingsPage = () => {
                                     title="Method"
                                     inGroup={true}
                                   >
-                                    <select
-                                      className="select select-bordered w-full"
-                                      value={
-                                        modelParams.autoTuneParams.bruteForce
-                                      }
-                                      onChange={(e) =>
-                                        handleAutoTuneMethodChange(e)
-                                      }
+                                    <SelectInput value={modelParams.autoTuneParams.bruteForce}
+                                                 onChange={(e) =>handleAutoTuneMethodChange(e)}
                                     >
                                       <option value={true}>Brute Force</option>
                                       <option value={false}>
                                         Hyperparameter Optimization
                                       </option>
-                                    </select>
+                                    </SelectInput>
                                   </ParamSettingItem>
                                 )}
                                 <ParamSettingItem
                                   title="Level"
                                   info={getTuneLevelInfo()}
                                 >
-                                  <select
-                                    className="select select-bordered w-full"
-                                    value={modelParams.autoTuneParams.tuneLevel}
-                                    onChange={(e) =>
-                                      handleAutoTuneLevelChange(e)
-                                    }
+                                  <SelectInput value={modelParams.autoTuneParams.tuneLevel}
+                                               onChange={(e) => handleAutoTuneLevelChange(e)}
                                   >
                                     <option value={1}>Low</option>
                                     <option value={2}>Medium</option>
                                     <option value={3}>High</option>
-                                  </select>
+                                  </SelectInput>
                                 </ParamSettingItem>
                               </div>
                             ) : (
@@ -896,64 +820,34 @@ const ForecastSettingsPage = () => {
                                         info={getParamInfo(key)}
                                       >
                                         {isBoolean(modelParams.params[key]) && (
-                                          <input
-                                            type={'checkbox'}
-                                            className={
-                                              'checkbox checkbox-primary'
-                                            }
+                                          <CheckBoxInput
                                             checked={modelParams.params[key]}
-                                            onChange={(e) =>
-                                              handleBoolParamChange(e, key)
-                                            }
+                                            onChange={(e) => handleBoolParamChange(e, key)}
                                           />
                                         )}
                                         {isString(modelParams.params[key]) &&
                                           key !== 'hidden_layer_sizes' && (
-                                            <select
-                                              className="select select-bordered w-full"
-                                              value={modelParams.params[key]}
-                                              onChange={(e) =>
-                                                handleSelectParamChange(e, key)
-                                              }
+                                            <SelectInput value={modelParams.params[key]}
+                                                         onChange={(e) => handleSelectParamChange(e, key)}
                                             >
                                               {getSelectOptions(key)}
-                                            </select>
+                                            </SelectInput>
                                           )}
 
                                         {(isInt(modelParams.params[key]) ||
                                           isFloat(modelParams.params[key])) && (
-                                          <input
-                                            type={'number'}
+                                          <NumberInput
                                             min={-1}
-                                            step={
-                                              isInt(modelParams.params[key])
-                                                ? 1
-                                                : 0.01
-                                            }
-                                            max={
-                                              key.toUpperCase() === 'D'
-                                                ? 2
-                                                : null
-                                            }
-                                            className={
-                                              'input input-bordered w-full max-w-xs'
-                                            }
+                                            step={isInt(modelParams.params[key]) ? 1 : 0.01}
+                                            max={key.toUpperCase() === 'D' ? 2 : null}
                                             value={modelParams.params[key]}
-                                            onChange={(e) =>
-                                              handleNumberParamChange(e, key)
-                                            }
+                                            onChange={(e) => handleNumberParamChange(e, key)}
                                           />
                                         )}
                                         {key === 'hidden_layer_sizes' && (
-                                          <input
-                                            type={'text'}
-                                            className={
-                                              'input input-bordered w-full max-w-xs'
-                                            }
+                                          <TextInput
                                             value={modelParams.params[key]}
-                                            onChange={(e) =>
-                                              handleSelectParamChange(e, key)
-                                            }
+                                            onChange={(e) => handleSelectParamChange(e, key)}
                                           />
                                         )}
                                       </ParamSettingItem>
@@ -971,20 +865,7 @@ const ForecastSettingsPage = () => {
                           className="btn btn-primary btn-wide gap-3"
                           onClick={handleForecastStart}
                         >
-                          <svg
-                            className="w-6 h-6"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                            />
-                          </svg>
+                          <ForecastIcon size={6}/>
                           Forecast
                         </button>
                       </div>
