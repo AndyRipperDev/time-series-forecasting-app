@@ -241,10 +241,10 @@ const ForecastingPage = () => {
                                             <td className="py-2 px-6 md:px-8">
                                               <div
                                                 className={
-                                                  'flex flex-col md:flex-row items-center '
+                                                  'flex flex-col 3xl:flex-row items-center '
                                                 }
                                               >
-                                                <div className="btn-group mx-2 lg:mx-4 mb-2 md:mb-0">
+                                                <div className="2xl:btn-group mx-2 lg:mx-4 mb-2 md:mb-0">
                                                   <Link
                                                     to={`/forecasting/${forecast.id}`}
                                                     className="btn gap-2 hover:text-info"

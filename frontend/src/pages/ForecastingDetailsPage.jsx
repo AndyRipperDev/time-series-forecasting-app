@@ -541,6 +541,24 @@ const ForecastingDetailsPage = () => {
                           </tr>
                         </>
                       )}
+                      {forecastingResult.model !== 'ARIMA' && forecastingResult.model !== 'SARIMA' && (
+                        <>
+                          <tr className="bg-base-200 hover:bg-base-100">
+                            <td className="py-5 px-6 md:px-8">Lag Window</td>
+                            <td className="py-5 px-6 md:px-8">
+                              {forecastingResult.lag_window}
+                            </td>
+                          </tr>
+                          {forecastingResult.lagged_features && (
+                            <tr className="bg-base-200 hover:bg-base-100">
+                              <td className="py-5 px-6 md:px-8">Lagged Features</td>
+                              <td className="py-5 px-6 md:px-8">
+                                {forecastingResult.lagged_features}
+                              </td>
+                            </tr>
+                          )}
+                        </>
+                      )}
                       <tr className="bg-base-200 hover:bg-base-100">
                         <td className="py-5 px-6 md:px-8">Auto Tune</td>
                         <td className="py-5 px-6 md:px-8">

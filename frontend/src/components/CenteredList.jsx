@@ -1,7 +1,7 @@
 const CenteredList = (props) => {
   return (
-    <div className="flex justify-center items-center flex-col mb-6">
-      {props.title && <h2 className="card-title">{props.title}</h2>}
+    <div className="mb-6 w-full">
+      {props.title && <h2 className="card-title font-bold text-2xl">{props.title}</h2>}
       {props.children}
     </div>
   )

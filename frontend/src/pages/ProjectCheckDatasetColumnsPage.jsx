@@ -109,6 +109,11 @@ const ProjectCheckDatasetColumnsPage = () => {
       })
   }
 
+  const isRemovedListEmpty = () => {
+    return project?.dataset?.columns?.filter((column) => column.is_removed).length === 0
+  }
+
+
   const loading = !project || !projectDatasetColumnOptions
   return (
     <div>
@@ -267,24 +272,21 @@ const ProjectCheckDatasetColumnsPage = () => {
               </div>
             </form>
 
-              <div>
-                {/*{project.dataset.columns.map((column) => column?.is_removed).length === 0 && (*/}
-                {/*  <div>*/}
-                {/*    ahoj*/}
-                {/*  </div>*/}
-                {/*)}*/}
-              <h1 className={'text-center text-2xl font-bold mb-6'}>
-                Removed Dataset Columns
-              </h1>
-              {project.dataset.columns.map((column) => column?.is_removed && (
-                <div key={column.id} className={'flex items-center justify-between bg-base-200 rounded-2xl shadow-xl px-6 py-3 mb-6'}>
-                  <p className={'font-semibold'}>{column.name}</p>
-                  <button className="btn hover:text-info" onClick={(e) => handleIsRestoredChange(e, column.id)}>
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                  </button>
+              {!isRemovedListEmpty() && (
+                <div>
+                  <h1 className={'text-center text-2xl font-bold mb-6'}>
+                    Removed Dataset Columns
+                  </h1>
+                  {project.dataset.columns.map((column) => column?.is_removed && (
+                    <div key={column.id} className={'flex items-center justify-between bg-base-200 rounded-2xl shadow-xl px-6 py-3 mb-6'}>
+                      <p className={'font-semibold'}>{column.name}</p>
+                      <button className="btn hover:text-info" onClick={(e) => handleIsRestoredChange(e, column.id)}>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ))}
-              </div>
+              )}
             </div>
           )}
         </div>
