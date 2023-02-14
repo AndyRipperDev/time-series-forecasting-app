@@ -12,6 +12,7 @@ import {
   projectDatasetTimePeriodOptionsAtom,
   projectDatasetColumnsAtom,
   projectTimePeriodAtom,
+  projectStatsAtom,
 } from '../state'
 
 export { useProjectService }
@@ -34,6 +35,7 @@ function useProjectService() {
   const setProjectDatasetColumnsView = useSetRecoilState(
     projectDatasetColumnsViewAtom
   )
+  const setProjectStats = useSetRecoilState(projectStatsAtom)
   const forecastApi = useAxiosWrapper().forecastApi
 
   return {
@@ -46,6 +48,7 @@ function useProjectService() {
     getDatasetColumnOptions,
     getDatasetTimePeriodOptions,
     getProjectTimePeriod,
+    getProjectStats,
     update,
     updateWithDataset,
     updateDatasetColumns,
@@ -67,6 +70,7 @@ function useProjectService() {
       projectDatasetTimePeriodOptionsAtom
     ),
     resetProjectTimePeriod: useResetRecoilState(projectTimePeriodAtom),
+    resetProjectStats: useResetRecoilState(projectStatsAtom),
   }
 
   function getAll() {
@@ -143,6 +147,13 @@ function useProjectService() {
       .get(`${urlPartTimePeriod}/project/${projectId}`)
       .then((response) => response.data)
       .then(setProjectTimePeriod)
+  }
+
+  function getProjectStats() {
+    return forecastApi
+      .get(`${urlPartProjects}/stats/`)
+      .then((response) => response.data)
+      .then(setProjectStats)
   }
 
   function create(project) {

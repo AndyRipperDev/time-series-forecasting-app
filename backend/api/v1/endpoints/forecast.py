@@ -29,6 +29,8 @@ router = APIRouter(
 )
 
 
+
+
 @router.post("/{project_id}/", response_model=forecasting_schema.ForecastingSchema, status_code=status.HTTP_201_CREATED)
 def create_forecast(project_id: int, forecast: forecasting_schema.ForecastingCreate, background_tasks: BackgroundTasks,
                     column: str = None, db: Session = Depends(dependencies.get_db),
@@ -133,6 +135,16 @@ def read_forecasting_status(forecast_id: int, db: Session = Depends(dependencies
     return {'status': db_forecasting.status}
 
 
+@router.get("/recent/", status_code=status.HTTP_200_OK)
+def read_recent_forecast(limit: int = 10, db: Session = Depends(dependencies.get_db),
+                     current_user: user_model.User = Depends(dependencies.get_current_active_user)):
+    db_forecasting = forecasting_crud.get_all_by_user_limit(db, user_id=current_user.id, limit=limit)
+    if db_forecasting is not None:
+        for forecast in db_forecasting:
+            project = forecast.datasetcolumns.datasets.project
+    return [] if db_forecasting is None else db_forecasting
+
+
 @router.get("/{forecast_id}/", status_code=status.HTTP_200_OK)
 def read_forecasting(forecast_id: int, db: Session = Depends(dependencies.get_db),
                      current_user: user_model.User = Depends(dependencies.get_current_active_user)):
@@ -148,6 +160,7 @@ def read_forecasting(forecast_id: int, db: Session = Depends(dependencies.get_db
 
 
     return db_forecasting
+
 
 
 @router.get("/{forecast_id}/baseline-results/", status_code=status.HTTP_200_OK)
@@ -335,4 +348,5 @@ def read_forecasting_evaluation_metrics(forecast_id: int, db: Session = Depends(
     response.headers["Content-Disposition"] = "attachment; filename=export.csv"
 
     return response
+
 

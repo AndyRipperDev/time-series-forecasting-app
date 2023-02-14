@@ -12,6 +12,7 @@ import {
   forecastingBaselineResultsAtom,
   forecastingPredictedResultsAtom,
   forecastingPredictedTestResultsAtom,
+  forecastingResultsRecentAtom,
 } from '../state'
 
 export { useForecastService }
@@ -22,6 +23,7 @@ function useForecastService() {
   const setForecastingModel = useSetRecoilState(forecastingModelAtom)
   const setForecastingStatus = useSetRecoilState(forecastingStatusAtom)
   const setForecastingResult = useSetRecoilState(forecastingResultAtom)
+  const setForecastingResultsRecent = useSetRecoilState(forecastingResultsRecentAtom)
 
   const [forecastingResults, setForecastingResults] = useRecoilState(forecastingResultsAtom)
   // const setForecastingResults = useSetRecoilState(forecastingResultsAtom)
@@ -43,6 +45,7 @@ function useForecastService() {
     getForecastingStatus,
     getForecastingResult,
     getForecastingResults,
+    getForecastingResultsRecent,
     getForecastingBaselineResults,
     getForecastingPredictedResults,
     getForecastingPredictedTestResults,
@@ -66,6 +69,7 @@ function useForecastService() {
     resetForecastingPredictedTestResults: useResetRecoilState(
       forecastingPredictedTestResultsAtom
     ),
+    resetForecastingResultsRecent: useResetRecoilState(forecastingResultsRecentAtom),
   }
 
   function createWithCustomBody(forecast) {
@@ -126,6 +130,13 @@ function useForecastService() {
       .get(`${urlPartForecast}/user/`)
       .then((response) => response.data)
       .then(setForecastingResults)
+  }
+
+  function getForecastingResultsRecent(limit=10) {
+    return forecastApi
+      .get(`${urlPartForecast}/recent/?limit=${limit}`)
+      .then((response) => response.data)
+      .then(setForecastingResultsRecent)
   }
 
   function getForecastingBaselineResults(id) {

@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from core.schemas import forecasting as forecasting_schema
@@ -28,6 +30,27 @@ def get_all_by_project(db: Session, project_id: int):
     ).all()
 
 
+def get_all_by_user_week_limit(db: Session, user_id: int, week_limit: int = 1):
+    current_time = datetime.now()
+    past_time = current_time - timedelta(days=7 * week_limit)
+
+    return db.query(
+        forecasting_model.Forecasting
+    ).filter(
+        forecasting_model.Forecasting.column_id == dataset_column_model.DatasetColumn.id,
+    ).filter(
+        dataset_column_model.DatasetColumn.dataset_id == dataset_model.Dataset.id,
+    ).filter(
+        dataset_model.Dataset.project_id == project_model.Project.id,
+    ).filter(
+        project_model.Project.user_id == user_id,
+    ).filter(
+        forecasting_model.Forecasting.created_at > past_time,
+    ).order_by(
+        desc(forecasting_model.Forecasting.created_at)
+    ).all()
+
+
 def get_all_by_user(db: Session, user_id: int):
     return db.query(
         forecasting_model.Forecasting
@@ -39,6 +62,26 @@ def get_all_by_user(db: Session, user_id: int):
         dataset_model.Dataset.project_id == project_model.Project.id,
     ).filter(
         project_model.Project.user_id == user_id,
+    ).order_by(
+        desc(forecasting_model.Forecasting.created_at)
+    ).all()
+
+
+def get_all_by_user_limit(db: Session, user_id: int, limit: int = 10):
+    return db.query(
+        forecasting_model.Forecasting
+    ).filter(
+        forecasting_model.Forecasting.column_id == dataset_column_model.DatasetColumn.id,
+    ).filter(
+        dataset_column_model.DatasetColumn.dataset_id == dataset_model.Dataset.id,
+    ).filter(
+        dataset_model.Dataset.project_id == project_model.Project.id,
+    ).filter(
+        project_model.Project.user_id == user_id,
+    ).order_by(
+        desc(forecasting_model.Forecasting.created_at)
+    ).limit(
+        limit
     ).all()
 
 
