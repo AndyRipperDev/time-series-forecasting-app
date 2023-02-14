@@ -24,8 +24,3 @@ class Forecasting(Base):
 
     column_id = Column(Integer, ForeignKey("datasetcolumn.id", ondelete='CASCADE'))
 
-    evaluation_metrics_id = Column(Integer, ForeignKey("evaluationmetrics.id"))
-    evaluation_metrics_baseline_id = Column(Integer, ForeignKey("evaluationmetrics.id"))
-
-    evaluation_metrics = relationship("EvaluationMetrics", backref=backref("Forecasting", uselist=False), foreign_keys="Forecasting.evaluation_metrics_id")
-    evaluation_metrics_baseline = relationship("EvaluationMetrics", foreign_keys="Forecasting.evaluation_metrics_baseline_id")

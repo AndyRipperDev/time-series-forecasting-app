@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom'
+import {Fragment} from 'react'
 import LoadingPage from '../../components/Loadings/LoadingPage'
 import { useEffect, useState } from 'react'
 import { history, useDateUtils } from '../../helpers'
@@ -403,98 +404,53 @@ const ForecastingDetailsPage = () => {
                   </div>
                 )}
 
-                {forecastingResult.status === 'Finished' && (
+                {forecastingResult.status === 'Finished' && forecastingResult?.evaluationmetrics && (
                   <>
-                    {forecastingResult?.evaluation_metrics && (
-                      <>
-                        <h2 className={'text-2xl font-bold self-start mb-4 mt-6'}>
-                          Forecast Results
+                    {forecastingResult.evaluationmetrics.map((metric) => (
+                      <Fragment key={metric.id}>
+                        <h2 key={metric.id} className={'text-2xl font-bold self-start mb-4 mt-6'}>
+                          {metric.type} Results
                         </h2>
                         <div className="stats stats-vertical lg:stats-horizontal text-left shadow-lg bg-base-200">
                           <div className="stat">
                             <div className="stat-title">MAE</div>
                             <div className="stat-value text-2xl">
-                              {getEvalMetricValue(forecastingResult.evaluation_metrics.MAE)}
+                              {getEvalMetricValue(metric?.MAE)}
                             </div>
                           </div>
                           <div className="stat">
                             <div className="stat-title">MSE</div>
                             <div className="stat-value text-2xl">
-                              {getEvalMetricValue(forecastingResult.evaluation_metrics.MSE)}
+                              {getEvalMetricValue(metric?.MSE)}
                             </div>
                           </div>
                           <div className="stat">
                             <div className="stat-title">MAPE</div>
                             <div className="stat-value text-2xl">
-                              {getEvalMetricValue(forecastingResult.evaluation_metrics.MAPE)}
+                              {getEvalMetricValue(metric?.MAPE)}
                             </div>
                           </div>
                           <div className="stat">
                             <div className="stat-title">SMAPE</div>
                             <div className="stat-value text-2xl">
-                              {getEvalMetricValue(forecastingResult.evaluation_metrics.SMAPE)}
+                              {getEvalMetricValue(metric?.SMAPE)}
                             </div>
                           </div>
                           <div className="stat">
                             <div className="stat-title">R2</div>
                             <div className="stat-value text-2xl">
-                              {getEvalMetricValue(forecastingResult.evaluation_metrics.R2)}
+                              {getEvalMetricValue(metric?.R2)}
                             </div>
                           </div>
                           <div className="stat">
                             <div className="stat-title">WAPE</div>
                             <div className="stat-value text-2xl">
-                              {getEvalMetricValue(forecastingResult.evaluation_metrics.WAPE)}
+                              {getEvalMetricValue(metric?.WAPE)}
                             </div>
                           </div>
                         </div>
-                      </>
-                    )}
-                    {forecastingResult?.evaluation_metrics_baseline && (
-                      <>
-                        <h2 className={'text-2xl font-bold self-start mb-4 mt-6'}>
-                          Baseline Results
-                        </h2>
-                        <div className="stats stats-vertical lg:stats-horizontal text-left shadow-lg bg-base-200">
-                          <div className="stat">
-                            <div className="stat-title">MAE</div>
-                            <div className="stat-value text-2xl">
-                              {getEvalMetricValue(forecastingResult.evaluation_metrics_baseline.MAE)}
-                            </div>
-                          </div>
-                          <div className="stat">
-                            <div className="stat-title">MSE</div>
-                            <div className="stat-value text-2xl">
-                              {getEvalMetricValue(forecastingResult.evaluation_metrics_baseline.MSE)}
-                            </div>
-                          </div>
-                          <div className="stat">
-                            <div className="stat-title">MAPE</div>
-                            <div className="stat-value text-2xl">
-                              {getEvalMetricValue(forecastingResult.evaluation_metrics_baseline.MAPE)}
-                            </div>
-                          </div>
-                          <div className="stat">
-                            <div className="stat-title">SMAPE</div>
-                            <div className="stat-value text-2xl">
-                              {getEvalMetricValue(forecastingResult.evaluation_metrics_baseline.SMAPE)}
-                            </div>
-                          </div>
-                          <div className="stat">
-                            <div className="stat-title">R2</div>
-                            <div className="stat-value text-2xl">
-                              {getEvalMetricValue(forecastingResult.evaluation_metrics_baseline.R2)}
-                            </div>
-                          </div>
-                          <div className="stat">
-                            <div className="stat-title">WAPE</div>
-                            <div className="stat-value text-2xl">
-                              {getEvalMetricValue(forecastingResult.evaluation_metrics_baseline.WAPE)}
-                            </div>
-                          </div>
-                        </div>
-                      </>
-                    )}
+                      </Fragment>
+                    ))}
                   </>
                   )}
 

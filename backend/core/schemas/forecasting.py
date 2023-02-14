@@ -2,7 +2,6 @@ from pydantic import BaseModel, Json
 import core.schemas.dataset as dataset
 from core.enums.forecasting_model_enum import ForecastingModel, ForecastingStatus
 
-
 class ForecastingBase(BaseModel):
     model: ForecastingModel
     status: ForecastingStatus
@@ -18,7 +17,6 @@ class ForecastingBase(BaseModel):
     params: Json | None = None
 
 
-
 class ForecastingCreate(ForecastingBase):
     pass
 
@@ -32,8 +30,6 @@ class Forecasting(ForecastingBase):
 
 class ForecastingSchema(Forecasting):
     column_id: int
-    evaluation_metrics_id: int | None = None
-    evaluation_metrics_baseline_id: int | None = None
 
 
 class ForecastingUpdateSchema(BaseModel):
@@ -49,6 +45,4 @@ class ForecastingUpdateSchema(BaseModel):
     lag_window: int | None = None
     lagged_features: str | None = None
     params: Json | None = None
-    evaluation_metrics_id: int | None = None
-    evaluation_metrics_baseline_id: int | None = None
 
