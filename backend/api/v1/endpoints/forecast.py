@@ -156,7 +156,8 @@ def read_forecasting(forecast_id: int, db: Session = Depends(dependencies.get_db
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
 
     time_period = db_forecasting.datasetcolumns.datasets.time_period
-    db_evaluation_metrics = db_forecasting.evaluationmetrics
+    db_evaluation_metrics = db_forecasting.evaluation_metrics
+    db_evaluation_metrics_baseline = db_forecasting.evaluation_metrics_baseline
 
 
     return db_forecasting

@@ -403,46 +403,99 @@ const ForecastingDetailsPage = () => {
                   </div>
                 )}
 
-                {forecastingResult.status === 'Finished' &&
-                  forecastingResult?.evaluationmetrics && (
-                    <div className="stats stats-vertical lg:stats-horizontal text-left shadow-lg bg-base-200">
-                      <div className="stat">
-                        <div className="stat-title">MAE</div>
-                        <div className="stat-value text-2xl">
-                          {getEvalMetricValue(forecastingResult.evaluationmetrics.MAE)}
+                {forecastingResult.status === 'Finished' && (
+                  <>
+                    {forecastingResult?.evaluation_metrics && (
+                      <>
+                        <h2 className={'text-2xl font-bold self-start mb-4 mt-6'}>
+                          Forecast Results
+                        </h2>
+                        <div className="stats stats-vertical lg:stats-horizontal text-left shadow-lg bg-base-200">
+                          <div className="stat">
+                            <div className="stat-title">MAE</div>
+                            <div className="stat-value text-2xl">
+                              {getEvalMetricValue(forecastingResult.evaluation_metrics.MAE)}
+                            </div>
+                          </div>
+                          <div className="stat">
+                            <div className="stat-title">MSE</div>
+                            <div className="stat-value text-2xl">
+                              {getEvalMetricValue(forecastingResult.evaluation_metrics.MSE)}
+                            </div>
+                          </div>
+                          <div className="stat">
+                            <div className="stat-title">MAPE</div>
+                            <div className="stat-value text-2xl">
+                              {getEvalMetricValue(forecastingResult.evaluation_metrics.MAPE)}
+                            </div>
+                          </div>
+                          <div className="stat">
+                            <div className="stat-title">SMAPE</div>
+                            <div className="stat-value text-2xl">
+                              {getEvalMetricValue(forecastingResult.evaluation_metrics.SMAPE)}
+                            </div>
+                          </div>
+                          <div className="stat">
+                            <div className="stat-title">R2</div>
+                            <div className="stat-value text-2xl">
+                              {getEvalMetricValue(forecastingResult.evaluation_metrics.R2)}
+                            </div>
+                          </div>
+                          <div className="stat">
+                            <div className="stat-title">WAPE</div>
+                            <div className="stat-value text-2xl">
+                              {getEvalMetricValue(forecastingResult.evaluation_metrics.WAPE)}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                      <div className="stat">
-                        <div className="stat-title">MSE</div>
-                        <div className="stat-value text-2xl">
-                          {getEvalMetricValue(forecastingResult.evaluationmetrics.MSE)}
+                      </>
+                    )}
+                    {forecastingResult?.evaluation_metrics_baseline && (
+                      <>
+                        <h2 className={'text-2xl font-bold self-start mb-4 mt-6'}>
+                          Baseline Results
+                        </h2>
+                        <div className="stats stats-vertical lg:stats-horizontal text-left shadow-lg bg-base-200">
+                          <div className="stat">
+                            <div className="stat-title">MAE</div>
+                            <div className="stat-value text-2xl">
+                              {getEvalMetricValue(forecastingResult.evaluation_metrics_baseline.MAE)}
+                            </div>
+                          </div>
+                          <div className="stat">
+                            <div className="stat-title">MSE</div>
+                            <div className="stat-value text-2xl">
+                              {getEvalMetricValue(forecastingResult.evaluation_metrics_baseline.MSE)}
+                            </div>
+                          </div>
+                          <div className="stat">
+                            <div className="stat-title">MAPE</div>
+                            <div className="stat-value text-2xl">
+                              {getEvalMetricValue(forecastingResult.evaluation_metrics_baseline.MAPE)}
+                            </div>
+                          </div>
+                          <div className="stat">
+                            <div className="stat-title">SMAPE</div>
+                            <div className="stat-value text-2xl">
+                              {getEvalMetricValue(forecastingResult.evaluation_metrics_baseline.SMAPE)}
+                            </div>
+                          </div>
+                          <div className="stat">
+                            <div className="stat-title">R2</div>
+                            <div className="stat-value text-2xl">
+                              {getEvalMetricValue(forecastingResult.evaluation_metrics_baseline.R2)}
+                            </div>
+                          </div>
+                          <div className="stat">
+                            <div className="stat-title">WAPE</div>
+                            <div className="stat-value text-2xl">
+                              {getEvalMetricValue(forecastingResult.evaluation_metrics_baseline.WAPE)}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                      <div className="stat">
-                        <div className="stat-title">MAPE</div>
-                        <div className="stat-value text-2xl">
-                          {getEvalMetricValue(forecastingResult.evaluationmetrics.MAPE)}
-                        </div>
-                      </div>
-                      <div className="stat">
-                        <div className="stat-title">SMAPE</div>
-                        <div className="stat-value text-2xl">
-                          {getEvalMetricValue(forecastingResult.evaluationmetrics.SMAPE)}
-                        </div>
-                      </div>
-                      <div className="stat">
-                        <div className="stat-title">R2</div>
-                        <div className="stat-value text-2xl">
-                          {getEvalMetricValue(forecastingResult.evaluationmetrics.R2)}
-                        </div>
-                      </div>
-                      <div className="stat">
-                        <div className="stat-title">WAPE</div>
-                        <div className="stat-value text-2xl">
-                          {getEvalMetricValue(forecastingResult.evaluationmetrics.WAPE)}
-                        </div>
-                      </div>
-                    </div>
+                      </>
+                    )}
+                  </>
                   )}
 
                 <h2 className={'text-2xl font-bold self-start mb-4 mt-16'}>

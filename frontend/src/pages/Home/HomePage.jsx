@@ -42,9 +42,9 @@ const HomePage = () => {
   return (
     <div className="flex flex-col items-center mt-10">
       <h1 className="font-bold text-3xl mb-8">
-        Welcome back {auth?.user?.full_name}
+        Welcome back, {auth?.user?.full_name}
       </h1>
-      <Link to="/projects/add" className="btn btn-active btn-primary gap-4">
+      <Link to="/projects/add" className="btn btn-primary gap-4">
         <CreateProjectIcon size={6}/>
         Create New Project
       </Link>

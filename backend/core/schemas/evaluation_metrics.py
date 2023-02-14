@@ -22,7 +22,7 @@ class EvaluationMetrics(EvaluationMetricsBase):
 
 
 class EvaluationMetricsSchema(EvaluationMetrics):
-    forecasting_id: int
+    pass
 
 
 class EvaluationMetricsUpdateSchema(BaseModel):

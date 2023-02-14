@@ -12,9 +12,8 @@ def get(db: Session, evaluation_metrics_id: int):
     return db.query(evaluation_metrics_model.EvaluationMetrics).filter(evaluation_metrics_model.EvaluationMetrics.id == evaluation_metrics_id).first()
 
 
-def create(db: Session, evaluation_metrics: evaluation_metrics_schema.EvaluationMetricsCreate, forecasting_id: int):
+def create(db: Session, evaluation_metrics: evaluation_metrics_schema.EvaluationMetricsCreate):
     db_evaluation_metrics = evaluation_metrics_model.EvaluationMetrics(**evaluation_metrics.dict())
-    db_evaluation_metrics.forecasting_id = forecasting_id
     db.add(db_evaluation_metrics)
     db.commit()
     db.refresh(db_evaluation_metrics)

@@ -32,6 +32,8 @@ class Forecasting(ForecastingBase):
 
 class ForecastingSchema(Forecasting):
     column_id: int
+    evaluation_metrics_id: int | None = None
+    evaluation_metrics_baseline_id: int | None = None
 
 
 class ForecastingUpdateSchema(BaseModel):
@@ -47,4 +49,6 @@ class ForecastingUpdateSchema(BaseModel):
     lag_window: int | None = None
     lagged_features: str | None = None
     params: Json | None = None
+    evaluation_metrics_id: int | None = None
+    evaluation_metrics_baseline_id: int | None = None
 

@@ -15,5 +15,3 @@ class EvaluationMetrics(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    forecasting_id = Column(Integer, ForeignKey("forecasting.id", ondelete='CASCADE'))
-    forecasting = relationship("Forecasting", backref=backref("evaluationmetrics", uselist=False, passive_deletes='all'))
