@@ -236,6 +236,55 @@ def read_forecasting_test_results(forecast_id: int, db: Session = Depends(depend
     return {'results': dataset}
 
 
+@router.get("/{forecast_id}/baseline-results/forecast/download/", status_code=status.HTTP_200_OK)
+def download_forecast_baseline_results(forecast_id: int, db: Session = Depends(dependencies.get_db),
+                     current_user: user_model.User = Depends(dependencies.get_current_active_user)):
+    db_forecasting = forecasting_crud.get(db, forecasting_id=forecast_id)
+    if db_forecasting is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Forecasting not found")
+
+    if db_forecasting.datasetcolumns.datasets.project.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
+
+    file_path_results = file_processing.get_filename_with_path(settings.FILE_BASELINE_RESULTS_FILENAME, db_forecasting.datasetcolumns.datasets.project.user_id, db_forecasting.datasetcolumns.datasets.project.id, db_forecasting.id)
+    df = pd.read_csv(file_path_results, sep=db_forecasting.datasetcolumns.datasets.delimiter)
+    df.rename(columns={df.columns[0]: "Datetime"}, inplace=True)
+    df.rename(columns={df.columns[1]: "predicted_mean"}, inplace=True)
+    
+    stream = io.StringIO()
+    df.tail(db_forecasting.forecast_horizon).to_csv(stream, index=False)
+    response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
+    response.headers["Content-Disposition"] = "attachment; filename=export.csv"
+
+    return response
+
+
+@router.get("/{forecast_id}/baseline-results/test/download/", status_code=status.HTTP_200_OK)
+def download_forecast_baseline_results(forecast_id: int, db: Session = Depends(dependencies.get_db),
+                                       current_user: user_model.User = Depends(dependencies.get_current_active_user)):
+    db_forecasting = forecasting_crud.get(db, forecasting_id=forecast_id)
+    if db_forecasting is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Forecasting not found")
+
+    if db_forecasting.datasetcolumns.datasets.project.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
+
+    file_path_results = file_processing.get_filename_with_path(settings.FILE_BASELINE_RESULTS_FILENAME,
+                                                               db_forecasting.datasetcolumns.datasets.project.user_id,
+                                                               db_forecasting.datasetcolumns.datasets.project.id,
+                                                               db_forecasting.id)
+    df = pd.read_csv(file_path_results, sep=db_forecasting.datasetcolumns.datasets.delimiter)
+    df.rename(columns={df.columns[0]: "Datetime"}, inplace=True)
+    df.rename(columns={df.columns[1]: "predicted_mean"}, inplace=True)
+
+    stream = io.StringIO()
+    df.head(len(df) - db_forecasting.forecast_horizon).to_csv(stream, index=False)
+    response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
+    response.headers["Content-Disposition"] = "attachment; filename=export.csv"
+
+    return response
+
+
 @router.get("/{forecast_id}/results/download/", status_code=status.HTTP_200_OK)
 def download_forecast(forecast_id: int, db: Session = Depends(dependencies.get_db),
                  current_user: user_model.User = Depends(dependencies.get_current_active_user)):
@@ -313,41 +362,5 @@ def download_forecast_combined_test(forecast_id: int, db: Session = Depends(depe
 
     return response
 
-
-@router.get("/{forecast_id}/evaluation_metrics/download", status_code=status.HTTP_200_OK)
-def read_forecasting_evaluation_metrics(forecast_id: int, db: Session = Depends(dependencies.get_db),
-                     current_user: user_model.User = Depends(dependencies.get_current_active_user)):
-    db_forecasting = forecasting_crud.get(db, forecasting_id=forecast_id)
-    if db_forecasting is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Forecasting not found")
-
-    if db_forecasting.datasetcolumns.datasets.project.user_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unauthorized user")
-
-    if db_forecasting.status != ForecastingStatus.Finished:
-        return {'results': {}}
-
-    file_path_test = file_processing.get_filename_with_path(settings.FILE_PREDICTED_TEST_RESULTS_FILENAME,
-                                                            db_forecasting.datasetcolumns.datasets.project.user_id,
-                                                            db_forecasting.datasetcolumns.datasets.project.id,
-                                                            db_forecasting.id)
-    df, df_train, df_test, df_seasonal = forecast_preprocessing.get_forecast_ready_dataset(db_forecasting, False)
-    df_test_results = pd.read_csv(file_path_test, sep=db_forecasting.datasetcolumns.datasets.delimiter)
-
-    df_res = pd.DataFrame()
-    df_res['timestamp'] = df_test_results.iloc[:, 0]
-    df_test_col = pd.DataFrame(df_test)
-    df_test_col = df_test_col.set_index(df_res.index)
-    df_res['y_test'] = df_test_col.iloc[:, 0].values
-    df_res['y_pred'] = df_test_results.iloc[:, 1]
-
-    df_metrics = evaluation_metrics.compute_metrics_raw(df_test_col.iloc[:, 0].values, df_test_results.iloc[:, 1])
-
-    stream = io.StringIO()
-    df_metrics.to_csv(stream, index=False)
-    response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
-    response.headers["Content-Disposition"] = "attachment; filename=export.csv"
-
-    return response
 
 

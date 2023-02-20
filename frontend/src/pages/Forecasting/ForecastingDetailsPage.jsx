@@ -23,6 +23,7 @@ import DocumentEmptyIcon from '../../components/SVG/Path/General/Documents/Docum
 import DocumentSearchIcon from '../../components/SVG/Path/General/Documents/DocumentSearchIcon'
 import DocumentRowsIcon from '../../components/SVG/Path/General/Documents/DocumentRowsIcon'
 import DocumentChartIcon from '../../components/SVG/Path/General/Documents/DocumentChartIcon'
+import DocumentCopyIcon from '../../components/SVG/Path/General/Documents/DocumentCopyIcon'
 
 const ForecastingDetailsPage = () => {
   const { id } = useParams()
@@ -89,6 +90,14 @@ const ForecastingDetailsPage = () => {
 
   const handleDownloadTest = (e) => {
     forecastService.downloadTestDataset(forecastingResult)
+  }
+
+  const handleDownloadBaselineTest = (e) => {
+    forecastService.downloadBaselineTestDataset(forecastingResult)
+  }
+
+  const handleDownloadBaselineForecast = (e) => {
+    forecastService.downloadBaselineForecastedDataset(forecastingResult)
   }
 
   const handleDownloadCombinedTest = (e) => {
@@ -284,6 +293,18 @@ const ForecastingDetailsPage = () => {
                                 <button onClick={handleDownloadCombinedTest}>
                                   <DocumentRowsIcon size={5}/>
                                   Combined Test
+                                </button>
+                              </li>
+                              <li>
+                                <button onClick={handleDownloadBaselineTest}>
+                                  <DocumentCopyIcon size={5}/>
+                                  Baseline Test
+                                </button>
+                              </li>
+                              <li>
+                                <button onClick={handleDownloadBaselineForecast}>
+                                  <DocumentCopyIcon size={5}/>
+                                  Baseline Forecast
                                 </button>
                               </li>
                               <li>

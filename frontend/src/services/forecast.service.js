@@ -52,6 +52,8 @@ function useForecastService() {
     getQuickForecastingStatus,
     downloadForecastedDataset,
     downloadTestDataset,
+    downloadBaselineTestDataset,
+    downloadBaselineForecastedDataset,
     downloadCombinedTestDataset,
     getEvalMetrics,
     delete: _delete,
@@ -164,6 +166,60 @@ function useForecastService() {
     return forecastApi
       .get(urlPartForecast + '/status/' + id)
       .then((response) => response.data)
+  }
+
+  function downloadBaselineTestDataset(forecast) {
+    return forecastApi({
+      url: `${urlPartForecast}/${forecast.id}/baseline-results/test/download/`,
+      method: 'GET',
+      responseType: 'blob', // important
+    }).then((response) => {
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      let filename =
+        'baseline_test_results_' +
+        forecast.datasetcolumns.datasets.project.title +
+        '_' +
+        forecast.datasetcolumns.name +
+        '_' +
+        forecast.model +
+        '_' +
+        forecast.split_ratio +
+        '_' +
+        (100 - forecast.split_ratio) +
+        '.csv'
+      link.setAttribute('download', filename)
+      document.body.appendChild(link)
+      link.click()
+    })
+  }
+
+  function downloadBaselineForecastedDataset(forecast) {
+    return forecastApi({
+      url: `${urlPartForecast}/${forecast.id}/baseline-results/forecast/download/`,
+      method: 'GET',
+      responseType: 'blob', // important
+    }).then((response) => {
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      let filename =
+        'baseline_forecasted_results_' +
+        forecast.datasetcolumns.datasets.project.title +
+        '_' +
+        forecast.datasetcolumns.name +
+        '_' +
+        forecast.model +
+        '_' +
+        forecast.split_ratio +
+        '_' +
+        (100 - forecast.split_ratio) +
+        '.csv'
+      link.setAttribute('download', filename)
+      document.body.appendChild(link)
+      link.click()
+    })
   }
 
   function downloadTestDataset(forecast) {
