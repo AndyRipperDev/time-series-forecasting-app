@@ -5,7 +5,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as Yup from 'yup'
 import { useRecoilValue } from 'recoil'
 
-import { userAtom } from '../../../state'
+import { authAtom, userAtom } from '../../../state'
 import { useAlertActions } from '../../../actions'
 import { useUserService } from '../../../services'
 import FormInput from '../../../components/FormInput'
@@ -14,14 +14,16 @@ import LoadingPage from '../../../components/Loadings/LoadingPage'
 import { history } from '../../../helpers'
 import Loading from '../../../components/Loadings/Loading'
 
-export { UserAddEditPage }
+export { EditAccountPage }
 
-function UserAddEditPage() {
-  const { id } = useParams()
-  const mode = { add: !id, edit: !!id }
+function EditAccountPage() {
   const userService = useUserService()
-  const alertActions = useAlertActions()
   const user = useRecoilValue(userAtom)
+  const auth = useRecoilValue(authAtom)
+
+  if(!auth) {
+    history.navigate('/settings/general')
+  }
 
   // form validation rules
   const validationSchema = Yup.object().shape({
@@ -31,7 +33,6 @@ function UserAddEditPage() {
       .email('Enter a valid email'),
     password: Yup.string()
       .transform((x) => (x === '' ? undefined : x))
-      .concat(mode.add ? Yup.string().required('Password is required') : null)
       .min(6, 'Password must be at least 6 characters'),
   })
 
@@ -43,9 +44,8 @@ function UserAddEditPage() {
 
   useEffect(() => {
     // fetch user details into recoil state in edit mode
-    if (mode.edit) {
-      userService.getById(id)
-    }
+    userService.getById(auth.user.id)
+
     return userService.resetUser
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -53,7 +53,7 @@ function UserAddEditPage() {
 
   useEffect(() => {
     // set default form values after user set in recoil state (in edit mode)
-    if (mode.edit && user) {
+    if (user) {
       reset(user)
     }
 
@@ -61,14 +61,7 @@ function UserAddEditPage() {
   }, [user])
 
   function onSubmit(data) {
-    return mode.add ? createUser(data) : updateUser(user.id, data)
-  }
-
-  function createUser(data) {
-    return userService.create(data).then(() => {
-      history.navigate('/settings/users')
-      alertActions.success('User added')
-    })
+    return updateUser(user.id, data)
   }
 
   function updateUser(id, data) {
@@ -77,12 +70,11 @@ function UserAddEditPage() {
     }
 
     return userService.update(id, data).then(() => {
-      history.navigate('/settings/users')
-      alertActions.success('User updated')
+      history.navigate('/settings/general')
     })
   }
 
-  const loading = mode.edit && !user
+  const loading = !user
   return (
     <>
       {!loading && (
@@ -90,8 +82,8 @@ function UserAddEditPage() {
           <BasicForm
             onSubmit={handleSubmit(onSubmit)}
             isSubmitting={isSubmitting}
-            heading={mode.add ? 'Create User' : 'Edit User'}
-            action={mode.add ? 'Create' : 'Save'}
+            heading={'Edit Account'}
+            action={'Save'}
           >
             <FormInput
               label={'Full Name'}
@@ -100,14 +92,6 @@ function UserAddEditPage() {
               forId={'fullNameId'}
               registerHookForm={register('full_name')}
               errorMessage={errors.fullName?.message}
-            />
-            <FormInput
-              label={'Active'}
-              type={'checkbox'}
-              name={'is_active'}
-              forId={'isActiveId'}
-              registerHookForm={register('is_active')}
-              errorMessage={errors.is_active?.message}
             />
             <FormInput
               label={'E-Mail'}
@@ -125,11 +109,9 @@ function UserAddEditPage() {
               registerHookForm={register('password')}
               errorMessage={errors.password?.message}
             />
-            {mode.edit && (
-              <em className="ml-1 text-left">
-                (Leave blank to keep the same password)
-              </em>
-            )}
+            <em className="ml-1 text-left">
+              (Leave blank to keep the same password)
+            </em>
           </BasicForm>
         </div>
       )}

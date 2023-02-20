@@ -19,16 +19,10 @@ const GeneralSettingsPage = () => {
             redirect={'settings/account/edit'}
           />
           <GeneralSettingsItem
-            title={'Change your password'}
-            action={'Change'}
-            isPrimary={true}
-            redirect={'settings/account/change-password'}
-          />
-          <GeneralSettingsItem
             title={'Delete your account'}
             action={'Delete'}
             isPrimary={false}
-            onClick={() => userService.delete(auth.user.id)}
+            onClick={() => userService.deleteAccount(auth.user.id)}
           />
         </CenteredList>
       </div>

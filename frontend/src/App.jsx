@@ -29,6 +29,8 @@ import { ProjectDetailsColumnPlotsPage } from './pages/Projects/ProjectDetailsCo
 import ForecastSettingsPage from './pages/Projects/ForecastSettingsPage'
 import ForecastingPage from './pages/Forecasting/ForecastingPage'
 import ForecastingDetailsPage from './pages/Forecasting/ForecastingDetailsPage'
+import { EditAccountPage } from './pages/Settings/General/EditAccountPage'
+import { UserRolesEditPage } from './pages/Settings/Users/UserRolesEditPage'
 
 function App() {
   history.navigate = useNavigate()
@@ -69,6 +71,14 @@ function App() {
             }
           />
           <Route
+            path="/settings/account/edit"
+            element={
+              <PrivateRoute>
+                <EditAccountPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/settings/users"
             element={
               <AdminRoute>
@@ -89,6 +99,14 @@ function App() {
             element={
               <AdminRoute>
                 <UserAddEditPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/settings/users/:id/roles"
+            element={
+              <AdminRoute>
+                <UserRolesEditPage />
               </AdminRoute>
             }
           />

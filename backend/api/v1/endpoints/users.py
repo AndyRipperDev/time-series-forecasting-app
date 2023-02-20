@@ -10,6 +10,7 @@ from core.schemas import role as role_schema
 
 from core.models import user as user_model
 
+from copy import deepcopy
 from api import dependencies
 
 router = APIRouter(
@@ -19,11 +20,11 @@ router = APIRouter(
 
 
 @router.post("/", response_model=user_schema.UserSchema, status_code=status.HTTP_201_CREATED)
-def create_user(user: user_schema.UserCreate, db: Session = Depends(dependencies.get_db)):
+def create_user(user: user_schema.UserAdminCreate, db: Session = Depends(dependencies.get_db)):
     db_user = user_crud.get_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
-    return user_crud.create(db=db, user=user)
+    return user_crud.create_as_admin(db=db, user=user)
 
 
 @router.get("/", response_model=list[user_schema.UserSchema], status_code=status.HTTP_200_OK)
@@ -90,6 +91,29 @@ def add_role_to_user(user_id: int, role_id: int, db: Session = Depends(dependenc
     db_user = user_crud.add_role(db, db_user=db_user, db_role=db_role)
     if db_user is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Role not added")
+    return db_user
+
+
+@router.patch("/{user_id}/roles/", response_model=user_schema.UserSchema, status_code=status.HTTP_200_OK)
+def update_user_roles(user_id: int, roles: list[role_schema.Role] = [], db: Session = Depends(dependencies.get_db), current_user: user_model.User = Depends(dependencies.get_current_active_user)):
+    db_user = user_crud.get(db, user_id)
+
+    if db_user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    roles_to_delete = []
+    for role in db_user.roles:
+        roles_to_delete.append(role)
+
+    for role in roles_to_delete:
+        db_user = user_crud.remove_role(db, db_user=db_user, db_role=role)
+
+    for role in roles:
+        db_role = role_crud.get(db, role.id)
+        db_user = user_crud.add_role(db, db_user=db_user, db_role=db_role)
+
+    if db_user is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Roles not updated")
     return db_user
 
 
