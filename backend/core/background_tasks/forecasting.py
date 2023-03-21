@@ -90,7 +90,7 @@ def start_statsmodels_pipeline(db: Session, db_forecasting: forecasting_schema.F
         elif db_forecasting.model == ForecastingModel.SARIMA:
             params = forecasting_SARIMA.get_best_params(df, df_train, df_test, level=db_forecasting.tune_level,
                                                         brute_force=db_forecasting.tune_brute_force,
-                                                        seasonal_period=db_forecasting.params['m'])
+                                                        seasonal_period=db_forecasting.datasetcolumns.datasets.time_period.value)
         db_forecasting = update_forecast_params(db, db_forecasting, params, db_forecasting.model)
     else:
         if db_forecasting.model == ForecastingModel.ARIMA:

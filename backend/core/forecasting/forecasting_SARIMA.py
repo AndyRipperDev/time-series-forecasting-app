@@ -71,7 +71,7 @@ def get_best_params_brute_force(df, df_train, df_test, min_p=0, max_p=15, min_q=
     for pq in pq_combinations:
         for pq_seasonal in pq_seasonal_combinations:
             try:
-                model = sm.tsa.statespace.SARIMAX(df_train, order=(pq[0], d, pq[1]), seasonal_order=(pq_seasonal[0], d, pq_seasonal[1], seasonal_period)).fit()
+                model = sm.tsa.statespace.SARIMAX(df_train, order=(pq[0], d, pq[1]), seasonal_order=(pq_seasonal[0], d, pq_seasonal[1], seasonal_period)).fit(low_memory=True)
                 pred = model.predict(start=len(df_train), end=(len(df) - 1))
                 error = np.sqrt(mean_squared_error(df_test, pred))
                 order1.append((pq[0], d, pq[1]))
@@ -93,10 +93,13 @@ def get_best_params_optimize_tuning(df, df_train, df_test, max_p=15, max_q=15, m
         q = trial.suggest_int('q', 0, _max_q)
         P = trial.suggest_int('P', 0, _max_P)
         Q = trial.suggest_int('Q', 0, _max_Q)
+        D = _d if _d != 0 else trial.suggest_int('d', 0, 2)
+
+
 
         try:
-            model = sm.tsa.statespace.SARIMAX(_df_train, order=(p, _d, q),
-                                              seasonal_order=(P, _d, Q, _seasonal_period)).fit()
+            model = sm.tsa.statespace.SARIMAX(_df_train, order=(p, D, q),
+                                              seasonal_order=(P, D, Q, _seasonal_period)).fit(low_memory=True)
             pred = model.predict(start=len(_df_train), end=(len(_df) - 1))
             error = np.sqrt(mean_squared_error(_df_test, pred))
         except:
@@ -114,6 +117,8 @@ def get_best_params_optimize_tuning(df, df_train, df_test, max_p=15, max_q=15, m
     study = optuna.create_study()
     study.optimize(optimize_func, n_trials=trials)
 
+    d = d if d != 0 else study.best_params.get('d')
+
     return (study.best_params.get('p'), d, study.best_params.get('q')), (
     study.best_params.get('P'), d, study.best_params.get('Q'), seasonal_period)
 
@@ -127,7 +132,7 @@ def get_best_params(df, df_train, df_test, level=1, brute_force=False, seasonal_
             max_p=10,
             max_q=10,
             seasonal_period=seasonal_period,
-            trials=20)
+            trials=10)
     elif level == 2:
         return get_best_params_brute_force(df, df_train, df_test, max_p=8,
                                            max_q=8,
@@ -137,7 +142,7 @@ def get_best_params(df, df_train, df_test, level=1, brute_force=False, seasonal_
             max_p=15,
             max_q=15,
             seasonal_period=seasonal_period,
-            trials=30)
+            trials=20)
     elif level == 3:
         return get_best_params_brute_force(df, df_train, df_test, max_p=15,
                                            max_q=15,
@@ -147,7 +152,7 @@ def get_best_params(df, df_train, df_test, level=1, brute_force=False, seasonal_
             max_p=20,
             max_q=20,
             seasonal_period=seasonal_period,
-            trials=50)
+            trials=30)
     else:
         return get_best_params_brute_force(df, df_train, df_test, max_p=20,
                                            max_q=20,
@@ -157,14 +162,14 @@ def get_best_params(df, df_train, df_test, level=1, brute_force=False, seasonal_
             max_p=25,
             max_q=25,
             seasonal_period=seasonal_period,
-            trials=100)
+            trials=50)
 
 
 def get_predicted_test_results(df, df_train, params, seasonal_params):
-    model = sm.tsa.statespace.SARIMAX(df_train, order=params, seasonal_order=seasonal_params).fit()
+    model = sm.tsa.statespace.SARIMAX(df_train, order=params, seasonal_order=seasonal_params).fit(low_memory=True)
     return model.predict(start=len(df_train), end=(len(df) - 1))
 
 
 def get_predicted_results(df, params, seasonal_params, forecast_horizon):
-    model = sm.tsa.statespace.SARIMAX(df, order=params, seasonal_order=seasonal_params).fit()
+    model = sm.tsa.statespace.SARIMAX(df, order=params, seasonal_order=seasonal_params).fit(low_memory=True)
     return model.predict(start=len(df), end=(len(df) + forecast_horizon - 1))

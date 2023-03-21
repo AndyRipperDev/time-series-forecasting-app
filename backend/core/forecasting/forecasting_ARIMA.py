@@ -71,8 +71,9 @@ def get_best_params_optimize_tuning(df, df_train, df_test, max_p=15, max_q=15, d
     def objective(trial, _df, _df_train, _df_test, _max_p, _max_q, _d):
         p = trial.suggest_int('p', 0, _max_p)
         q = trial.suggest_int('q', 0, _max_q)
+        D = _d if _d != 0 else trial.suggest_int('d', 0, 2)
 
-        model = ARIMA(_df_train, order=(p, d, q), trend="t").fit()
+        model = ARIMA(_df_train, order=(p, D, q), trend="t").fit()
         pred = model.predict(start=len(_df_train), end=(len(_df) - 1))
         error = np.sqrt(mean_squared_error(_df_test, pred))
 
@@ -85,6 +86,8 @@ def get_best_params_optimize_tuning(df, df_train, df_test, max_p=15, max_q=15, d
 
     study = optuna.create_study()
     study.optimize(optimize_func, n_trials=trials)
+
+    d = d if d != 0 else study.best_params.get('d')
 
     return study.best_params.get('p'), d, study.best_params.get('q')
 
