@@ -8,18 +8,16 @@ from fastapi import APIRouter, Depends, status, HTTPException, Body, BackgroundT
 
 from sqlalchemy.orm import Session
 
+from core.config import settings
 from core.crud import project as project_crud
-from core.schemas import project as project_schema
 from core.crud import forecasting as forecasting_crud
 from core.schemas import forecasting as forecasting_schema
 from core.models import user as user_model
-
-from core.enums.forecasting_model_enum import ForecastingModel, ForecastingStatus
-from api import dependencies
-from core.background_tasks.forecasting import start_forecasting
-from core.forecasting import evaluation_metrics
-from core.config import settings
 from core.processing import file_processing, forecast_preprocessing
+from core.background_tasks.forecasting import start_forecasting
+from core.enums.forecasting_model_enum import ForecastingModel, ForecastingStatus
+
+from api import dependencies
 from collections import defaultdict
 import pandas as pd
 
@@ -27,8 +25,6 @@ router = APIRouter(
     prefix="/forecast",
     tags=["forecast"]
 )
-
-
 
 
 @router.post("/{project_id}/", response_model=forecasting_schema.ForecastingSchema, status_code=status.HTTP_201_CREATED)
@@ -161,7 +157,6 @@ def read_forecasting(forecast_id: int, db: Session = Depends(dependencies.get_db
         db_evaluation_metric_id = eval_metric.id
 
     return db_forecasting
-
 
 
 @router.get("/{forecast_id}/baseline-results/", status_code=status.HTTP_200_OK)
@@ -341,7 +336,6 @@ def download_forecast_combined_test(forecast_id: int, db: Session = Depends(depe
     df_res['timestamp'] = df_test_results.iloc[:, 0]
 
     if db_forecasting.model == ForecastingModel.ARIMA or db_forecasting.model == ForecastingModel.SARIMA:
-        # df, df_train, df_test = file_processing.get_forecast_df_train_test(db_forecasting, use_log_transform=False)
         df, df_train, df_test, df_seasonal = forecast_preprocessing.get_forecast_ready_dataset(db_forecasting, False)
 
         df_test_col = pd.DataFrame(df_test)

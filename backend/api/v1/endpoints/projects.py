@@ -9,19 +9,16 @@ from starlette.responses import FileResponse
 from core.config import settings
 from core.crud import forecasting as forecasting_crud
 from core.crud import project as project_crud
+from core.crud import dataset as dataset_crud
+from core.crud import dataset_column as dataset_column_crud
+from core.crud import time_period as time_period_crud
 from core.schemas import project as project_schema
+from core.schemas import dataset as dataset_schema
+from core.schemas import dataset_column as dataset_column_schema
+from core.schemas import time_period as time_period_schema
 from core.models import user as user_model
 from core.processing import file_processing
-
-from core.crud import dataset as dataset_crud
-from core.schemas import dataset as dataset_schema
-
-from core.crud import dataset_column as dataset_column_crud
-from core.schemas import dataset_column as dataset_column_schema
 from core.enums.dataset_column_enum import ColumnMissingValuesMethod, ColumnScalingMethod
-
-from core.crud import time_period as time_period_crud
-from core.schemas import time_period as time_period_schema
 from core.enums.time_period_enum import TimePeriodUnit
 
 from api import dependencies
@@ -193,16 +190,7 @@ def read_project_with_dataset_columns_with_values(project_id: int, skip: int = 0
         dataset_col[column] = dataset_cols[column]
         dataset_col[date_col] = dataset_cols[date_col]
 
-    # if column is not None:
-    #     for k, v in dataset.items():
-    #         if column == k:
-    #             dataset_col[k] = v
-    #             break
-
     return {'dataset': dataset_col if column is not None else dataset_cols, 'values_count': dataset_len}
-
-
-    # return dataset_col if column is not None else dataset_cols
 
 
 @router.get("/download-dataset/{project_id}", status_code=status.HTTP_200_OK)

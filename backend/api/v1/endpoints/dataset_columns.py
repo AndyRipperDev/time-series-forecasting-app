@@ -1,23 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile
-
-from pathlib import Path
-
-from fastapi.params import Form, File
 from sqlalchemy.orm import Session
 
 from core.config import settings
 from core.crud import project as project_crud
-from core.schemas import project as project_schema
+from core.crud import dataset as dataset_crud
+from core.crud import dataset_column as dataset_column_crud
 from core.models import user as user_model
 from core.processing import file_processing
-
-from core.crud import dataset as dataset_crud
-from core.schemas import dataset as dataset_schema
-
-from core.crud import dataset_column as dataset_column_crud
 from core.schemas import dataset_column as dataset_column_schema
-
 from core.enums.dataset_column_enum import ColumnMissingValuesMethod, ColumnScalingMethod
+
 from api import dependencies
 
 router = APIRouter(
@@ -40,7 +32,6 @@ def update_project(dataset_id: int, dataset_columns: list[dataset_column_schema.
                 db_project = dataset_column_crud.update(db, dataset_column=column, updates=col_update)
 
     db_columns = dataset_column_crud.get_active_by_dataset_id(db, dataset_id=dataset_id)
-
     db_dataset = dataset_crud.get(db, dataset_id)
 
     file_path = settings.FILE_STORAGE_DIR + '/' + str(current_user.id) + '/projects/' + str(
@@ -63,8 +54,6 @@ def read_project_columns(project_id: int,
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
 
     return dataset_column_crud.get_active_by_dataset_id(db, dataset_id=db_project.dataset.id)
-
-    # return db_project.dataset.columns
 
 
 @router.get("/column-options", status_code=status.HTTP_200_OK)

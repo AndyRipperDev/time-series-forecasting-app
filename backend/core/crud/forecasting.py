@@ -8,7 +8,6 @@ from core.models import dataset_column as dataset_column_model
 from core.models import dataset as dataset_model
 from core.models import project as project_model
 
-from sqlalchemy.orm.attributes import flag_modified
 
 def get_all(db: Session, skip: int = 0, limit: int = 100):
     return db.query(forecasting_model.Forecasting).offset(skip).limit(limit).all()

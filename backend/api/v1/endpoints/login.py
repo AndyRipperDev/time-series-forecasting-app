@@ -7,8 +7,8 @@ from sqlalchemy.orm import Session
 from core import security
 from core.crud.user import authenticate
 from core.schemas.token import Token, UserToken
-from core.config import settings
 from core.schemas import user as user_schema
+from core.config import settings
 from core.models import user as user_model
 
 from api import dependencies

@@ -3,10 +3,10 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from core.crud import user as user_crud
-from core import security
-from core.schemas.token import Token, UserToken
 from core.config import settings
+from core import security
+from core.crud import user as user_crud
+from core.schemas.token import Token, UserToken
 from core.schemas import user as user_schema
 
 from api import dependencies

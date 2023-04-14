@@ -4,13 +4,10 @@ from sqlalchemy.orm import Session
 
 from core.crud import role as role_crud
 from core.crud import user as user_crud
-
 from core.schemas import user as user_schema
 from core.schemas import role as role_schema
-
 from core.models import user as user_model
 
-from copy import deepcopy
 from api import dependencies
 
 router = APIRouter(

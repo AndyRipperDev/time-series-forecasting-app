@@ -21,7 +21,7 @@ class Project(ProjectBase):
 
 class ProjectSchema(Project):
     user_id: int
-    dataset: dataset.DatasetSchema # | None = None  # list[dataset.DatasetSchema] = []
+    dataset: dataset.DatasetSchema
 
 
 class ProjectUpdateSchema(BaseModel):

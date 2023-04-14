@@ -3,7 +3,6 @@ from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Enum
 from core.db.base_class import Base
 from core.enums.forecasting_model_enum import ForecastingModel, ForecastingStatus
 
-from sqlalchemy.orm import relationship, backref
 
 class Forecasting(Base):
     id = Column(Integer, primary_key=True, index=True)

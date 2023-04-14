@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Json
-import core.schemas.dataset as dataset
 from core.enums.forecasting_model_enum import ForecastingModel, ForecastingStatus
 
 class ForecastingBase(BaseModel):

@@ -2,15 +2,9 @@ import itertools
 import optuna
 import numpy as np
 import pandas as pd
-import math
-import sklearn.preprocessing, sklearn.cluster, sklearn.metrics
-import scipy.spatial
-from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from statsmodels.tsa.stattools import adfuller
-from statsmodels.tsa.arima.model import ARIMA
-from statsmodels.tsa.stattools import acf
 import statsmodels.api as sm
-from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error
+from sklearn.metrics import mean_squared_error
 
 
 def get_adf_test(df):
