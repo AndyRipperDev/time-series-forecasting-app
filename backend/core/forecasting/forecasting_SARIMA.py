@@ -103,7 +103,7 @@ def get_best_params_optimize_tuning(df, df_train, df_test, max_p=15, max_q=15, m
             pred = model.predict(start=len(_df_train), end=(len(_df) - 1))
             error = np.sqrt(mean_squared_error(_df_test, pred))
         except:
-            error = 100
+            error = 1000000000
         return error
 
     if d is None:

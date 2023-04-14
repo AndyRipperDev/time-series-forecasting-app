@@ -73,9 +73,12 @@ def get_best_params_optimize_tuning(df, df_train, df_test, max_p=15, max_q=15, d
         q = trial.suggest_int('q', 0, _max_q)
         D = _d if _d != 0 else trial.suggest_int('d', 0, 2)
 
-        model = ARIMA(_df_train, order=(p, D, q), trend="t").fit()
-        pred = model.predict(start=len(_df_train), end=(len(_df) - 1))
-        error = np.sqrt(mean_squared_error(_df_test, pred))
+        try:
+            model = ARIMA(_df_train, order=(p, D, q), trend="t").fit()
+            pred = model.predict(start=len(_df_train), end=(len(_df) - 1))
+            error = np.sqrt(mean_squared_error(_df_test, pred))
+        except:
+            error = 1000000000
 
         return error
 
@@ -94,9 +97,9 @@ def get_best_params_optimize_tuning(df, df_train, df_test, max_p=15, max_q=15, d
 
 def get_best_params(df, df_train, df_test, level=1, brute_force=False):
     if level == 1:
-        return get_best_params_brute_force(df, df_train, df_test, max_p=5, max_q=5) if brute_force else get_best_params_optimize_tuning(df, df_train, df_test, max_p=10, max_q=10, trials=50)
+        return get_best_params_brute_force(df, df_train, df_test, max_p=5, max_q=5) if brute_force else get_best_params_optimize_tuning(df, df_train, df_test, max_p=10, max_q=10, trials=25)
     elif level == 2:
-        return get_best_params_brute_force(df, df_train, df_test, max_p=10, max_q=10) if brute_force else get_best_params_optimize_tuning(df, df_train, df_test, max_p=15, max_q=15, trials=100)
+        return get_best_params_brute_force(df, df_train, df_test, max_p=10, max_q=10) if brute_force else get_best_params_optimize_tuning(df, df_train, df_test, max_p=15, max_q=15, trials=50)
     elif level == 3:
         return get_best_params_brute_force(df, df_train, df_test, max_p=15, max_q=15) if brute_force else get_best_params_optimize_tuning(df, df_train, df_test, max_p=20, max_q=20, trials=100)
     else:

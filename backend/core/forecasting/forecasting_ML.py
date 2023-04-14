@@ -28,7 +28,7 @@ def get_best_params_optimize_tuning_LinearRegression(forecast_horizon, X, y, X_t
             y_pred = pd.DataFrame(model.predict(_X_test), index=_X_test.index, columns=_y.columns)
             error = mean_squared_error(_y_test, y_pred, squared=False)
         except:
-            error = 100
+            error = 1000000000
 
         return error
 
@@ -58,7 +58,7 @@ def get_best_params_optimize_tuning_RandomForest(forecast_horizon, X, y, X_train
             y_pred = pd.DataFrame(model.predict(_X_test), index=_X_test.index, columns=_y.columns)
             error = mean_squared_error(_y_test, y_pred, squared=False)
         except:
-            error = 100
+            error = 1000000000
 
         return error
 
@@ -95,7 +95,7 @@ def get_best_params_optimize_tuning_XGBoost(forecast_horizon, X, y, X_train, X_t
             y_pred = pd.DataFrame(model.predict(_X_test), index=_X_test.index, columns=_y.columns)
             error = mean_squared_error(_y_test, y_pred, squared=False)
         except:
-            error = 100
+            error = 1000000000
 
         return error
 
@@ -134,7 +134,7 @@ def get_best_params_optimize_tuning_LightGBM(forecast_horizon, X, y, X_train, X_
             y_pred = pd.DataFrame(model.predict(_X_test), index=_X_test.index, columns=_y.columns)
             error = mean_squared_error(_y_test, y_pred, squared=False)
         except:
-            error = 100
+            error = 1000000000
 
         return error
 

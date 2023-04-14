@@ -52,12 +52,22 @@ def set_params_SARIMA(db_forecasting, params):
 
 
 def update_forecast(db: Session, forecasting_id: int, status: ForecastingStatus = None):
+    try:
+        db_forecasting = forecasting_crud.get(db, forecasting_id=forecasting_id)
+    except:
+        db.rollback()
+
     db_forecasting = forecasting_crud.get(db, forecasting_id=forecasting_id)
     forecasting_updates = forecasting_schema.ForecastingUpdateSchema(status=status)
     return forecasting_crud.update(db, forecasting=db_forecasting, updates=forecasting_updates)
 
 
 def update_forecast_params(db: Session, db_forecasting, params, model: ForecastingModel):
+    try:
+        db_forecasting = forecasting_crud.get(db, forecasting_id=db_forecasting.id)
+    except:
+        db.rollback()
+
     db_forecasting = forecasting_crud.get(db, forecasting_id=db_forecasting.id)
     if model == ForecastingModel.ARIMA:
         params = set_params_ARIMA(db_forecasting, params)
@@ -68,6 +78,11 @@ def update_forecast_params(db: Session, db_forecasting, params, model: Forecasti
 
 
 def update_forecast_log(db: Session, forecasting_id: int, use_log: bool = False):
+    try:
+        db_forecasting = forecasting_crud.get(db, forecasting_id=forecasting_id)
+    except:
+        db.rollback()
+
     db_forecasting = forecasting_crud.get(db, forecasting_id=forecasting_id)
     forecasting_updates = forecasting_schema.ForecastingUpdateSchema(use_log_transform=use_log)
     return forecasting_crud.update(db, forecasting=db_forecasting, updates=forecasting_updates)
