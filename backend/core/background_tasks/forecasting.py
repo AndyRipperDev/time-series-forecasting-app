@@ -9,6 +9,7 @@ from core.processing import file_processing, forecast_preprocessing, forecast_po
 from core.enums.forecasting_model_enum import ForecastingModel, ForecastingStatus, ForecastingEvalMetricType
 from core.forecasting import forecasting_ARIMA, forecasting_SARIMA, evaluation_metrics, forecasting_ML, forecasting_DL
 
+import numpy as np
 import json
 import math
 
@@ -227,7 +228,7 @@ def start_DL_pipeline(db: Session, db_forecasting: forecasting_schema.Forecastin
 
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Evaluating)
     create_eval_metrics(db, y_test.values, predicted_test_results.values, db_forecasting, False)
-    create_eval_metrics(db, y_test.values, baseline_results.head(len(y_test)).values, db_forecasting, True)
+    create_eval_metrics(db, y_test.values, np.squeeze(baseline_results.head(len(y_test)).values), db_forecasting, True)
 
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Finished)
     return db_forecasting
@@ -293,7 +294,7 @@ def start_ML_pipeline(db: Session, db_forecasting: forecasting_schema.Forecastin
 
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Evaluating)
     create_eval_metrics(db, y_test.values, predicted_test_results.values, db_forecasting, False)
-    create_eval_metrics(db, y_test.values, baseline_results.head(len(y_test)).values, db_forecasting, True)
+    create_eval_metrics(db, y_test.values, np.squeeze(baseline_results.head(len(y_test)).values), db_forecasting, True)
 
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Finished)
     return db_forecasting
