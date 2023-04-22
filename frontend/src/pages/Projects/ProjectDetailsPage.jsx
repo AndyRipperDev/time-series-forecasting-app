@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 
-import { authAtom, projectAtom, projectDatasetViewAtom } from 'state'
+import { projectAtom, projectDatasetViewAtom } from 'state'
 import { Link, useParams } from 'react-router-dom'
 import { useProjectService } from '../../services/project.service'
 import LoadingPage from '../../components/Loadings/LoadingPage'
-import TextHeading from '../../components/TextHeading'
 import { history } from '../../helpers'
 import Loading from '../../components/Loadings/Loading'
 import ViewColumnsIcon from '../../components/SVG/Path/General/ViewColumnsIcon'

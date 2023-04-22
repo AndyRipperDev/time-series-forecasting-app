@@ -1,8 +1,7 @@
 import { useParams } from 'react-router-dom'
 import {Fragment} from 'react'
-import LoadingPage from '../../components/Loadings/LoadingPage'
 import { useEffect, useState } from 'react'
-import { history, useDateUtils } from '../../helpers'
+import { useDateUtils } from '../../helpers'
 import { useForecastService } from '../../services/forecast.service'
 import {
   forecastingResultAtom,
@@ -11,10 +10,8 @@ import {
   projectDatasetColumnsViewAtom,
   themeAtom, forecastingBaselineResultsAtom,
 } from '../../state'
-import { useRecoilValue, useSetRecoilState } from 'recoil'
+import { useRecoilValue } from 'recoil'
 import Loading from '../../components/Loadings/Loading'
-import ParamSettingItem from '../../components/ParamSettingItem'
-import ParamSubheading from '../../components/ParamSubheading'
 import Plot from '../../../node_modules/react-plotly.js/react-plotly'
 import daisyuiColors from 'daisyui/src/colors/themes'
 import { useProjectService } from '../../services/project.service'

@@ -52,12 +52,6 @@ function ProjectDetailsColumnPlotsPage() {
     }
   }, [projectDatasetColumnsView])
 
-  // useEffect(() => {
-  //   if (showAllTriggered) {
-  //     getColumnData()
-  //   }
-  // }, [minValueRange, maxValueRange])
-
   function getColumnData(skip = minValueRange, limit = maxValueRange) {
     setRangeLoading(true)
     projectService.getDatasetColumnValues(id, skip, limit).then(() => {

@@ -2,8 +2,6 @@ import { useRecoilValue } from 'recoil'
 import { themeAtom } from '../state'
 import { useThemeActions } from '../actions'
 import { useEffect } from 'react'
-import NavIcon from './SVG/Path/General/NavIcon'
-import BackIcon from './SVG/Path/General/BackIcon'
 import ThemeDarkIcon from './SVG/Path/General/ThemeDarkIcon'
 import ThemeLightIcon from './SVG/Path/General/ThemeLightIcon'
 

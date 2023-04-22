@@ -206,14 +206,6 @@ function App() {
               </PrivateRoute>
             }
           />
-          {/*<Route*/}
-          {/*  path="/dashboard"*/}
-          {/*  element={*/}
-          {/*    <PrivateRoute>*/}
-          {/*      <DashboardPage />*/}
-          {/*    </PrivateRoute>*/}
-          {/*  }*/}
-          {/*/>*/}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="*" element={<Navigate to="/" />} />

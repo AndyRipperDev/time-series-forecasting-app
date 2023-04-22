@@ -1,11 +1,9 @@
-import { useSetRecoilState, useRecoilState, useResetRecoilState } from 'recoil'
+import { useSetRecoilState, useResetRecoilState } from 'recoil'
 
-import { history, useAxiosWrapper } from '../helpers'
+import { useAxiosWrapper } from '../helpers'
 import {
-  authAtom,
   projectsAtom,
   projectAtom,
-  userAtom,
   projectDatasetViewAtom,
   projectDatasetColumnsViewAtom,
   projectDatasetColumnOptionsAtom,

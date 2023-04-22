@@ -26,7 +26,6 @@ function useForecastService() {
   const setForecastingResultsRecent = useSetRecoilState(forecastingResultsRecentAtom)
 
   const [forecastingResults, setForecastingResults] = useRecoilState(forecastingResultsAtom)
-  // const setForecastingResults = useSetRecoilState(forecastingResultsAtom)
   const setForecastingBaselineResults = useSetRecoilState(forecastingBaselineResultsAtom)
   const setForecastingPredictedResults = useSetRecoilState(
     forecastingPredictedResultsAtom

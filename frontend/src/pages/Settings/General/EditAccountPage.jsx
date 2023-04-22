@@ -1,18 +1,15 @@
 import { useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as Yup from 'yup'
 import { useRecoilValue } from 'recoil'
 
 import { authAtom, userAtom } from '../../../state'
-import { useAlertActions } from '../../../actions'
 import { useUserService } from '../../../services'
 import FormInput from '../../../components/FormInput'
 import BasicForm from '../../../components/Forms/BasicForm'
 import LoadingPage from '../../../components/Loadings/LoadingPage'
 import { history } from '../../../helpers'
-import Loading from '../../../components/Loadings/Loading'
 
 export { EditAccountPage }
 

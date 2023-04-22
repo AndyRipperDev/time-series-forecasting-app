@@ -19,7 +19,6 @@ import { useForecastService } from '../../services/forecast.service'
 import ParamSettingItem from '../../components/ParamSettingItem'
 import ParamHeading from '../../components/ParamHeading'
 import ParamSubheading from '../../components/ParamSubheading'
-import FormInput from '../../components/FormInput'
 import { history } from '../../helpers'
 import SelectInput from '../../components/Inputs/SelectInput'
 import CheckBoxInput from '../../components/Inputs/CheckBoxInput'
@@ -492,7 +491,6 @@ const ForecastSettingsPage = () => {
   }
 
   const loading = !projectDatasetColumns
-  // const loadingColView = !projectDatasetColumnsView
   return (
     <div className={'my-12'}>
       {loading ? (

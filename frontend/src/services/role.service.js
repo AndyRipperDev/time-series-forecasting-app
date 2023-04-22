@@ -1,7 +1,7 @@
-import { useSetRecoilState, useRecoilState, useResetRecoilState } from 'recoil'
+import { useSetRecoilState, useResetRecoilState } from 'recoil'
 
-import { history, useAxiosWrapper } from '../helpers'
-import { authAtom, roleAtom, rolesAtom, userAtom } from '../state'
+import { useAxiosWrapper } from '../helpers'
+import { roleAtom, rolesAtom } from '../state'
 
 export { useRoleService }
 

@@ -2,13 +2,11 @@ import { useEffect } from 'react'
 import { useRecoilValue } from 'recoil'
 
 import { authAtom, forecastingResultsRecentAtom, projectStatsAtom } from 'state'
-import { useUserService } from '../../services'
 import { Link } from 'react-router-dom'
 import CreateProjectIcon from '../../components/SVG/Path/CRUD/CreateProjectIcon'
 import { useForecastService } from '../../services/forecast.service'
 import { useProjectService } from '../../services/project.service'
 import ViewIcon from '../../components/SVG/Path/CRUD/ViewIcon'
-import DeleteIcon from '../../components/SVG/Path/CRUD/DeleteIcon'
 import Loading from '../../components/Loadings/Loading'
 
 const HomePage = () => {
