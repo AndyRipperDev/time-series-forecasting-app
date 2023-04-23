@@ -28,3 +28,8 @@ It's based on client-server architecture with React as a client app and FastAPI 
 1. Move to the frontend directory: `cd frontend`
 2. Install all dependencies from **package.json**: `npm i`
 3. Run React app: `npm run start`
+
+## Default app user
+
+- **E-Mail**: admin@forecasting.app
+- **Password**: Admin
