@@ -1,31 +1,33 @@
-from core.crud import forecasting as forecasting_crud
-from core.schemas import forecasting as forecasting_schema
 from sqlalchemy.orm import Session
-from core.enums.forecasting_model_enum import ForecastingModel, ForecastingStatus
 
 from core.config import settings
+from core.crud import evaluation_metrics as evaluation_metrics_crud
+from core.crud import forecasting as forecasting_crud
+from core.schemas import evaluation_metrics as evaluation_metrics_schema
+from core.schemas import forecasting as forecasting_schema
 from core.processing import file_processing, forecast_preprocessing, forecast_postprocessing
-from api import dependencies
-import time
+from core.enums.forecasting_model_enum import ForecastingModel, ForecastingStatus, ForecastingEvalMetricType
 from core.forecasting import forecasting_ARIMA, forecasting_SARIMA, evaluation_metrics, forecasting_ML, forecasting_DL
+
+import numpy as np
 import json
 import math
-from core.schemas import evaluation_metrics as evaluation_metrics_schema
-from core.crud import evaluation_metrics as evaluation_metrics_crud
 
 
 def normalize_eval_metric(value):
     return None if math.isnan(value) or math.isinf(value) else value
 
 
-def create_eval_metrics(db: Session, df_test, df_pred, db_forecasting):
+def create_eval_metrics(db: Session, df_test, df_pred, db_forecasting, baseline: bool = False):
     df_metrics = evaluation_metrics.compute_metrics_raw(df_test, df_pred)
-    db_eval_metrics = evaluation_metrics_schema.EvaluationMetricsCreate(MAE=normalize_eval_metric(df_metrics.iloc[0, 0]),
+    db_eval_metrics = evaluation_metrics_schema.EvaluationMetricsCreate(type=ForecastingEvalMetricType.Baseline if baseline else ForecastingEvalMetricType.Forecast,
+                                                                        MAE=normalize_eval_metric(df_metrics.iloc[0, 0]),
                                                                         MSE=normalize_eval_metric(df_metrics.iloc[0, 1]),
                                                                         MAPE=normalize_eval_metric(df_metrics.iloc[0, 2]),
                                                                         SMAPE=normalize_eval_metric(df_metrics.iloc[0, 3]),
                                                                         R2=normalize_eval_metric(df_metrics.iloc[0, 4]),
                                                                         WAPE=normalize_eval_metric(df_metrics.iloc[0, 5]))
+
     return evaluation_metrics_crud.create(db=db, evaluation_metrics=db_eval_metrics, forecasting_id=db_forecasting.id)
 
 
@@ -50,12 +52,22 @@ def set_params_SARIMA(db_forecasting, params):
 
 
 def update_forecast(db: Session, forecasting_id: int, status: ForecastingStatus = None):
+    try:
+        db_forecasting = forecasting_crud.get(db, forecasting_id=forecasting_id)
+    except:
+        db.rollback()
+
     db_forecasting = forecasting_crud.get(db, forecasting_id=forecasting_id)
     forecasting_updates = forecasting_schema.ForecastingUpdateSchema(status=status)
     return forecasting_crud.update(db, forecasting=db_forecasting, updates=forecasting_updates)
 
 
 def update_forecast_params(db: Session, db_forecasting, params, model: ForecastingModel):
+    try:
+        db_forecasting = forecasting_crud.get(db, forecasting_id=db_forecasting.id)
+    except:
+        db.rollback()
+
     db_forecasting = forecasting_crud.get(db, forecasting_id=db_forecasting.id)
     if model == ForecastingModel.ARIMA:
         params = set_params_ARIMA(db_forecasting, params)
@@ -66,6 +78,11 @@ def update_forecast_params(db: Session, db_forecasting, params, model: Forecasti
 
 
 def update_forecast_log(db: Session, forecasting_id: int, use_log: bool = False):
+    try:
+        db_forecasting = forecasting_crud.get(db, forecasting_id=forecasting_id)
+    except:
+        db.rollback()
+
     db_forecasting = forecasting_crud.get(db, forecasting_id=forecasting_id)
     forecasting_updates = forecasting_schema.ForecastingUpdateSchema(use_log_transform=use_log)
     return forecasting_crud.update(db, forecasting=db_forecasting, updates=forecasting_updates)
@@ -88,7 +105,7 @@ def start_statsmodels_pipeline(db: Session, db_forecasting: forecasting_schema.F
         elif db_forecasting.model == ForecastingModel.SARIMA:
             params = forecasting_SARIMA.get_best_params(df, df_train, df_test, level=db_forecasting.tune_level,
                                                         brute_force=db_forecasting.tune_brute_force,
-                                                        seasonal_period=db_forecasting.params['m'])
+                                                        seasonal_period=db_forecasting.datasetcolumns.datasets.time_period.value)
         db_forecasting = update_forecast_params(db, db_forecasting, params, db_forecasting.model)
     else:
         if db_forecasting.model == ForecastingModel.ARIMA:
@@ -100,7 +117,7 @@ def start_statsmodels_pipeline(db: Session, db_forecasting: forecasting_schema.F
 
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Forecasting)
 
-    predicted_test_results = predicted_results = None
+    predicted_test_results = predicted_results = baseline_results = None
     if db_forecasting.model == ForecastingModel.ARIMA:
         predicted_test_results = forecasting_ARIMA.get_predicted_test_results(df, df_train, params)
         predicted_results = forecasting_ARIMA.get_predicted_results(df, params, db_forecasting.forecast_horizon)
@@ -111,7 +128,7 @@ def start_statsmodels_pipeline(db: Session, db_forecasting: forecasting_schema.F
 
     baseline_results = forecast_preprocessing.get_baseline_dataset(db_forecasting, len(df_test))
 
-    if predicted_test_results is None or predicted_results is None:
+    if predicted_test_results is None or predicted_results is None or baseline_results is None:
         raise Exception()
 
     df, df_train, df_test, predicted_test_results, predicted_results = forecast_postprocessing.apply_back_transformations(df, df_train, df_test, predicted_test_results, predicted_results, log_transform_used, scalers)
@@ -137,7 +154,8 @@ def start_statsmodels_pipeline(db: Session, db_forecasting: forecasting_schema.F
                                        baseline_results)
 
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Evaluating)
-    create_eval_metrics(db, df_test, predicted_test_results, db_forecasting)
+    create_eval_metrics(db, df_test, predicted_test_results, db_forecasting, False)
+    create_eval_metrics(db, df_test, baseline_results.head(len(df_test)).squeeze(), db_forecasting, True)
 
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Finished)
     return db_forecasting
@@ -164,7 +182,7 @@ def start_DL_pipeline(db: Session, db_forecasting: forecasting_schema.Forecastin
         params['hidden_layer_sizes'] = tuple([int(x) for x in params['hidden_layer_sizes'].split(',') if x.strip().isdigit()])
 
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Forecasting)
-    predicted_test_results = predicted_results = None
+    predicted_test_results = predicted_results = baseline_results = None
     predicted_test_results = forecasting_DL.get_predicted_test_results(db_forecasting.model,
                                                                        db_forecasting.forecast_horizon, X, y,
                                                                        X_train, X_test, y_train, y_test, params)
@@ -172,7 +190,7 @@ def start_DL_pipeline(db: Session, db_forecasting: forecasting_schema.Forecastin
 
     baseline_results = forecast_preprocessing.get_baseline_dataset(db_forecasting, len(y_test) - 1)
 
-    if predicted_test_results is None or predicted_results is None:
+    if predicted_test_results is None or predicted_results is None or baseline_results is None:
         raise Exception()
 
     y, y_train, y_test, predicted_test_results, predicted_results = forecast_postprocessing.apply_back_transformations_ML(y, y_train, y_test, predicted_test_results, predicted_results, log_transform_used, scalers)
@@ -209,7 +227,8 @@ def start_DL_pipeline(db: Session, db_forecasting: forecasting_schema.Forecastin
                                        baseline_results)
 
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Evaluating)
-    create_eval_metrics(db, y_test.values, predicted_test_results.values, db_forecasting)
+    create_eval_metrics(db, y_test.values, predicted_test_results.values, db_forecasting, False)
+    create_eval_metrics(db, y_test.values, np.squeeze(baseline_results.head(len(y_test)).values), db_forecasting, True)
 
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Finished)
     return db_forecasting
@@ -232,12 +251,12 @@ def start_ML_pipeline(db: Session, db_forecasting: forecasting_schema.Forecastin
         params = db_forecasting.params
 
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Forecasting)
-    predicted_test_results = predicted_results = None
+    predicted_test_results = predicted_results = baseline_results = None
     predicted_test_results = forecasting_ML.get_predicted_test_results(db_forecasting.model, db_forecasting.forecast_horizon, X, y, X_train, X_test, y_train, y_test, params)
     predicted_results = forecasting_ML.get_predicted_results(db_forecasting.model, db_forecasting.forecast_horizon, X, y, params)
     baseline_results = forecast_preprocessing.get_baseline_dataset(db_forecasting, len(y_test) - 1)
 
-    if predicted_test_results is None or predicted_results is None:
+    if predicted_test_results is None or predicted_results is None or baseline_results is None:
         raise Exception()
 
     y, y_train, y_test, predicted_test_results, predicted_results = forecast_postprocessing.apply_back_transformations_ML(y, y_train, y_test, predicted_test_results, predicted_results, log_transform_used, scalers)
@@ -274,7 +293,8 @@ def start_ML_pipeline(db: Session, db_forecasting: forecasting_schema.Forecastin
                                        baseline_results)
 
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Evaluating)
-    create_eval_metrics(db, y_test.values, predicted_test_results.values, db_forecasting)
+    create_eval_metrics(db, y_test.values, predicted_test_results.values, db_forecasting, False)
+    create_eval_metrics(db, y_test.values, np.squeeze(baseline_results.head(len(y_test)).values), db_forecasting, True)
 
     db_forecasting = update_forecast(db, db_forecasting.id, ForecastingStatus.Finished)
     return db_forecasting

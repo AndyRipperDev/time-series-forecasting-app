@@ -26,10 +26,23 @@ def create(db: Session, user: user_schema.UserCreate):
     return db_user
 
 
+def create_as_admin(db: Session, user: user_schema.UserAdminCreate):
+    db_user = user_model.User(email=user.email, full_name=user.full_name, is_active=user.is_active, hashed_password=security.get_password_hash(user.password))
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+
 def update(db: Session, user: user_model.User, updates: user_schema.UserUpdateSchema):
+    if updates.password is not None:
+        updates.password = security.get_password_hash(updates.password)
     update_data = updates.dict(exclude_unset=True)
     for key, value in update_data.items():
-        setattr(user, key, value)
+        if key == 'password':
+            setattr(user, 'hashed_password', value)
+        else:
+            setattr(user, key, value)
     db.commit()
     return user
 

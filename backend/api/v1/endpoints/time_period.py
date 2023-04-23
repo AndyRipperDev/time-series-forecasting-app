@@ -3,9 +3,9 @@ from fastapi import APIRouter, Depends, HTTPException, status, UploadFile
 from sqlalchemy.orm import Session
 
 from core.models import user as user_model
-
 from core.crud import project as project_crud
 from core.enums.time_period_enum import TimePeriodUnit
+
 from api import dependencies
 
 router = APIRouter(

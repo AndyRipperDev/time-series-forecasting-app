@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 const GeneralSettingsItem = (props) => {
   return (
-    <div className="alert p-6 mb-8 shadow-xl xl:w-2/5 md:w-3/5 w-4/5">
+    <div className="alert p-6 mt-4 mb-8 shadow-xl">
       <div>
         <span className="text-lg font-bold">{props.title}</span>
       </div>

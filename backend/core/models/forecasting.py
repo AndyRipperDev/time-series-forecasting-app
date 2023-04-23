@@ -22,3 +22,4 @@ class Forecasting(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     column_id = Column(Integer, ForeignKey("datasetcolumn.id", ondelete='CASCADE'))
+

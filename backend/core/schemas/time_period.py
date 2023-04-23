@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from enum import Enum
 from core.enums.time_period_enum import TimePeriodUnit
 
 

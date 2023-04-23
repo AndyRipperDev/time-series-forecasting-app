@@ -23,3 +23,8 @@ class ForecastingStatus(Enum):
     Failed = 'Failed'
 
 
+@unique
+class ForecastingEvalMetricType(Enum):
+    Forecast = 'Forecast'
+    Baseline = 'Baseline'
+

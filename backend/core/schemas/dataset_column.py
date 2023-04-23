@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from enum import Enum
 from core.enums.dataset_column_enum import ColumnMissingValuesMethod, ColumnScalingMethod
 
 

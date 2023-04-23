@@ -1,16 +1,13 @@
 import optuna
-import numpy as np
 import pandas as pd
-from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error
+from sklearn.metrics import mean_squared_error
 import lightgbm as lgb
 from sklearn.multioutput import MultiOutputRegressor
 from xgboost import XGBRegressor
 from sklearn.linear_model import LinearRegression
-from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 from core.enums.forecasting_model_enum import ForecastingModel
 from core.processing.forecast_preprocessing import get_time_period_frequency
-
 
 
 def get_best_params_optimize_tuning_LinearRegression(forecast_horizon, X, y, X_train, X_test, y_train, y_test, trials=100):
@@ -28,7 +25,7 @@ def get_best_params_optimize_tuning_LinearRegression(forecast_horizon, X, y, X_t
             y_pred = pd.DataFrame(model.predict(_X_test), index=_X_test.index, columns=_y.columns)
             error = mean_squared_error(_y_test, y_pred, squared=False)
         except:
-            error = 100
+            error = 1000000000
 
         return error
 
@@ -58,7 +55,7 @@ def get_best_params_optimize_tuning_RandomForest(forecast_horizon, X, y, X_train
             y_pred = pd.DataFrame(model.predict(_X_test), index=_X_test.index, columns=_y.columns)
             error = mean_squared_error(_y_test, y_pred, squared=False)
         except:
-            error = 100
+            error = 1000000000
 
         return error
 
@@ -95,7 +92,7 @@ def get_best_params_optimize_tuning_XGBoost(forecast_horizon, X, y, X_train, X_t
             y_pred = pd.DataFrame(model.predict(_X_test), index=_X_test.index, columns=_y.columns)
             error = mean_squared_error(_y_test, y_pred, squared=False)
         except:
-            error = 100
+            error = 1000000000
 
         return error
 
@@ -134,7 +131,7 @@ def get_best_params_optimize_tuning_LightGBM(forecast_horizon, X, y, X_train, X_
             y_pred = pd.DataFrame(model.predict(_X_test), index=_X_test.index, columns=_y.columns)
             error = mean_squared_error(_y_test, y_pred, squared=False)
         except:
-            error = 100
+            error = 1000000000
 
         return error
 

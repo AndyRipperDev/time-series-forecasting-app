@@ -12,6 +12,11 @@ class UserCreate(UserBase):
     password: str
 
 
+class UserAdminCreate(UserBase):
+    is_active: bool
+    password: str
+
+
 class User(UserBase):
     id: int
     is_active: bool
@@ -29,3 +34,4 @@ class UserUpdateSchema(BaseModel):
     email: str | None = None
     full_name: str | None = None
     is_active: bool | None = None
+    password: str | None = None

@@ -5,31 +5,32 @@ import {
   useNavigate,
   useLocation,
 } from 'react-router-dom'
-import LoginPage from './pages/LoginPage'
-import SignUpPage from './pages/SignUpPage'
-import HomePage from './pages/HomePage'
+import LoginPage from './pages/LoginSignup/LoginPage'
+import SignUpPage from './pages/LoginSignup/SignUpPage'
+import HomePage from './pages/Home/HomePage'
 import { Nav, PrivateRoute } from 'components'
 import { history } from 'helpers'
 import ContentPage from './components/PageLayouts/ContentPage'
 import { useThemeActions } from './actions'
 import { useEffect } from 'react'
 import { Alert } from './components/Alert'
-import SettingsPage from './pages/SettingsPage'
-import ProjectsPage from './pages/ProjectsPage'
-import DashboardPage from './pages/DashboardPage'
-import GeneralSettingsPage from './pages/GeneralSettingsPage'
-import UsersManagePage from './pages/UsersManagePage'
-import RolesManagePage from './pages/RolesManagePage'
+import SettingsPage from './pages/Settings/SettingsPage'
+import ProjectsPage from './pages/Projects/ProjectsPage'
+import GeneralSettingsPage from './pages/Settings/General/GeneralSettingsPage'
+import UsersManagePage from './pages/Settings/Users/UsersManagePage'
+import RolesManagePage from './pages/Settings/Roles/RolesManagePage'
 import { AdminRoute } from './components/Nav/AdminRoute'
-import { UserAddEditPage } from './pages/UserAddEditPage'
-import { RoleAddEditPage } from './pages/RoleAddEditPage'
-import { ProjectAddEditPage } from './pages/ProjectAddEditPage'
-import ProjectDetailsPage from './pages/ProjectDetails'
-import ProjectCheckDatasetColumnsPage from './pages/ProjectCheckDatasetColumnsPage'
-import { ProjectDetailsColumnPlotsPage } from './pages/ProjectDetailsColumnPlotsPage'
-import ForecastSettingsPage from './pages/ForecastSettingsPage'
-import ForecastingPage from './pages/ForecastingPage'
-import ForecastingDetailsPage from './pages/ForecastingDetailsPage'
+import { UserAddEditPage } from './pages/Settings/Users/UserAddEditPage'
+import { RoleAddEditPage } from './pages/Settings/Roles/RoleAddEditPage'
+import { ProjectAddEditPage } from './pages/Projects/ProjectAddEditPage'
+import ProjectDetailsPage from './pages/Projects/ProjectDetailsPage'
+import ProjectCheckDatasetColumnsPage from './pages/Projects/ProjectCheckDatasetColumnsPage'
+import { ProjectDetailsColumnPlotsPage } from './pages/Projects/ProjectDetailsColumnPlotsPage'
+import ForecastSettingsPage from './pages/Projects/ForecastSettingsPage'
+import ForecastingPage from './pages/Forecasting/ForecastingPage'
+import ForecastingDetailsPage from './pages/Forecasting/ForecastingDetailsPage'
+import { EditAccountPage } from './pages/Settings/General/EditAccountPage'
+import { UserRolesEditPage } from './pages/Settings/Users/UserRolesEditPage'
 
 function App() {
   history.navigate = useNavigate()
@@ -70,6 +71,14 @@ function App() {
             }
           />
           <Route
+            path="/settings/account/edit"
+            element={
+              <PrivateRoute>
+                <EditAccountPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/settings/users"
             element={
               <AdminRoute>
@@ -90,6 +99,14 @@ function App() {
             element={
               <AdminRoute>
                 <UserAddEditPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/settings/users/:id/roles"
+            element={
+              <AdminRoute>
+                <UserRolesEditPage />
               </AdminRoute>
             }
           />
@@ -189,14 +206,6 @@ function App() {
               </PrivateRoute>
             }
           />
-          {/*<Route*/}
-          {/*  path="/dashboard"*/}
-          {/*  element={*/}
-          {/*    <PrivateRoute>*/}
-          {/*      <DashboardPage />*/}
-          {/*    </PrivateRoute>*/}
-          {/*  }*/}
-          {/*/>*/}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="*" element={<Navigate to="/" />} />

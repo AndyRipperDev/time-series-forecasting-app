@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
@@ -33,17 +32,8 @@ function CreateProjectUploadFile() {
     console.log(data)
     updateData(data)
 
-    // setProjectFormState({ ...data })
-
-    // setProjectFormState({ ...projectFormState, ...data })
-    // setProjectFormState({
-    //   ...projectFormState,
-    //   delimiter: data.delimiter,
-    // })
-
     console.log(projectFormState)
     console.log(projectFormState)
-    //history.navigate('/projects/add/columns-check')
     return projectService.create2(projectFormState).then(() => {
       history.navigate('/projects/add/columns-check')
     })

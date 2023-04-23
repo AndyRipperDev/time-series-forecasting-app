@@ -12,6 +12,7 @@ import {
   forecastingBaselineResultsAtom,
   forecastingPredictedResultsAtom,
   forecastingPredictedTestResultsAtom,
+  forecastingResultsRecentAtom,
 } from '../state'
 
 export { useForecastService }
@@ -22,9 +23,9 @@ function useForecastService() {
   const setForecastingModel = useSetRecoilState(forecastingModelAtom)
   const setForecastingStatus = useSetRecoilState(forecastingStatusAtom)
   const setForecastingResult = useSetRecoilState(forecastingResultAtom)
+  const setForecastingResultsRecent = useSetRecoilState(forecastingResultsRecentAtom)
 
   const [forecastingResults, setForecastingResults] = useRecoilState(forecastingResultsAtom)
-  // const setForecastingResults = useSetRecoilState(forecastingResultsAtom)
   const setForecastingBaselineResults = useSetRecoilState(forecastingBaselineResultsAtom)
   const setForecastingPredictedResults = useSetRecoilState(
     forecastingPredictedResultsAtom
@@ -43,12 +44,15 @@ function useForecastService() {
     getForecastingStatus,
     getForecastingResult,
     getForecastingResults,
+    getForecastingResultsRecent,
     getForecastingBaselineResults,
     getForecastingPredictedResults,
     getForecastingPredictedTestResults,
     getQuickForecastingStatus,
     downloadForecastedDataset,
     downloadTestDataset,
+    downloadBaselineTestDataset,
+    downloadBaselineForecastedDataset,
     downloadCombinedTestDataset,
     getEvalMetrics,
     delete: _delete,
@@ -66,6 +70,7 @@ function useForecastService() {
     resetForecastingPredictedTestResults: useResetRecoilState(
       forecastingPredictedTestResultsAtom
     ),
+    resetForecastingResultsRecent: useResetRecoilState(forecastingResultsRecentAtom),
   }
 
   function createWithCustomBody(forecast) {
@@ -128,6 +133,13 @@ function useForecastService() {
       .then(setForecastingResults)
   }
 
+  function getForecastingResultsRecent(limit=10) {
+    return forecastApi
+      .get(`${urlPartForecast}/recent/?limit=${limit}`)
+      .then((response) => response.data)
+      .then(setForecastingResultsRecent)
+  }
+
   function getForecastingBaselineResults(id) {
     return forecastApi
       .get(`${urlPartForecast}/${id}/baseline-results/`)
@@ -153,6 +165,60 @@ function useForecastService() {
     return forecastApi
       .get(urlPartForecast + '/status/' + id)
       .then((response) => response.data)
+  }
+
+  function downloadBaselineTestDataset(forecast) {
+    return forecastApi({
+      url: `${urlPartForecast}/${forecast.id}/baseline-results/test/download/`,
+      method: 'GET',
+      responseType: 'blob', // important
+    }).then((response) => {
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      let filename =
+        'baseline_test_results_' +
+        forecast.datasetcolumns.datasets.project.title +
+        '_' +
+        forecast.datasetcolumns.name +
+        '_' +
+        forecast.model +
+        '_' +
+        forecast.split_ratio +
+        '_' +
+        (100 - forecast.split_ratio) +
+        '.csv'
+      link.setAttribute('download', filename)
+      document.body.appendChild(link)
+      link.click()
+    })
+  }
+
+  function downloadBaselineForecastedDataset(forecast) {
+    return forecastApi({
+      url: `${urlPartForecast}/${forecast.id}/baseline-results/forecast/download/`,
+      method: 'GET',
+      responseType: 'blob', // important
+    }).then((response) => {
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      let filename =
+        'baseline_forecasted_results_' +
+        forecast.datasetcolumns.datasets.project.title +
+        '_' +
+        forecast.datasetcolumns.name +
+        '_' +
+        forecast.model +
+        '_' +
+        forecast.split_ratio +
+        '_' +
+        (100 - forecast.split_ratio) +
+        '.csv'
+      link.setAttribute('download', filename)
+      document.body.appendChild(link)
+      link.click()
+    })
   }
 
   function downloadTestDataset(forecast) {

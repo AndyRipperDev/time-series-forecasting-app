@@ -1,7 +1,8 @@
 from pydantic import BaseModel
-
+from core.enums.forecasting_model_enum import ForecastingEvalMetricType
 
 class EvaluationMetricsBase(BaseModel):
+    type: ForecastingEvalMetricType
     MAE: float | None = None
     MSE: float | None = None
     MAPE: float | None = None
@@ -26,6 +27,7 @@ class EvaluationMetricsSchema(EvaluationMetrics):
 
 
 class EvaluationMetricsUpdateSchema(BaseModel):
+    type: ForecastingEvalMetricType | None = None
     MAE: float | None = None
     MSE: float | None = None
     MAPE: float | None = None

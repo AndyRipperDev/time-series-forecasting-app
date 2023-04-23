@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     DB_USER: str = "root"
     DB_PASSWORD: str = ""
     DB_CONNECTOR: str = "mariadb+mariadbconnector"
-    DB_NAME: str = "time_series_forecast31"
+    DB_NAME: str = "time_series_forecasting_db"
 
     SQLALCHEMY_DATABASE_URI: str = DB_CONNECTOR + "://" + DB_USER + (
         (":" + DB_PASSWORD) if DB_PASSWORD != "" else DB_PASSWORD) + "@" + DB_SERVER + ":" + str(DB_PORT) + "/" + DB_NAME
@@ -28,8 +28,8 @@ class Settings(BaseSettings):
     FILE_PREDICTED_TEST_RESULTS_FILENAME = 'predicted_test_results.csv'
     FILE_BASELINE_RESULTS_FILENAME = 'baseline_results.csv'
 
-    FIRST_SUPERUSER_EMAIL: str = "test@test.com"
-    FIRST_SUPERUSER_PASSWORD: str = "Test"
+    FIRST_SUPERUSER_EMAIL: str = "admin@forecasting.app"
+    FIRST_SUPERUSER_PASSWORD: str = "Admin"
     FIRST_SUPERUSER_FULL_NAME: str = "Admin"
 
     FIRST_ROLE_TITLE: str = "Admin"

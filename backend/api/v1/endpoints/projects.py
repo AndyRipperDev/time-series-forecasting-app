@@ -7,20 +7,18 @@ from sqlalchemy.orm import Session
 from starlette.responses import FileResponse
 
 from core.config import settings
+from core.crud import forecasting as forecasting_crud
 from core.crud import project as project_crud
+from core.crud import dataset as dataset_crud
+from core.crud import dataset_column as dataset_column_crud
+from core.crud import time_period as time_period_crud
 from core.schemas import project as project_schema
+from core.schemas import dataset as dataset_schema
+from core.schemas import dataset_column as dataset_column_schema
+from core.schemas import time_period as time_period_schema
 from core.models import user as user_model
 from core.processing import file_processing
-
-from core.crud import dataset as dataset_crud
-from core.schemas import dataset as dataset_schema
-
-from core.crud import dataset_column as dataset_column_crud
-from core.schemas import dataset_column as dataset_column_schema
 from core.enums.dataset_column_enum import ColumnMissingValuesMethod, ColumnScalingMethod
-
-from core.crud import time_period as time_period_crud
-from core.schemas import time_period as time_period_schema
 from core.enums.time_period_enum import TimePeriodUnit
 
 from api import dependencies
@@ -192,16 +190,7 @@ def read_project_with_dataset_columns_with_values(project_id: int, skip: int = 0
         dataset_col[column] = dataset_cols[column]
         dataset_col[date_col] = dataset_cols[date_col]
 
-    # if column is not None:
-    #     for k, v in dataset.items():
-    #         if column == k:
-    #             dataset_col[k] = v
-    #             break
-
     return {'dataset': dataset_col if column is not None else dataset_cols, 'values_count': dataset_len}
-
-
-    # return dataset_col if column is not None else dataset_cols
 
 
 @router.get("/download-dataset/{project_id}", status_code=status.HTTP_200_OK)
@@ -305,3 +294,17 @@ def delete_project(project_id: int, db: Session = Depends(dependencies.get_db),
     file_processing.rmdir(Path(file_dir))
 
     return {"message": "Project successfully deleted"}
+
+
+@router.get("/stats/", status_code=status.HTTP_200_OK)
+def read_stats(db: Session = Depends(dependencies.get_db),
+                 current_user: user_model.User = Depends(dependencies.get_current_active_user)):
+    db_project = project_crud.get_by_user_id(db, user_id=current_user.id, limit=10000)
+    db_forecasting = forecasting_crud.get_all_by_user(db, user_id=current_user.id)
+    db_forecasting_week = forecasting_crud.get_all_by_user_week_limit(db, user_id=current_user.id, week_limit=1)
+
+    project_count = 0 if db_project is None else len(db_project)
+    forecast_count = 0 if db_forecasting is None else len(db_forecasting)
+    forecast_count_last_week = 0 if db_forecasting_week is None else len(db_forecasting_week)
+
+    return {'project_count': project_count, 'forecast_count': forecast_count, 'forecast_count_last_week': forecast_count_last_week}

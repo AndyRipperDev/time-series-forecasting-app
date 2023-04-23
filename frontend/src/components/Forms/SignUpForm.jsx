@@ -6,7 +6,6 @@ import * as Yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
 import { useForm } from 'react-hook-form'
 
-// function SignUpForm({ history, submit, label }) {
 const SignUpForm = () => {
   const userService = useUserService()
 

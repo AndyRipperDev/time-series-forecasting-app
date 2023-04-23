@@ -2,15 +2,9 @@ import itertools
 import optuna
 import numpy as np
 import pandas as pd
-import math
-import sklearn.preprocessing, sklearn.cluster, sklearn.metrics
-import scipy.spatial
-from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.arima.model import ARIMA
-from statsmodels.tsa.stattools import acf
-import statsmodels.api as sm
-from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error
+from sklearn.metrics import mean_squared_error
 
 
 def get_adf_test(df):
@@ -26,7 +20,6 @@ def get_adf_test(df):
 
 def get_df_diff(df):
     df_diff = df.diff().dropna()
-    # df_diff.plot()
     return df_diff
 
 
@@ -71,10 +64,14 @@ def get_best_params_optimize_tuning(df, df_train, df_test, max_p=15, max_q=15, d
     def objective(trial, _df, _df_train, _df_test, _max_p, _max_q, _d):
         p = trial.suggest_int('p', 0, _max_p)
         q = trial.suggest_int('q', 0, _max_q)
+        D = _d if _d != 0 else trial.suggest_int('d', 0, 2)
 
-        model = ARIMA(_df_train, order=(p, d, q), trend="t").fit()
-        pred = model.predict(start=len(_df_train), end=(len(_df) - 1))
-        error = np.sqrt(mean_squared_error(_df_test, pred))
+        try:
+            model = ARIMA(_df_train, order=(p, D, q), trend="t").fit()
+            pred = model.predict(start=len(_df_train), end=(len(_df) - 1))
+            error = np.sqrt(mean_squared_error(_df_test, pred))
+        except:
+            error = 1000000000
 
         return error
 
@@ -86,14 +83,16 @@ def get_best_params_optimize_tuning(df, df_train, df_test, max_p=15, max_q=15, d
     study = optuna.create_study()
     study.optimize(optimize_func, n_trials=trials)
 
+    d = d if d != 0 else study.best_params.get('d')
+
     return study.best_params.get('p'), d, study.best_params.get('q')
 
 
 def get_best_params(df, df_train, df_test, level=1, brute_force=False):
     if level == 1:
-        return get_best_params_brute_force(df, df_train, df_test, max_p=5, max_q=5) if brute_force else get_best_params_optimize_tuning(df, df_train, df_test, max_p=10, max_q=10, trials=50)
+        return get_best_params_brute_force(df, df_train, df_test, max_p=5, max_q=5) if brute_force else get_best_params_optimize_tuning(df, df_train, df_test, max_p=10, max_q=10, trials=25)
     elif level == 2:
-        return get_best_params_brute_force(df, df_train, df_test, max_p=10, max_q=10) if brute_force else get_best_params_optimize_tuning(df, df_train, df_test, max_p=15, max_q=15, trials=100)
+        return get_best_params_brute_force(df, df_train, df_test, max_p=10, max_q=10) if brute_force else get_best_params_optimize_tuning(df, df_train, df_test, max_p=15, max_q=15, trials=50)
     elif level == 3:
         return get_best_params_brute_force(df, df_train, df_test, max_p=15, max_q=15) if brute_force else get_best_params_optimize_tuning(df, df_train, df_test, max_p=20, max_q=20, trials=100)
     else:

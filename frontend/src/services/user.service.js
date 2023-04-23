@@ -1,7 +1,7 @@
-import { useSetRecoilState, useRecoilState, useResetRecoilState } from 'recoil'
+import { useRecoilState, useResetRecoilState, useSetRecoilState } from 'recoil'
 
 import { history, useAxiosWrapper } from '../helpers'
-import { authAtom, usersAtom, userAtom } from '../state'
+import { authAtom, userAtom, usersAtom } from '../state'
 
 export { useUserService }
 
@@ -25,8 +25,10 @@ function useUserService() {
     getAll,
     getById,
     update,
+    updateUserRoles,
     create,
     delete: _delete,
+    deleteAccount,
     resetUsers: useResetRecoilState(usersAtom),
     resetUser: useResetRecoilState(userAtom),
   }
@@ -111,8 +113,9 @@ function useUserService() {
 
   function create(user) {
     return forecastApi.post(urlPartUsers, {
-      full_name: user.fullName,
+      full_name: user.full_name,
       email: user.email,
+      is_active: user.is_active,
       password: user.password,
     })
   }
@@ -122,11 +125,37 @@ function useUserService() {
       // update stored user if the logged in user updated their own record
       if (id === auth?.user?.id) {
         // update local storage
-        const user = { ...auth, ...params }
-        localStorage.setItem('user', JSON.stringify(user))
+
+        if (params.password) {
+          delete params.password;
+        }
+
+        let newAuth = {...auth}
+        newAuth.user = { ...newAuth.user, ...params }
+        localStorage.setItem('user', JSON.stringify(newAuth))
 
         // update auth user in recoil state
-        setAuth(user)
+        setAuth(newAuth)
+      }
+      return x
+    })
+  }
+
+  function updateUserRoles(id, roles) {
+    return forecastApi.patch(`${urlPartUsers}/${id}/roles/`, roles).then((x) => {
+      // update stored user if the logged in user updated their own record
+      if (id === auth?.user?.id) {
+        // update local storage
+
+        let newAuth = {...auth}
+        let newAuthUser = {...newAuth.user}
+        newAuthUser.roles = roles
+        newAuth.user = newAuthUser
+
+        localStorage.setItem('user', JSON.stringify(newAuth))
+
+        // update auth user in recoil state
+        setAuth(newAuth)
       }
       return x
     })
@@ -153,4 +182,15 @@ function useUserService() {
       }
     })
   }
+
+  function deleteAccount(id) {
+    return forecastApi.delete(`${urlPartUsers}/${id}`).then(() => {
+      // auto logout if the logged in user deleted their own record
+      if (id === auth?.user?.id) {
+        logout()
+      }
+    })
+  }
+
+
 }
