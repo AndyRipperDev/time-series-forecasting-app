@@ -18,7 +18,8 @@ node_modules
 /build
 
 # user_data files
-**/data/user_data/**
+**/data/user_data/*
+!**/data/user_data/2
 
 # misc
 .DS_Store
