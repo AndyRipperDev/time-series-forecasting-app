@@ -32,6 +32,10 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER_PASSWORD: str = "Admin"
     FIRST_SUPERUSER_FULL_NAME: str = "Admin"
 
+    FIRST_DEMOUSER_EMAIL: str = "demo@forecasting.app"
+    FIRST_DEMOUSER_PASSWORD: str = "Demo"
+    FIRST_DEMOUSER_FULL_NAME: str = "Demo"
+
     FIRST_ROLE_TITLE: str = "Admin"
     FIRST_ROLE_DESC: str = "This role is only for administrative purposes"
 
