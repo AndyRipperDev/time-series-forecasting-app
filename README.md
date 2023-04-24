@@ -10,7 +10,7 @@ It's based on client-server architecture with React as a client app and FastAPI 
 - Python **3.10.7**
 - MariaDB **10.7.3**
   - Port: 3306
-  - User: Root
+  - User: root
   - Password: No password, during installation was password input empty
 
 ## Setup
@@ -29,7 +29,14 @@ It's based on client-server architecture with React as a client app and FastAPI 
 2. Install all dependencies from **package.json**: `npm i`
 3. Run React app: `npm run start`
 
-## Default app user
+## Default App Users
+
+### Admin account
 
 - **E-Mail**: admin@forecasting.app
 - **Password**: Admin
+
+### Demo account with prepared demo data
+
+- **E-Mail**: demo@forecasting.app
+- **Password**: Demo
