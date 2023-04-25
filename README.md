@@ -6,7 +6,7 @@ It's based on client-server architecture with React as a client app and FastAPI 
 
 ## Prerequisites
 
-- Node.js **18.16.0**
+- Node.js **16.17.0**
 - Python **3.10.7**
 - MariaDB **10.7.3**
   - Port: 3306
